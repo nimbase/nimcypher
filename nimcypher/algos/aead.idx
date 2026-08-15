@@ -1,0 +1,9 @@
+nimTitle	aead	nimcypher/algos/aead.html	module nimcypher/algos/aead		0
+nim	AeadContext	nimcypher/algos/aead.html#AeadContext	object AeadContext		16
+nim	initX	nimcypher/algos/aead.html#initX,AeadContext,array[,byte],array[,byte]	proc initX(ctx: var AeadContext; key: array[32, byte]; nonce: array[24, byte])		39
+nim	initDjb	nimcypher/algos/aead.html#initDjb,AeadContext,array[,byte],array[,byte]	proc initDjb(ctx: var AeadContext; key: array[32, byte]; nonce: array[8, byte])		49
+nim	initIetf	nimcypher/algos/aead.html#initIetf,AeadContext,array[,byte],array[,byte]	proc initIetf(ctx: var AeadContext; key: array[32, byte]; nonce: array[12, byte])		56
+nim	write	nimcypher/algos/aead.html#write,AeadContext,openArray[byte],openArray[byte]	proc write(ctx: var AeadContext; plaintext, ad: openArray[byte]): (seq[byte],\n    array[16, byte])		64
+nim	read	nimcypher/algos/aead.html#read,AeadContext,openArray[byte],openArray[byte],openArray[byte]	proc read(ctx: var AeadContext; ciphertext, mac: openArray[byte];\n     ad: openArray[byte] = []): Option[seq[byte]]		85
+nim	aeadLock	nimcypher/algos/aead.html#aeadLock,array[,byte],array[,byte],openArray[byte],openArray[byte]	proc aeadLock(key: array[32, byte]; nonce: array[24, byte];\n         plaintext: openArray[byte]; ad: openArray[byte] = []): (seq[byte],\n    array[16, byte])		109
+nim	aeadUnlock	nimcypher/algos/aead.html#aeadUnlock,array[,byte],array[,byte],openArray[byte],array[,byte],openArray[byte]	proc aeadUnlock(key: array[32, byte]; nonce: array[24, byte];\n           ciphertext: openArray[byte]; mac: array[16, byte];\n           ad: openArray[byte] = []): Option[seq[byte]]		119

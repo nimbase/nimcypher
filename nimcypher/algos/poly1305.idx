@@ -1,0 +1,6 @@
+nimTitle	poly1305	nimcypher/algos/poly1305.html	module nimcypher/algos/poly1305		0
+nim	Poly1305Context	nimcypher/algos/poly1305.html#Poly1305Context	object Poly1305Context		12
+nim	initPoly1305	nimcypher/algos/poly1305.html#initPoly1305,Poly1305Context,array[,byte]	proc initPoly1305(ctx: var Poly1305Context; key: array[32, byte])		77
+nim	update	nimcypher/algos/poly1305.html#update,Poly1305Context,openArray[byte]	proc update(ctx: var Poly1305Context; message: openArray[byte])		89
+nim	final	nimcypher/algos/poly1305.html#final,Poly1305Context	proc final(ctx: var Poly1305Context): array[16, byte]		120
+nim	poly1305	nimcypher/algos/poly1305.html#poly1305,openArray[byte],array[,byte]	proc poly1305(message: openArray[byte]; key: array[32, byte]): array[16, byte]		144

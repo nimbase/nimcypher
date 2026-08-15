@@ -1,0 +1,21 @@
+nimTitle	common	nimcypher/algos/common.html	module nimcypher/algos/common		0
+nim	zeroBuf	nimcypher/algos/common.html#zeroBuf	const zeroBuf		11
+nim	BytePtr	nimcypher/algos/common.html#BytePtr	type BytePtr		15
+nim	`+`	nimcypher/algos/common.html#+,BytePtr,int	proc `+`(p: BytePtr; n: int): BytePtr		17
+nim	load24Le	nimcypher/algos/common.html#load24Le,BytePtr	proc load24Le(s: BytePtr): uint32		20
+nim	load32Le	nimcypher/algos/common.html#load32Le,BytePtr	proc load32Le(s: BytePtr): uint32		23
+nim	load64Le	nimcypher/algos/common.html#load64Le,BytePtr	proc load64Le(s: BytePtr): uint64		27
+nim	store32Le	nimcypher/algos/common.html#store32Le,BytePtr,uint32	proc store32Le(outp: BytePtr; inp: uint32)		30
+nim	store64Le	nimcypher/algos/common.html#store64Le,BytePtr,uint64	proc store64Le(outp: BytePtr; inp: uint64)		36
+nim	load32LeBuf	nimcypher/algos/common.html#load32LeBuf,openArray[uint32],BytePtr,int	proc load32LeBuf(dst: var openArray[uint32]; src: BytePtr; size: int)		40
+nim	load64LeBuf	nimcypher/algos/common.html#load64LeBuf,openArray[uint64],BytePtr,int	proc load64LeBuf(dst: var openArray[uint64]; src: BytePtr; size: int)		44
+nim	store32LeBuf	nimcypher/algos/common.html#store32LeBuf,BytePtr,openArray[uint32],int	proc store32LeBuf(dst: BytePtr; src: openArray[uint32]; size: int)		48
+nim	store64LeBuf	nimcypher/algos/common.html#store64LeBuf,BytePtr,openArray[uint64],int	proc store64LeBuf(dst: BytePtr; src: openArray[uint64]; size: int)		52
+nim	rotr64	nimcypher/algos/common.html#rotr64,uint64,uint64	proc rotr64(x: uint64; n: uint64): uint64		56
+nim	rotl32	nimcypher/algos/common.html#rotl32,uint32,uint32	proc rotl32(x: uint32; n: uint32): uint32		59
+nim	gap	nimcypher/algos/common.html#gap,int,int	proc gap(x, pow_2: int): int		65
+nim	neq0	nimcypher/algos/common.html#neq0,uint64	proc neq0(diff: uint64): int32		68
+nim	constantTimeEqual	nimcypher/algos/common.html#constantTimeEqual,openArray[byte],openArray[byte]	proc constantTimeEqual(a, b: openArray[byte]): bool		84
+nim	wipe	nimcypher/algos/common.html#wipe,openArray[byte]	proc wipe(secret: var openArray[byte])		104
+nim	wipe	nimcypher/algos/common.html#wipe,T	proc wipe[T](x: var T)		113
+nimgrp	wipe	nimcypher/algos/common.html#wipe-procs-all	proc		104

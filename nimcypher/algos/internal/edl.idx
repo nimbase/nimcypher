@@ -1,0 +1,10 @@
+nimTitle	edl	nimcypher/algos/internal/edl.html	module nimcypher/algos/internal/edl		0
+nim	multiply	nimcypher/algos/internal/edl.html#multiply,openArray[uint32],openArray[uint32],openArray[uint32]	proc multiply(p: var openArray[uint32]; a, b: openArray[uint32])		18
+nim	isAboveL	nimcypher/algos/internal/edl.html#isAboveL,openArray[uint32]	proc isAboveL(x: openArray[uint32]): int		27
+nim	removeL	nimcypher/algos/internal/edl.html#removeL,openArray[uint32],openArray[uint32]	proc removeL(r: var openArray[uint32]; x: openArray[uint32])		39
+nim	modL	nimcypher/algos/internal/edl.html#modL,BytePtr,openArray[uint32]	proc modL(reduced: BytePtr; x: openArray[uint32])		48
+nim	redc	nimcypher/algos/internal/edl.html#redc,openArray[uint32],openArray[uint32]	proc redc(u: var openArray[uint32]; x: openArray[uint32])		85
+nim	trimScalar	nimcypher/algos/internal/edl.html#trimScalar,BytePtr,BytePtr	proc trimScalar(outp: BytePtr; inp: BytePtr)		112
+nim	scalarBit	nimcypher/algos/internal/edl.html#scalarBit,BytePtr,int	proc scalarBit(s: BytePtr; i: int): int		119
+nim	addXL	nimcypher/algos/internal/edl.html#addXL,BytePtr,byte	proc addXL(s: BytePtr; x: byte)		126
+nim	mulAdd	nimcypher/algos/internal/edl.html#mulAdd,BytePtr,BytePtr,BytePtr,BytePtr	proc mulAdd(r: BytePtr; a, b, c: BytePtr)		135

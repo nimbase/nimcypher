@@ -1,0 +1,13 @@
+nimTitle	sha512	nimcypher/algos/sha512.html	module nimcypher/algos/sha512		0
+nim	Sha512Context	nimcypher/algos/sha512.html#Sha512Context	object Sha512Context		12
+nim	Sha512HmacContext	nimcypher/algos/sha512.html#Sha512HmacContext	object Sha512HmacContext		18
+nim	init	nimcypher/algos/sha512.html#init,Sha512Context	proc init(ctx: var Sha512Context)		117
+nim	update	nimcypher/algos/sha512.html#update,Sha512Context,openArray[byte]	proc update(ctx: var Sha512Context; message: openArray[byte])		131
+nim	final	nimcypher/algos/sha512.html#final,Sha512Context	proc final(ctx: var Sha512Context): array[64, byte]		186
+nim	sha512	nimcypher/algos/sha512.html#sha512,openArray[byte]	proc sha512(message: openArray[byte]): array[64, byte]		222
+nim	initHmac	nimcypher/algos/sha512.html#initHmac,Sha512HmacContext,openArray[byte]	proc initHmac(ctx: var Sha512HmacContext; key: openArray[byte])		231
+nim	update	nimcypher/algos/sha512.html#update,Sha512HmacContext,openArray[byte]	proc update(ctx: var Sha512HmacContext; message: openArray[byte])		251
+nim	final	nimcypher/algos/sha512.html#final,Sha512HmacContext	proc final(ctx: var Sha512HmacContext): array[64, byte]		254
+nim	sha512Hmac	nimcypher/algos/sha512.html#sha512Hmac,openArray[byte],openArray[byte]	proc sha512Hmac(key, message: openArray[byte]): array[64, byte]		267
+nimgrp	final	nimcypher/algos/sha512.html#final-procs-all	proc		186
+nimgrp	update	nimcypher/algos/sha512.html#update-procs-all	proc		131

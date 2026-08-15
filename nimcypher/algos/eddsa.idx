@@ -1,0 +1,9 @@
+nimTitle	eddsa	nimcypher/algos/eddsa.html	module nimcypher/algos/eddsa		0
+nim	trimScalar	nimcypher/algos/eddsa.html#trimScalar,array[,byte]	proc trimScalar(scalar: array[32, byte]): array[32, byte]		15
+nim	reduce	nimcypher/algos/eddsa.html#reduce,openArray[byte]	proc reduce(expanded: openArray[byte]): array[32, byte]		24
+nim	mulAdd	nimcypher/algos/eddsa.html#mulAdd,openArray[byte],openArray[byte],openArray[byte]	proc mulAdd(a, b, c: openArray[byte]): array[32, byte]		31
+nim	scalarbase	nimcypher/algos/eddsa.html#scalarbase,openArray[byte]	proc scalarbase(scalar: openArray[byte]): array[32, byte]		38
+nim	eddsaKeyPair	nimcypher/algos/eddsa.html#eddsaKeyPair,array[,byte]	proc eddsaKeyPair(seed: array[32, byte]): (array[64, byte], array[32, byte])		53
+nim	eddsaSign	nimcypher/algos/eddsa.html#eddsaSign,openArray[byte],array[,byte]	proc eddsaSign(message: openArray[byte]; secretKey: array[64, byte]): array[64, byte]		70
+nim	checkEquation	nimcypher/algos/eddsa.html#checkEquation,array[,byte],array[,byte],array[,byte]	proc checkEquation(signature: array[64, byte]; publicKey: array[32, byte];\n              h: array[32, byte]): bool		93
+nim	eddsaCheck	nimcypher/algos/eddsa.html#eddsaCheck,array[,byte],array[,byte],openArray[byte]	proc eddsaCheck(signature: array[64, byte]; publicKey: array[32, byte];\n           message: openArray[byte]): bool		156

@@ -1,0 +1,17 @@
+nimTitle	sign	nimcypher/sign.html	module nimcypher/sign		0
+nim	SigningKeyPair	nimcypher/sign.html#SigningKeyPair	object SigningKeyPair		13
+nim	generateSigningKeyPair	nimcypher/sign.html#generateSigningKeyPair,Seed32	proc generateSigningKeyPair(seed: Seed32): SigningKeyPair		21
+nim	generateSigningKeyPair	nimcypher/sign.html#generateSigningKeyPair	proc generateSigningKeyPair(): SigningKeyPair		27
+nim	sign	nimcypher/sign.html#sign,SecretKey,openArray[byte]	proc sign(secretKey: SecretKey; message: openArray[byte]): Signature		31
+nim	sign	nimcypher/sign.html#sign,SecretKey,string	proc sign(secretKey: SecretKey; message: string): Signature		35
+nim	verify	nimcypher/sign.html#verify,PublicKey,openArray[byte],Signature	proc verify(publicKey: PublicKey; message: openArray[byte]; signature: Signature): bool		38
+nim	verify	nimcypher/sign.html#verify,PublicKey,string,Signature	proc verify(publicKey: PublicKey; message: string; signature: Signature): bool		43
+nim	publicKeyToHex	nimcypher/sign.html#publicKeyToHex,PublicKey	proc publicKeyToHex(k: PublicKey): string		48
+nim	secretKeyToHex	nimcypher/sign.html#secretKeyToHex,SecretKey	proc secretKeyToHex(k: SecretKey): string		49
+nim	signatureToHex	nimcypher/sign.html#signatureToHex,Signature	proc signatureToHex(s: Signature): string		50
+nim	publicKeyFromHex	nimcypher/sign.html#publicKeyFromHex,string	proc publicKeyFromHex(s: string): PublicKey		52
+nim	secretKeyFromHex	nimcypher/sign.html#secretKeyFromHex,string	proc secretKeyFromHex(s: string): SecretKey		57
+nim	signatureFromHex	nimcypher/sign.html#signatureFromHex,string	proc signatureFromHex(s: string): Signature		62
+nimgrp	generatesigningkeypair	nimcypher/sign.html#generateSigningKeyPair-procs-all	proc		21
+nimgrp	verify	nimcypher/sign.html#verify-procs-all	proc		38
+nimgrp	sign	nimcypher/sign.html#sign-procs-all	proc		31

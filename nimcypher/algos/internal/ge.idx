@@ -1,0 +1,23 @@
+nimTitle	ge	nimcypher/algos/internal/ge.html	module nimcypher/algos/internal/ge		0
+nim	Ge	nimcypher/algos/internal/ge.html#Ge	object Ge		14
+nim	GeCached	nimcypher/algos/internal/ge.html#GeCached	object GeCached		16
+nim	GePrecomp	nimcypher/algos/internal/ge.html#GePrecomp	object GePrecomp		18
+nim	geZero	nimcypher/algos/internal/ge.html#geZero,Ge	proc geZero(p: var Ge)		21
+nim	geTobytes	nimcypher/algos/internal/ge.html#geTobytes,BytePtr,Ge	proc geTobytes(s: BytePtr; h: var Ge)		27
+nim	geFrombytesNegVartime	nimcypher/algos/internal/ge.html#geFrombytesNegVartime,Ge,BytePtr	proc geFrombytesNegVartime(h: var Ge; s: BytePtr): int		40
+nim	geCache	nimcypher/algos/internal/ge.html#geCache,GeCached,Ge	proc geCache(c: var GeCached; p: var Ge)		57
+nim	geAdd	nimcypher/algos/internal/ge.html#geAdd,Ge,Ge,GeCached	proc geAdd(s: var Ge; p: var Ge; q: var GeCached)		64
+nim	geSub	nimcypher/algos/internal/ge.html#geSub,Ge,Ge,GeCached	proc geSub(s: var Ge; p: var Ge; q: var GeCached)		82
+nim	geMadd	nimcypher/algos/internal/ge.html#geMadd,Ge,Ge,GePrecomp,Fe,Fe	proc geMadd(s: var Ge; p: var Ge; q: GePrecomp; a, b: var Fe)		90
+nim	geMsub	nimcypher/algos/internal/ge.html#geMsub,Ge,Ge,GePrecomp,Fe,Fe	proc geMsub(s: var Ge; p: var Ge; q: GePrecomp; a, b: var Fe)		106
+nim	geDouble	nimcypher/algos/internal/ge.html#geDouble,Ge,Ge,Ge	proc geDouble(s: var Ge; p: var Ge; q: var Ge)		113
+nim	bWindow	nimcypher/algos/internal/ge.html#bWindow	const bWindow		131
+nim	SlideCtx	nimcypher/algos/internal/ge.html#SlideCtx	object SlideCtx		285
+nim	slideInit	nimcypher/algos/internal/ge.html#slideInit,SlideCtx,BytePtr	proc slideInit(ctx: var SlideCtx; scalar: BytePtr)		290
+nim	slideStep	nimcypher/algos/internal/ge.html#slideStep,SlideCtx,int,int,BytePtr	proc slideStep(ctx: var SlideCtx; width, i: int; scalar: BytePtr): int		298
+nim	P_W_WIDTH	nimcypher/algos/internal/ge.html#P_W_WIDTH	const P_W_WIDTH		320
+nim	B_W_WIDTH	nimcypher/algos/internal/ge.html#B_W_WIDTH	const B_W_WIDTH		321
+nim	P_W_SIZE	nimcypher/algos/internal/ge.html#P_W_SIZE	const P_W_SIZE		322
+nim	geScalarmultBase	nimcypher/algos/internal/ge.html#geScalarmultBase,Ge,BytePtr	proc geScalarmultBase(p: var Ge; scalar: BytePtr)		343
+nim	scalarmult	nimcypher/algos/internal/ge.html#scalarmult,BytePtr,BytePtr,BytePtr,int	proc scalarmult(q: BytePtr; scalar: BytePtr; p: BytePtr; nbBits: int)		387
+nim	selectLop	nimcypher/algos/internal/ge.html#selectLop,Fe,Fe,Fe,byte	proc selectLop(outp: var Fe; x, k: Fe; cofactor: byte)		440

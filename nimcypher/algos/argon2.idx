@@ -1,0 +1,9 @@
+nimTitle	argon2	nimcypher/algos/argon2.html	module nimcypher/algos/argon2		0
+nim	d	nimcypher/algos/argon2.html#d	Argon2Algorithm.d		13
+nim	i	nimcypher/algos/argon2.html#i	Argon2Algorithm.i		13
+nim	id	nimcypher/algos/argon2.html#id	Argon2Algorithm.id		13
+nim	Argon2Algorithm	nimcypher/algos/argon2.html#Argon2Algorithm	enum Argon2Algorithm		13
+nim	Argon2Config	nimcypher/algos/argon2.html#Argon2Config	object Argon2Config		18
+nim	argon2	nimcypher/algos/argon2.html#argon2,Argon2Config,int,openArray[byte],openArray[byte]	proc argon2(config: Argon2Config; hashSize: int; password, salt: openArray[byte]): seq[\n    byte]		323
+nim	argon2	nimcypher/algos/argon2.html#argon2,Argon2Config,int,openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc argon2(config: Argon2Config; hashSize: int;\n       password, salt, key, ad: openArray[byte]): seq[byte]		329
+nimgrp	argon2	nimcypher/algos/argon2.html#argon2-procs-all	proc		323

@@ -1,0 +1,8 @@
+nimTitle	x25519	nimcypher/algos/x25519.html	module nimcypher/algos/x25519		0
+nim	x25519	nimcypher/algos/x25519.html#x25519,array[,byte],array[,byte]	proc x25519(yourSecretKey, theirPublicKey: array[32, byte]): array[32, byte]		14
+nim	x25519PublicKey	nimcypher/algos/x25519.html#x25519PublicKey,array[,byte]	proc x25519PublicKey(secretKey: array[32, byte]): array[32, byte]		25
+nim	x25519Inverse	nimcypher/algos/x25519.html#x25519Inverse,array[,byte],array[,byte]	proc x25519Inverse(privateKey, curvePoint: array[32, byte]): array[32, byte]		31
+nim	x25519DirtySmall	nimcypher/algos/x25519.html#x25519DirtySmall,array[,byte]	proc x25519DirtySmall(secretKey: array[32, byte]): array[32, byte]		98
+nim	x25519DirtyFast	nimcypher/algos/x25519.html#x25519DirtyFast,array[,byte]	proc x25519DirtyFast(secretKey: array[32, byte]): array[32, byte]		118
+nim	x25519ToEddsa	nimcypher/algos/x25519.html#x25519ToEddsa,array[,byte]	proc x25519ToEddsa(x25519Key: array[32, byte]): array[32, byte]		154
+nim	eddsaToX25519	nimcypher/algos/x25519.html#eddsaToX25519,array[,byte]	proc eddsaToX25519(eddsaKey: array[32, byte]): array[32, byte]		167

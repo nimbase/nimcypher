@@ -1,0 +1,3 @@
+nimTitle	hkdf	nimcypher/algos/hkdf.html	module nimcypher/algos/hkdf		0
+nim	sha512HkdfExpand	nimcypher/algos/hkdf.html#sha512HkdfExpand,openArray[byte],openArray[byte],int	proc sha512HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]		12
+nim	sha512Hkdf	nimcypher/algos/hkdf.html#sha512Hkdf,openArray[byte],openArray[byte],openArray[byte],int	proc sha512Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]		37

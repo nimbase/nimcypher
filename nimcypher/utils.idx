@@ -1,0 +1,18 @@
+nimTitle	utils	nimcypher/utils.html	module nimcypher/utils		0
+nim	constantTimeEqual	nimcypher/utils.html#constantTimeEqual,openArray[byte],openArray[byte]	proc constantTimeEqual(a, b: openArray[byte]): bool		10
+nim	wipe	nimcypher/utils.html#wipe,openArray[byte]	proc wipe(secret: var openArray[byte])		14
+nim	Key32	nimcypher/utils.html#Key32	type Key32		19
+nim	Nonce24	nimcypher/utils.html#Nonce24	type Nonce24		20
+nim	Mac16	nimcypher/utils.html#Mac16	type Mac16		21
+nim	RandomBytes	nimcypher/utils.html#RandomBytes	type RandomBytes		22
+nim	Seed32	nimcypher/utils.html#Seed32	type Seed32		23
+nim	PublicKey	nimcypher/utils.html#PublicKey	type PublicKey		24
+nim	SecretKey	nimcypher/utils.html#SecretKey	type SecretKey		25
+nim	Signature	nimcypher/utils.html#Signature	type Signature		26
+nim	toHex	nimcypher/utils.html#toHex,openArray[byte]	proc toHex(data: openArray[byte]): string		28
+nim	fromHex	nimcypher/utils.html#fromHex,string	proc fromHex[N: static int; T](s: string): array[N, T]		34
+nim	randomBytes	nimcypher/utils.html#randomBytes_2	proc randomBytes[N: static int](): array[N, uint8]		43
+nim	generateSalt	nimcypher/utils.html#generateSalt,staticint	proc generateSalt(len: static int = 16): RandomBytes		51
+nim	toBytes	nimcypher/utils.html#toBytes,string	proc toBytes(s: string): seq[byte]		55
+nim	toArray	nimcypher/utils.html#toArray,openArray[byte]	proc toArray[N: static int](b: openArray[byte]): array[N, uint8]		60
+nim	toString	nimcypher/utils.html#toString,openArray[byte]	proc toString(data: openArray[byte]): string		66

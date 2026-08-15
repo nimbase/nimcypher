@@ -1,0 +1,28 @@
+nimTitle	fe	nimcypher/algos/internal/fe.html	module nimcypher/algos/internal/fe		0
+nim	Fe	nimcypher/algos/internal/fe.html#Fe	type Fe		12
+nim	feOne	nimcypher/algos/internal/fe.html#feOne	const feOne		16
+nim	sqrtm1	nimcypher/algos/internal/fe.html#sqrtm1	const sqrtm1		17
+nim	d	nimcypher/algos/internal/fe.html#d	const d		21
+nim	D2	nimcypher/algos/internal/fe.html#D2	const D2		25
+nim	lopX	nimcypher/algos/internal/fe.html#lopX	const lopX		29
+nim	lopY	nimcypher/algos/internal/fe.html#lopY	const lopY		33
+nim	ufactor	nimcypher/algos/internal/fe.html#ufactor	const ufactor		37
+nim	A2	nimcypher/algos/internal/fe.html#A2	const A2		41
+nim	feZero	nimcypher/algos/internal/fe.html#feZero,Fe	proc feZero(h: var Fe)		43
+nim	feOneSet	nimcypher/algos/internal/fe.html#feOneSet,Fe	proc feOneSet(h: var Fe)		47
+nim	feCopy	nimcypher/algos/internal/fe.html#feCopy,Fe,Fe	proc feCopy(h: var Fe; f: Fe)		52
+nim	feNeg	nimcypher/algos/internal/fe.html#feNeg,Fe,Fe	proc feNeg(h: var Fe; f: Fe)		56
+nim	feAdd	nimcypher/algos/internal/fe.html#feAdd,Fe,Fe,Fe	proc feAdd(h: var Fe; f, g: Fe)		60
+nim	feSub	nimcypher/algos/internal/fe.html#feSub,Fe,Fe,Fe	proc feSub(h: var Fe; f, g: Fe)		64
+nim	feCswap	nimcypher/algos/internal/fe.html#feCswap,Fe,Fe,int	proc feCswap(f: var Fe; g: var Fe; b: int)		68
+nim	feCcopy	nimcypher/algos/internal/fe.html#feCcopy,Fe,Fe,int	proc feCcopy(f: var Fe; g: Fe; b: int)		75
+nim	feFrombytesMask	nimcypher/algos/internal/fe.html#feFrombytesMask,Fe,BytePtr,int	proc feFrombytesMask(h: var Fe; s: BytePtr; nbMask: int)		125
+nim	feFrombytes	nimcypher/algos/internal/fe.html#feFrombytes,Fe,BytePtr	proc feFrombytes(h: var Fe; s: BytePtr)		139
+nim	feTobytes	nimcypher/algos/internal/fe.html#feTobytes,BytePtr,Fe	proc feTobytes(s: BytePtr; h: Fe)		142
+nim	feMulSmall	nimcypher/algos/internal/fe.html#feMulSmall,Fe,Fe,int32	proc feMulSmall(h: var Fe; f: Fe; g: int32)		170
+nim	feMul	nimcypher/algos/internal/fe.html#feMul,Fe,Fe,Fe	proc feMul(h: var Fe; f, g: Fe)		183
+nim	feSq	nimcypher/algos/internal/fe.html#feSq,Fe,Fe	proc feSq(h: var Fe; f: Fe)		218
+nim	feIsOdd	nimcypher/algos/internal/fe.html#feIsOdd,Fe	proc feIsOdd(f: Fe): int		249
+nim	feIsEqual	nimcypher/algos/internal/fe.html#feIsEqual,Fe,Fe	proc feIsEqual(f, g: Fe): int		255
+nim	invsqrt	nimcypher/algos/internal/fe.html#invsqrt,Fe,Fe	proc invsqrt(isr: var Fe; x: Fe): int		268
+nim	feInvert	nimcypher/algos/internal/fe.html#feInvert,Fe,Fe	proc feInvert(outp: var Fe; x: Fe)		336

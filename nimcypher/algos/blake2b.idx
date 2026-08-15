@@ -1,0 +1,10 @@
+nimTitle	blake2b	nimcypher/algos/blake2b.html	module nimcypher/algos/blake2b		0
+nim	Blake2bContext	nimcypher/algos/blake2b.html#Blake2bContext	object Blake2bContext		12
+nim	init	nimcypher/algos/blake2b.html#init,Blake2bContext,int,openArray[byte]	proc init(ctx: var Blake2bContext; hashSize: int; key: openArray[byte] = [])		106
+nim	initBlake2b	nimcypher/algos/blake2b.html#initBlake2b,int	proc initBlake2b(hashSize: int = 64): Blake2bContext		128
+nim	initBlake2b	nimcypher/algos/blake2b.html#initBlake2b,openArray[byte],int	proc initBlake2b(key: openArray[byte]; hashSize: int = 64): Blake2bContext		131
+nim	update	nimcypher/algos/blake2b.html#update,Blake2bContext,openArray[byte]	proc update(ctx: var Blake2bContext; message: openArray[byte])		134
+nim	final	nimcypher/algos/blake2b.html#final,Blake2bContext	proc final(ctx: var Blake2bContext): seq[byte]		193
+nim	blake2b	nimcypher/algos/blake2b.html#blake2b,openArray[byte],int	proc blake2b(message: openArray[byte]; hashSize: int = 64): seq[byte]		204
+nim	keyedBlake2b	nimcypher/algos/blake2b.html#keyedBlake2b,openArray[byte],openArray[byte],int	proc keyedBlake2b(message, key: openArray[byte]; hashSize: int = 64): seq[byte]		211
+nimgrp	initblake2b	nimcypher/algos/blake2b.html#initBlake2b-procs-all	proc		128
