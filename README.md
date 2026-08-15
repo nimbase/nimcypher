@@ -34,8 +34,9 @@ the test suite.
 > [!NOTE]
 > NimCypher is a **port** of Monocypher in pure Nim. It does **not** aim to exceed
 > Monocypher or Libsodium in security or stability. The port is a best-effort reimplementation
-> verified against the C reference and its test vectors, but it has not been independently audited. For production
-> cryptography, you may prefer the battle-tested C library (Monocypher, Libsodium) or a reviewed
+> verified against the C reference and its test vectors, but it has not been independently audited.
+>
+> For production cryptography, you may prefer the battle-tested C library (Monocypher, Libsodium) or a reviewed
 > native binding to it. **Use NimCypher at your own risk.** 🤯
 
 
