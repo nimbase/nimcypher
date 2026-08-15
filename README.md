@@ -32,7 +32,7 @@ Every primitive is cross-checked byte-for-byte against the reference C implement
 the test suite.
 
 > [!NOTE]
-> NimCypher is a **port** of Monocypher in pure Nim. It does **not** aim to exceed
+> NimCypher is a **port** of [Monocypher](https://github.com/LoupVaillant/monocypher) in pure Nim. It does **not** aim to exceed
 > Monocypher or Libsodium in security or stability. The port is a best-effort reimplementation
 > verified against the C reference and its test vectors, but it has not been independently audited.
 >
