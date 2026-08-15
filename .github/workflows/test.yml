@@ -12,12 +12,14 @@ jobs:
         cd monocypher-4.0.2
         if [ "$RUNNER_OS" = "macOS" ]; then
           # Monocypher's shared library target uses -Wl,-soname, which the
-          # macOS linker does not support. Install only the static library.
+          # macOS linker does not support. Install only the static library,
+          # plus the pkg-config file so pkg-config can find it.
           make static-library
-          sudo mkdir -p /usr/local/lib /usr/local/include
+          sudo mkdir -p /usr/local/lib/pkgconfig /usr/local/include
           sudo cp -P lib/libmonocypher.a /usr/local/lib
           sudo cp -P src/monocypher.h /usr/local/include
           sudo cp -P src/optional/monocypher-ed25519.h /usr/local/include
+          sudo sh -c "sed 's|PREFIX|/usr/local|' monocypher.pc > /usr/local/lib/pkgconfig/monocypher.pc"
         else
           make
           sudo make install

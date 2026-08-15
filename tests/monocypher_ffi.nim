@@ -13,8 +13,26 @@ import std/strutils
 # pkg-config flags for the installed C Monocypher library.
 # The shared library ships with a broken install name on macOS, so we link
 # the static archive explicitly.
-{.passC: staticExec("pkg-config --cflags monocypher").strip.}
-{.passL: staticExec("pkg-config --variable=libdir monocypher").strip & "/libmonocypher.a".}
+#
+# staticExec returns stdout + stderr, so if pkg-config cannot find the
+# library it would leak its error message into the compiler flags. Detect
+# that and fail with a clear message instead.
+const
+  monoCflags = staticExec("pkg-config --cflags monocypher").strip
+  monoLibdir = staticExec("pkg-config --variable=libdir monocypher").strip
+  monoPkgFound = monoCflags.len > 0 and monoLibdir.len > 0 and
+                 "not found" notin monoCflags and "not found" notin monoLibdir
+
+when monoPkgFound:
+  {.passC: monoCflags.}
+  {.passL: monoLibdir & "/libmonocypher.a".}
+else:
+  {.error:
+    "C Monocypher not found via pkg-config.\n" &
+    "  pkg-config --cflags monocypher           -> '" & monoCflags & "'\n" &
+    "  pkg-config --variable=libdir monocypher  -> '" & monoLibdir & "'\n" &
+    "Install Monocypher (e.g. `brew install monocypher`) and make sure " &
+    "monocypher.pc is in PKG_CONFIG_PATH (see .github/workflows/test.yml).".}
 
 const
   CRYPTO_ARGON2_D* = 0
