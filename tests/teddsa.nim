@@ -1,6 +1,7 @@
 import std/unittest
 
 import nimcypher/algos/eddsa
+import nimcypher/algos/blake2b
 
 import vectorutils
 import vectors
@@ -69,3 +70,22 @@ test "edDSA scalarbase equivalence":
   let p1 = scalarbase(scalar)
   let p2 = scalarbase(scalarPlus)
   check p1 == p2
+
+test "edDSA ph (pre-hashed) roundtrip + equivalence":
+  var seed: array[32, byte]
+  for j in 0 ..< 32: seed[j] = byte(j * 11 + 2)
+  var msg: seq[byte]
+  for j in 0 ..< 40: msg.add(byte(100 - j))
+  let (sk, pk) = eddsaKeyPair(seed)
+  # the message hash is the precomputed 64-byte BLAKE2b digest
+  let mh = blake2b(msg, 64)
+  var msgHash: array[64, byte]
+  for j in 0 ..< 64: msgHash[j] = mh[j]
+  let sig = eddsaPhSign(msgHash, sk)
+  check eddsaPhCheck(sig, pk, msgHash)
+  # signing the pre-hash equals signing the hash bytes directly
+  check sig == eddsaSign(msgHash.toOpenArray(0, 63), sk)
+  # a flipped hash byte is rejected
+  var badHash = msgHash
+  badHash[0] = badHash[0] xor 1
+  check not eddsaPhCheck(sig, pk, badHash)

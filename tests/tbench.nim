@@ -137,6 +137,30 @@ proc benchBlake2b() =
         let h = blake2b(msg)
         sink = sink xor h[0])
 
+when defined(features.nimcypher.nimsimd):
+  proc benchBlake2bParallel() =
+    # `blake2bParallel` hashes four messages at once; the C and scalar-Nim
+    # columns run four independent one-shot hashes for the same total work.
+    for size in [1024, 65536]:
+      let iters = if size == 1024: 5_000 else: 200
+      var msgs: array[4, seq[byte]]
+      for k in 0 ..< 4:
+        msgs[k] = makeMsg(size + k)
+      var hashC: array[64, uint8]
+      bench("blake2b 4x " & $size & "B", iters,
+        proc() =
+          for k in 0 ..< 4:
+            crypto_blake2b(addr hashC[0], 64, toPtr(msgs[k]),
+                           csize_t(msgs[k].len))
+          sink = sink xor hashC[0],
+        proc() =
+          for k in 0 ..< 4:
+            let h = blake2b(msgs[k])
+            sink = sink xor h[0],
+        proc() =
+          let out4 = blake2bParallel(msgs)
+          sink = sink xor out4[0][0])
+
 proc benchSha512() =
   for size in [64, 1024, 65536]:
     let iters = if size == 64: 50_000
@@ -345,6 +369,8 @@ when isMainModule:
   echo "| operation | iters | Monocypher | NimCypher | NimCypher+SIMD | M/Nim | M/SIMD |"
   echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
   benchBlake2b()
+  when defined(features.nimcypher.nimsimd):
+    benchBlake2bParallel()
   benchSha512()
   benchChacha20()
   benchPoly1305()

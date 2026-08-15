@@ -3,7 +3,7 @@
 version       = "0.1.0"
 author        = "George Lemon"
 description   = "A pure-Nim port of Monocypher 4.0.3: a small, easy to use crypto library."
-license       = "MIT"
+license       = "BSD-2-Clause OR CC0-1.0"
 srcDir        = "src"
 
 # Dependencies
@@ -23,9 +23,9 @@ task test, "Run the test suite":
             "thkdf", "ted25519", "tinterop", "thighlevel"]:
     exec "nim c -r --hints:off -d:danger -d:e2eeFastTests tests/" & t & ".nim"
 
-task test_simd, "Run the SIMD-accelerated tests (ChaCha20, AEAD, C interop)":
+task test_simd, "Run the SIMD-accelerated tests (ChaCha20, AEAD, BLAKE2b parallel, C interop)":
   exec "nimble install -y nimsimd"
-  for t in ["tchacha20", "taead", "tinterop"]:
+  for t in ["tchacha20", "taead", "tblake2b", "tinterop"]:
     exec "nim c -r --hints:off -d:danger -d:e2eeFastTests " &
          "-d:features.nimcypher.nimsimd tests/" & t & ".nim"
 

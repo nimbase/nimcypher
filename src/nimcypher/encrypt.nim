@@ -12,6 +12,7 @@ import nimcypher/algos/x25519 as xAlgo
 import nimcypher/algos/blake2b as blakeAlgo
 
 import ./utils
+import ./secret
 
 type
   SealedMessage* = object
@@ -72,13 +73,19 @@ proc aeadStreamInit*(mode: AeadStreamMode, key: Key32,
   var ctx: aeadAlgo.AeadContext
   case mode
   of aeadX:
-    doAssert nonce.len == 24
+    if nonce.len != 24:
+      raise newException(ValueError,
+        "AEAD stream (XChaCha20) requires a 24-byte nonce")
     aeadAlgo.initX(ctx, key, toArray[24](nonce))
   of aeadDjb:
-    doAssert nonce.len == 8
+    if nonce.len != 8:
+      raise newException(ValueError,
+        "AEAD stream (ChaCha20-DJB) requires an 8-byte nonce")
     aeadAlgo.initDjb(ctx, key, toArray[8](nonce))
   of aeadIetf:
-    doAssert nonce.len == 12
+    if nonce.len != 12:
+      raise newException(ValueError,
+        "AEAD stream (ChaCha20-IETF) requires a 12-byte nonce")
     aeadAlgo.initIetf(ctx, key, toArray[12](nonce))
   result = AeadStream(ctx: ctx, mode: mode)
 
@@ -120,9 +127,10 @@ proc x25519KeyPair*(): (Key32, Key32) =
   let secret = randomBytes[32]()
   result = x25519KeyPair(secret)
 
-proc sharedSecret*(mySecret: Key32, theirPublic: Key32): Key32 =
+proc sharedSecret*(mySecret: Key32, theirPublic: Key32): Secret[Key32] =
   ## Compute the X25519 shared secret. Hash it to derive a symmetric key.
-  xAlgo.x25519(mySecret, theirPublic)
+  ## The shared secret is wiped automatically when it goes out of scope.
+  secret(xAlgo.x25519(mySecret, theirPublic))
 
 # Challenge-response MAC for mutual authentication
 proc computeChallengeMac*(secret: Key32, challenge: Mac16): Mac16 =

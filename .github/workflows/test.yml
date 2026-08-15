@@ -7,9 +7,9 @@ jobs:
       nim-version: stable
       os: '[{"os":"ubuntu-latest"},{"os":"macos-15"}]'
       pre-install-command: |
-        curl -fsSL -o monocypher-4.0.2.tar.gz https://monocypher.org/download/monocypher-4.0.2.tar.gz
-        tar -xzf monocypher-4.0.2.tar.gz
-        cd monocypher-4.0.2
+        curl -fsSL -o monocypher-4.0.3.tar.gz https://monocypher.org/download/monocypher-4.0.3.tar.gz
+        tar -xzf monocypher-4.0.3.tar.gz
+        cd monocypher-4.0.3
         if [ "$RUNNER_OS" = "macOS" ]; then
           # Monocypher's shared library target uses -Wl,-soname, which the
           # macOS linker does not support. Install only the static library,

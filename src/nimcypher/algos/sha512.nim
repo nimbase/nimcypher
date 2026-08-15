@@ -230,7 +230,7 @@ proc sha512*(message: openArray[byte]): array[64, byte] =
 
 proc initHmac*(ctx: var Sha512HmacContext, key: openArray[byte]) =
   ## Initialize an HMAC-SHA-512 context with the given key.
-  var keyPtr = cast[BytePtr](unsafeAddr key[0])
+  var keyPtr: BytePtr = nil
   var keySize = key.len
   # hash the key if it is too long
   if keySize > 128:
@@ -239,6 +239,10 @@ proc initHmac*(ctx: var Sha512HmacContext, key: openArray[byte]) =
       ctx.key[i] = hashed[i]
     keyPtr = cast[BytePtr](unsafeAddr ctx.key[0])
     keySize = 64
+  elif keySize > 0:
+    keyPtr = cast[BytePtr](unsafeAddr key[0])
+  # keySize == 0 keeps keyPtr nil: an empty key is the 128 zero bytes
+  # padded with 0x36, and the loop below copies nothing.
   # compute inner key: padded key XOR 0x36
   for i in 0 ..< keySize:
     ctx.key[i] = keyPtr[i] xor 0x36

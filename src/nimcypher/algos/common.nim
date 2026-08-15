@@ -12,6 +12,29 @@ const
     var z: array[128, byte]
     z
 
+  # BLAKE2b initialization vector and message schedule (shared by the scalar
+  # compressor and the SIMD multi-stream kernel).
+  blake2bIv*: array[8, uint64] = [
+    0x6a09e667f3bcc908'u64, 0xbb67ae8584caa73b'u64,
+    0x3c6ef372fe94f82b'u64, 0xa54ff53a5f1d36f1'u64,
+    0x510e527fade682d1'u64, 0x9b05688c2b3e6c1f'u64,
+    0x1f83d9abfb41bd6b'u64, 0x5be0cd19137e2179'u64,
+  ]
+  blake2bSigma*: array[12, array[16, uint8]] = [
+    [0'u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    [14'u8, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3],
+    [11'u8, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4],
+    [7'u8, 9, 3, 1, 13, 12, 11, 14, 2, 6, 5, 10, 4, 0, 15, 8],
+    [9'u8, 0, 5, 7, 2, 4, 10, 15, 14, 1, 11, 12, 6, 8, 3, 13],
+    [2'u8, 12, 6, 10, 0, 11, 8, 3, 4, 13, 7, 5, 15, 14, 1, 9],
+    [12'u8, 5, 1, 15, 14, 13, 4, 10, 0, 7, 6, 3, 9, 2, 8, 11],
+    [13'u8, 11, 7, 14, 12, 1, 3, 9, 5, 0, 15, 4, 8, 6, 2, 10],
+    [6'u8, 15, 14, 9, 11, 3, 0, 8, 12, 2, 13, 7, 1, 4, 10, 5],
+    [10'u8, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0],
+    [0'u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    [14'u8, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3],
+  ]
+
 type BytePtr* = ptr UncheckedArray[byte]
 
 proc `+`*(p: BytePtr, n: int): BytePtr =
@@ -100,6 +123,21 @@ proc constantTimeEqual*(a, b: openArray[byte]): bool =
   for i in 0 ..< a.len:
     diff = diff or (uint64(a[i]) xor uint64(b[i]))
   result = neq0(diff) == 0
+
+proc verify16*(a, b: array[16, byte]): bool =
+  ## Constant-time comparison of two 16-byte buffers (Monocypher
+  ## `crypto_verify16`).
+  constantTimeEqual(a, b)
+
+proc verify32*(a, b: array[32, byte]): bool =
+  ## Constant-time comparison of two 32-byte buffers (Monocypher
+  ## `crypto_verify32`).
+  constantTimeEqual(a, b)
+
+proc verify64*(a, b: array[64, byte]): bool =
+  ## Constant-time comparison of two 64-byte buffers (Monocypher
+  ## `crypto_verify64`).
+  constantTimeEqual(a, b)
 
 proc wipe*(secret: var openArray[byte]) =
   ## Erase the contents of a buffer (constant time, not optimized away).

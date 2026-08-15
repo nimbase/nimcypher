@@ -160,4 +160,17 @@ proc eddsaCheck*(signature: array[64, byte], publicKey: array[32, byte],
   hashReduce(h, signature.toOpenArray(0, 31), publicKey, message)
   result = checkEquation(signature, publicKey, h)
 
+proc eddsaPhSign*(messageHash: array[64, byte], secretKey: array[64, byte]):
+    array[64, byte] =
+  ## Sign a pre-hashed message (BLAKE2b-based EdDSAph, RFC 8032).
+  ## `messageHash` is the 64-byte BLAKE2b hash of the message.
+  ## NimCypher extension: Monocypher 4.0.3 only provides the SHA-512
+  ## variant (`ed25519PhSign`).
+  eddsaSign(messageHash.toOpenArray(0, 63), secretKey)
+
+proc eddsaPhCheck*(signature: array[64, byte], publicKey: array[32, byte],
+                   messageHash: array[64, byte]): bool =
+  ## Verify a BLAKE2b-based EdDSAph signature of a pre-hashed message.
+  eddsaCheck(signature, publicKey, messageHash.toOpenArray(0, 63))
+
 {.pop.}

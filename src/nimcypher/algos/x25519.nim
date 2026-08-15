@@ -8,6 +8,7 @@ import ./common
 import ./internal/fe
 import ./internal/edl
 import ./internal/ge
+import ./blake2b
 
 {.push checks: off.}
 
@@ -176,5 +177,22 @@ proc eddsaToX25519*(eddsaKey: array[32, byte]): array[32, byte] =
   feTobytes(cast[BytePtr](unsafeAddr result[0]), t1)
   wipe(t1)
   wipe(t2)
+
+proc eddsaSecretToX25519*(eddsaSecret: array[64, byte]): array[32, byte] =
+  ## Convert an EdDSA secret key to an X25519 secret key: the 32-byte seed
+  ## is hashed to 64 bytes with BLAKE2b and the first 32 bytes are clamped
+  ## as an X25519 scalar.
+  ## NimCypher extension: Monocypher 4.0.3 only offers the public-key
+  ## conversion `eddsaToX25519`; this mirrors libsodium's
+  ## `crypto_sign_ed25519_sk_to_curve25519`.
+  var ah = blake2b(eddsaSecret.toOpenArray(0, 31), 64)
+  var scalar: array[32, byte]
+  for i in 0 ..< 32:
+    scalar[i] = ah[i]
+  trimScalar(cast[BytePtr](unsafeAddr scalar[0]),
+             cast[BytePtr](unsafeAddr scalar[0]))
+  result = scalar
+  wipe(ah)
+  wipe(scalar)
 
 {.pop.}

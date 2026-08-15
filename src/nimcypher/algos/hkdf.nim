@@ -11,6 +11,9 @@ import ./sha512
 
 proc sha512HkdfExpand*(prk, info: openArray[byte], okmSize: int): seq[byte] =
   ## Expand a pseudo-random key into output keying material.
+  ## `okmSize` is limited to 255 * 64 = 16320 bytes (RFC 5869); larger
+  ## requests silently wrap the block counter and yield wrong key material.
+  ## Callers must enforce the limit (see `nimcypher/hash`).
   result = newSeq[byte](okmSize)
   var notFirst = 0
   var ctr: byte = 1

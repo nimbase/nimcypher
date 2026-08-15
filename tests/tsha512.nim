@@ -49,3 +49,12 @@ test "hmac incremental == one-shot":
   update(ctx, input[40 ..^ 1])
   let chunked = final(ctx)
   check chunked == whole
+
+test "hmac with empty key equals a zero-padded key":
+  var input: seq[byte]
+  for j in 0 ..< 16:
+    input.add(byte(j))
+  let emptyKey = sha512Hmac(newSeq[byte](0), input)
+  let zeroKey = sha512Hmac(newSeq[byte](128), input) # padded to the block size
+  check emptyKey == zeroKey
+  check emptyKey.len == 64

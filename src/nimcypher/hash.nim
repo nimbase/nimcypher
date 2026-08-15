@@ -192,8 +192,18 @@ proc finishHex*(state: var Sha512HmacState): string =
   toHex(finish(state))
 
 # HKDF-SHA-512
+
+const
+  HkdfMaxOkmLen* = 255 * Sha512DigestSize # RFC 5869: at most 255 blocks
+
+proc ensureHkdfLength(okmLen: Natural) {.inline.} =
+  if okmLen > HkdfMaxOkmLen:
+    raise newException(ValueError,
+      "HKDF output too large: at most " & $HkdfMaxOkmLen & " bytes")
+
 proc hkdfSha512*(ikm, salt, info: openArray[byte], okmLen: Natural): seq[byte] =
   ## Derive output keying material of `okmLen` bytes with HKDF-SHA-512.
+  ensureHkdfLength(okmLen)
   result = hkdfAlgo.sha512Hkdf(ikm, salt, info, okmLen)
 
 proc hkdfSha512*(ikm, salt, info: string, okmLen: Natural): seq[byte] =
@@ -201,6 +211,7 @@ proc hkdfSha512*(ikm, salt, info: string, okmLen: Natural): seq[byte] =
 
 proc hkdfExpandSha512*(prk, info: openArray[byte], okmLen: Natural): seq[byte] =
   ## Expand a pseudo-random key with HKDF-SHA-512.
+  ensureHkdfLength(okmLen)
   result = hkdfAlgo.sha512HkdfExpand(prk, info, okmLen)
 
 proc hkdfExpandSha512*(prk, info: string, okmLen: Natural): seq[byte] =

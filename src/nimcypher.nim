@@ -8,9 +8,10 @@
 # Ported from Monocypher 4.0.3, dual-licensed BSD-2-Clause OR CC0-1.0.
 
 import nimcypher/utils
+import nimcypher/secret
 import nimcypher/hash
 import nimcypher/encrypt
 import nimcypher/sign
 import nimcypher/password
 
-export utils, hash, encrypt, sign, password
+export utils, secret, hash, encrypt, sign, password

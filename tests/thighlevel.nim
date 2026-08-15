@@ -15,6 +15,8 @@ test "utils: hex, arrays, strings, random":
   check toString(@[byte('a'), byte('b'), byte('c')]) == "abc"
   let k = toArray[32](newSeq[byte](32))
   check k.len == 32
+  expect ValueError:
+    discard toArray[32](newSeq[byte](31))
   let rnd = randomBytes[32]()
   check rnd.len == 32
   check constantTimeEqual(@[byte 1, 2], @[byte 1, 2])
@@ -141,13 +143,13 @@ test "sign: key pairs, sign and verify":
   check sign(kp2.secretKey, msg) != sign(kp.secretKey, msg)
   # matches low-level
   let (sk, pk) = eddsaAlgo.eddsaKeyPair(seed)
-  check kp.publicKey == pk and kp.secretKey == sk
+  check kp.publicKey == pk and kp.secretKey.data == sk
 
 test "sign: hex helpers":
   let kp = generateSigningKeyPair(randomBytes[32]())
   let sig = sign(kp.secretKey, toBytes("m"))
   check publicKeyFromHex(publicKeyToHex(kp.publicKey)) == kp.publicKey
-  check secretKeyFromHex(secretKeyToHex(kp.secretKey)) == kp.secretKey
+  check secretKeyFromHex(secretKeyToHex(kp.secretKey)) == kp.secretKey.data
   check signatureFromHex(signatureToHex(sig)) == sig
   expect(ValueError):
     discard publicKeyFromHex("zz")
@@ -166,4 +168,27 @@ test "password: hash, verify, derive":
   check k1 != deriveKeyFromPassword("pw2", salt)
   # key pair from password
   let (sk, pk) = keyPairFromPassword("pw", salt)
-  check pk == xAlgo.x25519PublicKey(sk)
+  check pk == xAlgo.x25519PublicKey(sk.data)
+
+test "utils: generateSalt sizes and aead stream nonce validation":
+  check generateSalt().len == 16
+  check generateSalt(32).len == 32
+  check generateSalt(8).len == 8
+  let key = randomBytes[32]()
+  expect ValueError:
+    discard aeadStreamInit(aeadX, key, newSeq[byte](23))
+  expect ValueError:
+    discard aeadStreamInit(aeadDjb, key, newSeq[byte](9))
+  expect ValueError:
+    discard aeadStreamInit(aeadIetf, key, newSeq[byte](13))
+
+test "secret: RAII wiping on scope exit":
+  var data: array[16, byte]
+  for i in 0 ..< 16: data[i] = byte(i + 1)
+  var sink: ptr array[16, byte]
+  block:
+    var s = secret(data)
+    sink = addr s.data
+    check sink[][0] == 1
+  # the wrapped array is wiped when the Secret goes out of scope
+  check sink[] == default(array[16, byte])

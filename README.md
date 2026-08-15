@@ -1,5 +1,5 @@
 <p align="center">
-  NimCypher is a port of Monocypher in Nim
+  NimCypher &bullet; Port of Monocypher in Nim + high-level API and extensions
 </p>
 
 <p align="center">
@@ -53,7 +53,7 @@ High-level API (`import nimcypher`):
 
 Low-level primitives (`nimcypher/algos/...`):
 - **Authenticated encryption**: `aeadLock` / `aeadUnlock` + streaming `AeadContext`
-- **Hashing: BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HKDF
+- **Hashing**: BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HKDF
 - **Password hashing**: Argon2 (`d`, `i`, `id`)
 - **Key exchange**: X25519 (incl. dirty keys, scalar inverse / OPRF, EdDSA↔X25519 conversion)
 - **Signatures**: EdDSA (BLAKE2b + Curve25519), Ed25519, Ed25519ph (SHA-512)
@@ -64,73 +64,142 @@ Low-level primitives (`nimcypher/algos/...`):
 
 ## Examples
 
-The high-level API is intentionally simple. Keys and nonces are fixed-size byte arrays;
-generate them with `randomBytes` (backed by `urandom`).
+### Password hashing and verification
+
+Argon2id password hashing for storage, verification, and key derivation:
 
 ```nim
-import nimcypher
+import nimcypher/password
+import nimcypher/utils
 
-# ---- Hashing ----
-let digest = blake(toBytes("hello world"))         # 32-byte BLAKE2b digest
+let stored = hashPassword("hunter2")
+assert verifyPassword("hunter2", stored)
+
+let salt  = generateSalt()
+let key   = deriveKeyFromPassword("hunter2", salt)  # Secret[Key32]
+assert key.data.len == 32
+```
+
+### AEAD encryption and decryption
+
+Authenticated encryption with XChaCha20-Poly1305. Two parties derive the same
+shared secret from their passwords and exchange sealed messages:
+
+```nim
+import nimcypher/encrypt
+import nimcypher/password
+import nimcypher/utils
+
+let (aliceSK, alicePK) = keyPairFromPassword("alice-passphrase", generateSalt())
+let (bobSK, bobPK)     = keyPairFromPassword("bob-passphrase", generateSalt())
+assert alicePK != bobPK
+
+let aliceShared = sharedSecret(aliceSK.data, bobPK)
+let bobShared   = sharedSecret(bobSK.data, alicePK)
+assert aliceShared == bobShared
+
+let msg    = "Hi Bob, this is Alice."
+let sealed = seal(msg, aliceShared.data)
+let opened = unseal(sealed, bobShared.data)
+assert opened == toBytes(msg)
+```
+
+`decrypt` / `unseal` / `aeadStreamRead` raise `ValueError` when the MAC does not
+verify, so a failed authentication never yields plaintext.
+
+### AEAD streaming
+
+Encrypt and decrypt a message in chunks with the streaming AEAD API:
+
+```nim
+import nimcypher/encrypt
+import nimcypher/utils
+
+let key   = randomBytes[32]()
+let nonce = randomBytes[24]()
+
+let message = "Hello, this is a test of AEAD streaming!"
+var stream = aeadStreamInitX(key, nonce)                # also initDjb / initIetf
+let (cipher1, mac1) = aeadStreamWrite(stream, toBytes(message[0 ..< 16]))
+let (cipher2, mac2) = aeadStreamWrite(stream, toBytes(message[16 ..^ 1]))
+
+var decStream = aeadStreamInitX(key, nonce)
+let plain1 = aeadStreamRead(decStream, cipher1, mac1)
+let plain2 = aeadStreamRead(decStream, cipher2, mac2)
+assert plain1 & plain2 == toBytes(message)
+```
+
+### Hashing: BLAKE2b, SHA-512, HMAC, HKDF
+
+```nim
+import nimcypher/hash
+import nimcypher/utils
+
+let digest = blake(toBytes("hello world"))              # 32-byte BLAKE2b digest
 let mac    = blakeKeyed(toBytes("msg"), toBytes("key")) # keyed (MAC)
-let sha    = sha512Hex("hello world")              # hex string
+let sha    = sha512Hex("hello world")                   # hex string
 let hmac   = sha512Hmac(toBytes("key"), toBytes("msg"))
 let okm    = hkdfSha512(toBytes("ikm"), @[], toBytes("info"), 32)
+assert okm.len == 32
+```
 
-# ---- Authenticated encryption (XChaCha20-Poly1305) ----
-let key   = randomBytes[32]()
-let nonce = randomBytes[24]()   # random nonces are safe with XChaCha20
-let (ciphertext, tag) = encrypt(toBytes("Attack at dawn"), key, nonce)
-let plain = decrypt(ciphertext, tag, key, nonce)
-doAssert plain == toBytes("Attack at dawn")
+### X25519 key exchange
 
-# ---- Sealing (random nonce per message) ----
-let sealed = seal(toBytes("secret"), key)
-let opened = unseal(sealed, key)
-doAssert opened == toBytes("secret")
+```nim
+import nimcypher/encrypt
+import nimcypher/utils
 
-# ---- Streaming AEAD (encrypt a stream / large file) ----
-var stream = aeadStreamInitX(key, nonce)      # also initDjb / initIetf
-let (ct1, mac1) = aeadStreamWrite(stream, toBytes("part one"))
-let (ct2, mac2) = aeadStreamWrite(stream, toBytes("part two"))
-
-# ---- Key exchange (X25519) ----
 let (aliceSk, alicePk) = x25519KeyPair(randomBytes[32]())
 let (bobSk, bobPk)     = x25519KeyPair(randomBytes[32]())
 let shared = sharedSecret(aliceSk, bobPk)
-doAssert shared == sharedSecret(bobSk, alicePk)
-
-# ---- Signatures ----
-let kp = generateSigningKeyPair(randomBytes[32]())
-let sig = sign(kp.secretKey, toBytes("message"))
-doAssert verify(kp.publicKey, toBytes("message"), sig)
-
-# ---- Password hashing (Argon2id) ----
-let stored = hashPassword("hunter2")
-doAssert verifyPassword("hunter2", stored)
-
-# ---- Constant-time utilities ----
-doAssert constantTimeEqual(@[byte 1, 2], @[byte 1, 2])
-var secret = @[byte 1, 2, 3]
-wipe(secret)
+assert shared == sharedSecret(bobSk, alicePk)
 ```
 
-`decrypt`, `unseal` and `aeadStreamRead` raise `ValueError` when authentication fails, so
-a failed MAC never yields plaintext.
+### EdDSA signatures
+
+```nim
+import nimcypher/sign
+import nimcypher/utils
+
+let kp  = generateSigningKeyPair(randomBytes[32]())
+let sig = sign(kp.secretKey, toBytes("message"))
+assert verify(kp.publicKey, toBytes("message"), sig)
+```
+
+### Utilities
+
+```nim
+import nimcypher/utils
+
+let key  = randomBytes[32]()
+let salt = generateSalt(16)
+assert toHex(key).len == 64
+assert constantTimeEqual(toBytes("abc"), toBytes("abc"))
+var secret = @[byte 1, 2, 3]
+wipe(secret)
+assert secret == @[byte 0, 0, 0]
+```
 
 ### Low-level API
 
 For full control over every primitive — different Argon2 variants, Ed25519, Elligator,
-raw ChaCha20, Poly1305, or the EdDSA building blocks — import the low-level modules:
+raw ChaCha20, Poly1305, the EdDSA building blocks, or the streaming ChaCha20 extension —
+import the low-level modules:
 
 ```nim
 import nimcypher/algos/x25519
 import nimcypher/algos/ed25519
 import nimcypher/algos/elligator
+import nimcypher/algos/chacha20
 
 let pk = x25519PublicKey(sk)
 let (sk25519, pk25519) = ed25519KeyPair(seed)
 let curve = elligatorMap(hidden)
+
+var chachaCtx: Chacha20Context   # streaming ChaCha20 (NimCypher extension)
+initChacha20X(chachaCtx, key, nonce24)
+var cipher = chacha20Encrypt(chachaCtx, toBytes("stream me"))
+cipher.add chacha20Final(chachaCtx)
 ```
 
 See the test suite (`tests/`) for a complete walk-through of both layers.
@@ -149,32 +218,36 @@ signatures, Elligator, Argon2). Results vary a few percent run to run.
 
 | operation | iters | Monocypher | NimCypher | NimCypher+SIMD | M/Nim | M/SIMD |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| blake2b 64B | 100000 | 0.0153s | 0.0184s | - | 0.83x | - |
-| blake2b 1024B | 20000 | 0.0189s | 0.0256s | - | 0.74x | - |
-| blake2b 65536B | 2000 | 0.1178s | 0.1551s | - | 0.76x | - |
-| sha512 64B | 50000 | 0.0156s | 0.0154s | - | 1.01x | - |
-| sha512 1024B | 20000 | 0.0506s | 0.0531s | - | 0.95x | - |
-| sha512 65536B | 1000 | 0.1424s | 0.1516s | - | 0.94x | - |
-| chacha20 64B | 50000 | 0.0058s | 0.0071s | 0.0077s | 0.82x | 0.75x |
-| chacha20 1024B | 20000 | 0.0302s | 0.0379s | 0.0296s | 0.80x | 1.02x |
-| chacha20 65536B | 1000 | 0.0953s | 0.1183s | 0.0922s | 0.81x | 1.03x |
-| poly1305 1024B | 50000 | 0.0256s | 0.0282s | - | 0.91x | - |
-| poly1305 65536B | 2000 | 0.0628s | 0.0682s | - | 0.92x | - |
-| aead lock+unlock 1024B | 10000 | 0.0452s | 0.0545s | 0.0466s | 0.83x | 0.97x |
-| aead lock+unlock 65536B | 500 | 0.1273s | 0.1536s | 0.1282s | 0.83x | 0.99x |
-| x25519 | 2000 | 0.1571s | 0.1535s | - | 1.02x | - |
-| eddsa sign 1KB | 1000 | 0.0412s | 0.0395s | - | 1.04x | - |
-| eddsa check 1KB | 1000 | 0.1188s | 0.1185s | - | 1.00x | - |
-| ed25519 sign 1KB | 1000 | 0.0443s | 0.0424s | - | 1.04x | - |
-| ed25519 check 1KB | 1000 | 0.1181s | 0.1173s | - | 1.01x | - |
-| elligator map | 3000 | 0.0223s | 0.0206s | - | 1.08x | - |
-| elligator rev | 3000 | 0.0219s | 0.0193s | - | 1.13x | - |
-| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | 0.60x | - |
+| blake2b 64B | 100000 | 0.0151s | 0.0178s | - | 0.85x | - |
+| blake2b 1024B | 20000 | 0.0192s | 0.0255s | - | 0.75x | - |
+| blake2b 65536B | 2000 | 0.1169s | 0.1568s | - | 0.75x | - |
+| blake2b 4x 1024B | 5000 | 0.0207s | 0.0271s | 0.0164s | 0.76x | 1.26x |
+| blake2b 4x 65536B | 200 | 0.0467s | 0.0621s | 0.0326s | 0.75x | 1.43x |
+| sha512 64B | 50000 | 0.0156s | 0.0151s | - | 1.03x | - |
+| sha512 1024B | 20000 | 0.0502s | 0.0533s | - | 0.94x | - |
+| sha512 65536B | 1000 | 0.1411s | 0.1509s | - | 0.93x | - |
+| chacha20 64B | 50000 | 0.0058s | 0.0070s | 0.0075s | 0.83x | 0.77x |
+| chacha20 1024B | 20000 | 0.0301s | 0.0377s | 0.0295s | 0.80x | 1.02x |
+| chacha20 65536B | 1000 | 0.0963s | 0.1193s | 0.0927s | 0.81x | 1.04x |
+| poly1305 1024B | 50000 | 0.0244s | 0.0281s | - | 0.87x | - |
+| poly1305 65536B | 2000 | 0.0603s | 0.0706s | - | 0.85x | - |
+| aead lock+unlock 1024B | 10000 | 0.0447s | 0.0543s | 0.0458s | 0.82x | 0.98x |
+| aead lock+unlock 65536B | 500 | 0.1271s | 0.1532s | 0.1289s | 0.83x | 0.99x |
+| x25519 | 2000 | 0.1560s | 0.1549s | - | 1.01x | - |
+| eddsa sign 1KB | 1000 | 0.0402s | 0.0393s | - | 1.02x | - |
+| eddsa check 1KB | 1000 | 0.1179s | 0.1158s | - | 1.02x | - |
+| ed25519 sign 1KB | 1000 | 0.0431s | 0.0419s | - | 1.03x | - |
+| ed25519 check 1KB | 1000 | 0.1182s | 0.1168s | - | 1.01x | - |
+| elligator map | 3000 | 0.0219s | 0.0199s | - | 1.10x | - |
+| elligator rev | 3000 | 0.0212s | 0.0192s | - | 1.10x | - |
+| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | 0.62x | - |
 
 The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator.
 On the symmetric primitives the scalar port is roughly 1.2–1.3x slower than C; with the
 SIMD kernels, ChaCha20 and the ChaCha20 half of AEAD reach **parity with (and at 1 KB+
-slightly beat) C Monocypher**.
+slightly beat) C Monocypher**. The `blake2b 4x` rows hash four messages at once with
+`blake2bParallel` (the C and scalar-Nim columns run four one-shot hashes for the same
+work); the SIMD kernel brings batched BLAKE2b to **~1.3–1.4x C**.
 
 
 ## Testing
@@ -234,8 +307,11 @@ Requirements and what gets accelerated:
   two-block AVX2 kernel.
 - **arm64**: NEON (baseline on all ARMv8 CPUs); uses a four-lane NEON kernel.
 - Accelerates **ChaCha20** (`chacha20Djb/Ietf/X`, HChaCha20) and therefore the ChaCha20
-  half of **AEAD** (`aeadLock`/`aeadUnlock`, streaming). BLAKE2b, SHA-512, Poly1305,
-  Argon2 and the Curve25519/EdDSA math are not SIMD-accelerated.
+  half of **AEAD** (`aeadLock`/`aeadUnlock`, streaming). It also accelerates **batched
+  BLAKE2b** through `blake2bParallel` (`nimcypher/algos/blake2b`), which hashes four
+  messages at once with one SIMD lane each — equivalent to four `blake2b` calls. The
+  single-message BLAKE2b, SHA-512, Poly1305, Argon2 and the Curve25519/EdDSA math remain
+  scalar.
 
 On x86_64 with Clang the scalar ChaCha20 kernel is already auto-vectorized, so the
 two-block AVX2 kernel is what actually moves the needle (roughly 1.3x on the full

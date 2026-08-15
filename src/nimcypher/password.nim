@@ -9,6 +9,7 @@ import nimcypher/algos/argon2 as argon2Algo
 
 import ./utils
 import ./encrypt
+import ./secret
 
 const
   HashLen = 32
@@ -46,12 +47,17 @@ proc verifyPassword*(password, stored: string): bool =
   let hash = argon2Algo.argon2(argon2Config(), HashLen, toBytes(password), salt)
   result = constantTimeEqual(hash, expected)
 
-proc deriveKeyFromPassword*(password: string, salt: RandomBytes): Key32 =
+proc deriveKeyFromPassword*(password: string, salt: RandomBytes): Secret[Key32] =
   ## Derive a 32-byte key from a password and salt using Argon2id.
-  let derived = argon2Algo.argon2(argon2Config(), 32, toBytes(password), salt)
-  result = toArray[32](derived)
+  ## The derived key is wiped automatically when it goes out of scope.
+  var derived = argon2Algo.argon2(argon2Config(), 32, toBytes(password), salt)
+  result = secret(toArray[32](derived))
+  wipe(derived)
 
-proc keyPairFromPassword*(password: string, salt: RandomBytes): (Key32, Key32) =
-  ## Derive an X25519 key pair from a password and salt. Returns (secret, publicKey).
-  let secret = deriveKeyFromPassword(password, salt)
-  result = x25519KeyPair(secret)
+proc keyPairFromPassword*(password: string, salt: RandomBytes):
+    (Secret[Key32], Key32) =
+  ## Derive an X25519 key pair from a password and salt.
+  ## Returns (secret, publicKey); the secret is wiped on scope exit.
+  let secretKey = deriveKeyFromPassword(password, salt)
+  let (rawSecret, publicKey) = x25519KeyPair(secretKey.data)
+  result = (secret(rawSecret), publicKey)

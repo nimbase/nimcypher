@@ -353,4 +353,136 @@ proc chacha20HScalar*(key: array[32, byte], input: array[16, byte]): array[32, b
   ## Scalar reference HChaCha20 (never SIMD-accelerated).
   chacha20HScalar(cast[BytePtr](unsafeAddr result[0]), key, input)
 
+# Streaming interface (NimCypher extension: Monocypher 4.0.3 only provides
+# the one-shot functions above)
+type
+  Chacha20Mode* = enum
+    chacha20DjbMode, chacha20IetfMode, chacha20XMode
+
+  Chacha20Context* = object
+    ## A streaming ChaCha20 state. All three variants collapse to the DJB
+    ## form once initialized, so the state always holds an 8-byte nonce.
+    mode*: Chacha20Mode
+    key*: array[32, byte]
+    nonce*: array[8, byte]
+    counter*: uint64
+    pending: array[64, byte] # tail of an incomplete 64-byte block
+    pendingLen: int
+
+proc initChacha20Djb*(ctx: var Chacha20Context, key: array[32, byte],
+                      nonce: array[8, byte], counter: uint64 = 0) =
+  ## Initialize a ChaCha20 streaming context (DJB variant).
+  ctx.mode = chacha20DjbMode
+  ctx.key = key
+  ctx.nonce = nonce
+  ctx.counter = counter
+  ctx.pendingLen = 0
+
+proc initChacha20Ietf*(ctx: var Chacha20Context, key: array[32, byte],
+                       nonce: array[12, byte], counter: uint32 = 0) =
+  ## Initialize a ChaCha20 streaming context (IETF variant). The first four
+  ## nonce bytes become the upper 32 bits of the 64-bit stream counter.
+  ctx.mode = chacha20IetfMode
+  ctx.key = key
+  for i in 0 ..< 8:
+    ctx.nonce[i] = nonce[i + 4]
+  ctx.counter = uint64(counter) +
+                 (uint64(load32Le(cast[BytePtr](unsafeAddr nonce[0]))) shl 32)
+  ctx.pendingLen = 0
+
+proc initChacha20X*(ctx: var Chacha20Context, key: array[32, byte],
+                    nonce: array[24, byte], counter: uint64 = 0) =
+  ## Initialize a ChaCha20 streaming context (XChaCha20 variant). The
+  ## subkey is derived once from the first 16 nonce bytes.
+  ctx.mode = chacha20XMode
+  var nonce16: array[16, byte]
+  for i in 0 ..< 16:
+    nonce16[i] = nonce[i]
+  ctx.key = chacha20H(key, nonce16)
+  for i in 0 ..< 8:
+    ctx.nonce[i] = nonce[16 + i]
+  ctx.counter = counter
+  ctx.pendingLen = 0
+
+proc chacha20Encrypt*(ctx: var Chacha20Context, dst, src: BytePtr, size: int): int =
+  ## Encrypt (or decrypt) `size` bytes of the stream, returning the number
+  ## of bytes written to `dst`. The tail of an incomplete 64-byte block is
+  ## buffered and written by the next call or by `chacha20Final`, so the
+  ## concatenated output always equals the one-shot over the concatenated
+  ## input, regardless of chunk boundaries.
+  var srcPtr = src
+  var srcSize = size
+  var outCnt = 0
+
+  # complete a previously buffered partial block
+  if ctx.pendingLen > 0:
+    let need = 64 - ctx.pendingLen
+    let take = min(need, srcSize)
+    for i in 0 ..< take:
+      ctx.pending[ctx.pendingLen + i] = srcPtr[i]
+    srcPtr = srcPtr + take
+    srcSize -= take
+    ctx.pendingLen += take
+    if ctx.pendingLen == 64:
+      var tmp: array[64, byte]
+      discard chacha20Djb(cast[BytePtr](unsafeAddr tmp[0]),
+                          cast[BytePtr](unsafeAddr ctx.pending[0]), 64,
+                          ctx.key, ctx.nonce, ctx.counter)
+      ctx.counter += 1
+      ctx.pendingLen = 0
+      for i in 0 ..< 64:
+        dst[outCnt + i] = tmp[i]
+      outCnt += 64
+    else:
+      return outCnt
+
+  # full blocks
+  let nbBlocks = srcSize shr 6
+  if nbBlocks > 0:
+    discard chacha20Djb(dst + outCnt, srcPtr, nbBlocks shl 6,
+                        ctx.key, ctx.nonce, ctx.counter)
+    ctx.counter += uint64(nbBlocks)
+    outCnt += nbBlocks shl 6
+    srcPtr = srcPtr + (nbBlocks shl 6)
+    srcSize -= nbBlocks shl 6
+
+  # buffer the tail
+  if srcSize > 0:
+    for i in 0 ..< srcSize:
+      ctx.pending[i] = srcPtr[i]
+    ctx.pendingLen = srcSize
+
+  result = outCnt
+
+proc chacha20Encrypt*(ctx: var Chacha20Context, data: openArray[byte]): seq[byte] =
+  ## Encrypt (or decrypt) `data`, returning the emitted ciphertext (or
+  ## plaintext). Completing a buffered partial block can emit up to 64 bytes
+  ## more than the input. A trailing partial block is buffered; flush it
+  ## with `chacha20Final` after the last chunk.
+  result = newSeqUninit[byte](data.len + 64)
+  var dp = if data.len > 0: cast[BytePtr](unsafeAddr data[0]) else: nil
+  var rp = if result.len > 0: cast[BytePtr](unsafeAddr result[0]) else: nil
+  result.setLen(chacha20Encrypt(ctx, rp, dp, data.len))
+
+proc chacha20Final*(ctx: var Chacha20Context, dst: BytePtr): int =
+  ## Flush the buffered tail of the stream, returning the number of bytes
+  ## written to `dst` (0 if no tail was pending).
+  let n = ctx.pendingLen
+  if n == 0:
+    return 0
+  var tmp: array[64, byte]
+  discard chacha20Djb(cast[BytePtr](unsafeAddr tmp[0]),
+                      cast[BytePtr](unsafeAddr ctx.pending[0]), 64,
+                      ctx.key, ctx.nonce, ctx.counter)
+  ctx.counter += 1
+  ctx.pendingLen = 0
+  for i in 0 ..< n:
+    dst[i] = tmp[i]
+  result = n
+
+proc chacha20Final*(ctx: var Chacha20Context): seq[byte] =
+  ## Flush the buffered tail of the stream and return it.
+  result = newSeqUninit[byte](64)
+  result.setLen(chacha20Final(ctx, cast[BytePtr](unsafeAddr result[0])))
+
 {.pop.}

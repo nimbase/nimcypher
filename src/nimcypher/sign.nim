@@ -8,28 +8,37 @@ import std/sysrand
 import nimcypher/algos/eddsa as eddsaAlgo
 
 import ./utils
+import ./secret
 
 type
   SigningKeyPair* = object
     publicKey*: PublicKey
       ## The 32-byte public key, derived from the secret key. Share this
       ## to let others verify your signatures.
-    secretKey*: SecretKey
+    secretKey*: Secret[SecretKey]
       ## The 64-byte secret key: the 32-byte seed followed by the 32-byte
-      ## public key. Never share this.
+      ## public key. Never share this. Wiped automatically when the key
+      ## pair goes out of scope.
 
 proc generateSigningKeyPair*(seed: Seed32): SigningKeyPair =
   ## Generate an EdDSA signing key pair from a 32-byte seed.
   let (secretKey, publicKey) = eddsaAlgo.eddsaKeyPair(seed)
-  result.secretKey = secretKey
+  result.secretKey = secret(secretKey)
   result.publicKey = publicKey
 
 proc generateSigningKeyPair*(): SigningKeyPair =
   ## Generate an EdDSA signing key pair with a random seed.
   generateSigningKeyPair(randomBytes[32]())
 
-proc sign*(secretKey: SecretKey, message: openArray[byte]): Signature =
+proc sign*(secretKey: Secret[SecretKey], message: openArray[byte]): Signature =
   ## Sign a message with the secret key.
+  eddsaAlgo.eddsaSign(message, secretKey.data)
+
+proc sign*(secretKey: Secret[SecretKey], message: string): Signature =
+  sign(secretKey, toBytes(message))
+
+proc sign*(secretKey: SecretKey, message: openArray[byte]): Signature =
+  ## Sign a message with a raw secret key.
   eddsaAlgo.eddsaSign(message, secretKey)
 
 proc sign*(secretKey: SecretKey, message: string): Signature =
@@ -47,6 +56,7 @@ proc verify*(publicKey: PublicKey, message: string,
 # Hex encoding helpers
 proc publicKeyToHex*(k: PublicKey): string = toHex(k)
 proc secretKeyToHex*(k: SecretKey): string = toHex(k)
+proc secretKeyToHex*(k: Secret[SecretKey]): string = toHex(k.data)
 proc signatureToHex*(s: Signature): string = toHex(s)
 
 proc publicKeyFromHex*(s: string): PublicKey =

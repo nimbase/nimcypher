@@ -48,9 +48,13 @@ proc randomBytes*[N: static int]: array[N, uint8] =
   for i in 0 ..< N:
     result[i] = uint8(bytes[i])
 
-proc generateSalt*(len: static int = 16): RandomBytes =
-  ## Generate a random salt (default 16 bytes).
+proc generateSalt*(len: static int): array[len, uint8] =
+  ## Generate a random salt of `len` bytes.
   randomBytes[len]()
+
+proc generateSalt*(): RandomBytes =
+  ## Generate a random 16-byte salt.
+  randomBytes[16]()
 
 proc toBytes*(s: string): seq[byte] =
   ## Convert a string to bytes.
@@ -59,7 +63,10 @@ proc toBytes*(s: string): seq[byte] =
 
 proc toArray*[N: static int](b: openArray[byte]): array[N, uint8] =
   ## Convert a byte buffer to a fixed-size array.
-  doAssert b.len == N
+  ## Raises `ValueError` if the buffer length does not match `N`.
+  if b.len != N:
+    raise newException(ValueError,
+      "expected " & $N & " bytes, got " & $b.len & " bytes")
   for i in 0 ..< N:
     result[i] = b[i]
 

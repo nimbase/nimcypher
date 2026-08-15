@@ -78,3 +78,28 @@ test "x25519 dirty == clean with cleared low bits":
   let pk1 = x25519PublicKey(skc)
   check x25519DirtySmall(skc) == pk1
   check x25519DirtyFast(skc) == pk1
+
+test "eddsaSecretToX25519 clamps and exchanges":
+  var seed: array[32, byte]
+  for i in 0 ..< 32: seed[i] = byte(i * 9 + 1)
+  # deterministic
+  var edsk: array[64, byte]
+  for i in 0 ..< 32:
+    edsk[i] = seed[i]
+    edsk[32 + i] = byte(i)
+  let x1 = eddsaSecretToX25519(edsk)
+  let x2 = eddsaSecretToX25519(edsk)
+  check x1 == x2
+  # clamped like an X25519 scalar
+  check (x1[0] and 7) == 0
+  check (x1[31] and 0x80) == 0
+  check (x1[31] and 0x40) != 0
+  # derived public keys exchange as usual
+  var edsk2: array[64, byte]
+  for i in 0 ..< 32:
+    edsk2[i] = seed[i] xor 0x33
+    edsk2[32 + i] = byte(255 - i)
+  let xb = eddsaSecretToX25519(edsk2)
+  let aPk = x25519PublicKey(x1)
+  let bPk = x25519PublicKey(xb)
+  check x25519(x1, bPk) == x25519(xb, aPk)

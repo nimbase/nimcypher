@@ -6,6 +6,9 @@
 
 import ./common
 
+when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+  import ./internal/blake2b_simd
+
 {.push checks: off.}
 
 type
@@ -15,30 +18,6 @@ type
     input*: array[16, uint64]
     inputIdx*: int
     hashSize*: int
-
-const
-  iv: array[8, uint64] = [
-    0x6a09e667f3bcc908'u64, 0xbb67ae8584caa73b'u64,
-    0x3c6ef372fe94f82b'u64, 0xa54ff53a5f1d36f1'u64,
-    0x510e527fade682d1'u64, 0x9b05688c2b3e6c1f'u64,
-    0x1f83d9abfb41bd6b'u64, 0x5be0cd19137e2179'u64,
-  ]
-
-const
-  sigma: array[12, array[16, uint8]] = [
-    [0'u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    [14'u8, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3],
-    [11'u8, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4],
-    [7'u8, 9, 3, 1, 13, 12, 11, 14, 2, 6, 5, 10, 4, 0, 15, 8],
-    [9'u8, 0, 5, 7, 2, 4, 10, 15, 14, 1, 11, 12, 6, 8, 3, 13],
-    [2'u8, 12, 6, 10, 0, 11, 8, 3, 4, 13, 7, 5, 15, 14, 1, 9],
-    [12'u8, 5, 1, 15, 14, 13, 4, 10, 0, 7, 6, 3, 9, 2, 8, 11],
-    [13'u8, 11, 7, 14, 12, 1, 3, 9, 5, 0, 15, 4, 8, 6, 2, 10],
-    [6'u8, 15, 14, 9, 11, 3, 0, 8, 12, 2, 13, 7, 1, 4, 10, 5],
-    [10'u8, 2, 8, 4, 7, 6, 1, 5, 15, 11, 9, 14, 3, 12, 13, 0],
-    [0'u8, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-    [14'u8, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3],
-  ]
 
 template g(a, b, c, d, x, y: untyped) =
   a += b + x
@@ -62,23 +41,23 @@ proc compress(ctx: var Blake2bContext, isLastBlock: int) =
   var v2 = ctx.hash[2]; var v3 = ctx.hash[3]
   var v4 = ctx.hash[4]; var v5 = ctx.hash[5]
   var v6 = ctx.hash[6]; var v7 = ctx.hash[7]
-  var v8 = iv[0]; var v9 = iv[1]
-  var v10 = iv[2]; var v11 = iv[3]
-  var v12 = iv[4] xor ctx.inputOffset[0]
-  var v13 = iv[5] xor ctx.inputOffset[1]
-  var v14 = iv[6] xor (not (uint64(isLastBlock) - 1))
-  var v15 = iv[7]
+  var v8 = blake2bIv[0]; var v9 = blake2bIv[1]
+  var v10 = blake2bIv[2]; var v11 = blake2bIv[3]
+  var v12 = blake2bIv[4] xor ctx.inputOffset[0]
+  var v13 = blake2bIv[5] xor ctx.inputOffset[1]
+  var v14 = blake2bIv[6] xor (not (uint64(isLastBlock) - 1))
+  var v15 = blake2bIv[7]
 
   # mangle work vector (unrolled: same as C's BLAKE2_ROUND(0..11))
   template blake2Round(r: static int) =
-    g(v0, v4, v8, v12, ctx.input[sigma[r][0]], ctx.input[sigma[r][1]])
-    g(v1, v5, v9, v13, ctx.input[sigma[r][2]], ctx.input[sigma[r][3]])
-    g(v2, v6, v10, v14, ctx.input[sigma[r][4]], ctx.input[sigma[r][5]])
-    g(v3, v7, v11, v15, ctx.input[sigma[r][6]], ctx.input[sigma[r][7]])
-    g(v0, v5, v10, v15, ctx.input[sigma[r][8]], ctx.input[sigma[r][9]])
-    g(v1, v6, v11, v12, ctx.input[sigma[r][10]], ctx.input[sigma[r][11]])
-    g(v2, v7, v8, v13, ctx.input[sigma[r][12]], ctx.input[sigma[r][13]])
-    g(v3, v4, v9, v14, ctx.input[sigma[r][14]], ctx.input[sigma[r][15]])
+    g(v0, v4, v8, v12, ctx.input[blake2bSigma[r][0]], ctx.input[blake2bSigma[r][1]])
+    g(v1, v5, v9, v13, ctx.input[blake2bSigma[r][2]], ctx.input[blake2bSigma[r][3]])
+    g(v2, v6, v10, v14, ctx.input[blake2bSigma[r][4]], ctx.input[blake2bSigma[r][5]])
+    g(v3, v7, v11, v15, ctx.input[blake2bSigma[r][6]], ctx.input[blake2bSigma[r][7]])
+    g(v0, v5, v10, v15, ctx.input[blake2bSigma[r][8]], ctx.input[blake2bSigma[r][9]])
+    g(v1, v6, v11, v12, ctx.input[blake2bSigma[r][10]], ctx.input[blake2bSigma[r][11]])
+    g(v2, v7, v8, v13, ctx.input[blake2bSigma[r][12]], ctx.input[blake2bSigma[r][13]])
+    g(v3, v4, v9, v14, ctx.input[blake2bSigma[r][14]], ctx.input[blake2bSigma[r][15]])
 
   blake2Round(0)
   blake2Round(1)
@@ -106,7 +85,7 @@ proc compress(ctx: var Blake2bContext, isLastBlock: int) =
 proc init*(ctx: var Blake2bContext, hashSize: int, key: openArray[byte] = []) =
   ## Initialize a BLAKE2b context. Optionally keyed for MAC usage.
   for i in 0 ..< 8:
-    ctx.hash[i] = iv[i]
+    ctx.hash[i] = blake2bIv[i]
   ctx.hash[0] = ctx.hash[0] xor uint64(0x01010000) xor
                 (uint64(key.len) shl 8) xor uint64(hashSize)
   ctx.inputOffset[0] = 0
@@ -214,5 +193,52 @@ proc keyedBlake2b*(message, key: openArray[byte], hashSize: int = 64): seq[byte]
   init(ctx, hashSize, key)
   update(ctx, message)
   result = final(ctx)
+
+when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+  proc blake2bParallel*[T](messages: array[4, T],
+                        hashSize: int = 64): array[4, seq[byte]] =
+    ## Hash four messages with BLAKE2b in parallel using SIMD. Equivalent to
+    ## calling `blake2b` on each message; matching 128-byte blocks of the
+    ## four messages are compressed together (one SIMD lane each). Messages
+    ## shorter than 128 bytes, and the trailing block of each message, are
+    ## finished with the scalar compressor.
+    var ctxs: array[4, Blake2bContext]
+    for k in 0 ..< 4:
+      init(ctxs[k], hashSize)
+    var offsets = [0, 0, 0, 0]
+    while true:
+      var nActive = 0
+      for k in 0 ..< 4:
+        if messages[k].len - offsets[k] > 128:
+          inc nActive
+      if nActive < 2:
+        break
+      var laneMask = 0'u64
+      var hashes: array[4, array[8, uint64]]
+      var offs: array[4, array[2, uint64]]
+      var blocks: array[4, array[16, uint64]]
+      for k in 0 ..< 4:
+        if messages[k].len - offsets[k] > 128:
+          laneMask = laneMask or (1'u64 shl k)
+          for j in 0 ..< 8:
+            hashes[k][j] = ctxs[k].hash[j]
+          # the offset fed to the compressor includes this block (the scalar
+          # `compress` adds the block length before XORing it into v12/v13)
+          offs[k][0] = ctxs[k].inputOffset[0] + 128
+          offs[k][1] = ctxs[k].inputOffset[1] +
+                       (if offs[k][0] < 128: 1'u64 else: 0'u64)
+          load64LeBuf(blocks[k].toOpenArray(0, 15),
+                      cast[BytePtr](unsafeAddr messages[k][offsets[k]]), 16)
+          offsets[k] += 128
+      compress4(hashes, offs, blocks, laneMask)
+      for k in 0 ..< 4:
+        if (laneMask and (1'u64 shl k)) != 0:
+          ctxs[k].hash = hashes[k]
+          ctxs[k].inputOffset = offs[k]
+    for k in 0 ..< 4:
+      let left = messages[k].len - offsets[k]
+      if left > 0:
+        update(ctxs[k], messages[k].toOpenArray(offsets[k], messages[k].len - 1))
+      result[k] = final(ctxs[k])
 
 {.pop.}
