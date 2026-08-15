@@ -1,0 +1,13 @@
+name: docs
+on:
+  push:
+    tags: ['*.*.*']
+    branches:
+      - main
+jobs:
+  docs:
+    permissions:
+      contents: write
+    uses: nimbase/setup-nim-action/.github/workflows/docs.yml@main
+    with:
+      nim-version: stable

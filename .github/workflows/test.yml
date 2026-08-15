@@ -1,0 +1,5 @@
+name: test
+on: [push, pull_request]
+jobs:
+  test:
+    uses: nimbase/setup-nim-action/.github/workflows/test.yml@main

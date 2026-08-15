@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="https://openpeeps.github.io/nimcypher/">API reference</a><br>
-  <img src="https://github.com/openpeeps/nimcypher/workflows/test/badge.svg" alt="Github Actions">  <img src="https://github.com/openpeeps/nimcypher/workflows/docs/badge.svg" alt="Github Actions">
+  <a href="https://nimbase.github.io/nimcypher/">API reference</a><br>
+  <img src="https://github.com/nimbase/nimcypher/workflows/test/badge.svg" alt="Github Actions">  <img src="https://github.com/nimbase/nimcypher/workflows/docs/badge.svg" alt="Github Actions">
 </p>
 
 
@@ -234,12 +234,9 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
 
 
 ### ❤ Contributions & Support
-- 🐛 Found a bug? [Create a new Issue](https://github.com/openpeeps/nimcypher/issues)
-- 👋 Wanna help? [Fork it!](https://github.com/openpeeps/nimcypher/fork)
+- 🐛 Found a bug? [Create a new Issue](https://github.com/nimbase/nimcypher/issues)
+- 👋 Wanna help? [Fork it!](https://github.com/nimbase/nimcypher/fork)
 
-|  |  |
-|---|---|
-| <a href="https://opencode.ai/go?ref=BHMEEK48QX"><img src="https://github.com/openpeeps/pistachio/blob/main/.github/opencode.png" alt="OpenCode"></a> | Switch to **Open-Source LLMs** via OpenCode GO, choosing from a variety of powerful models such as DeepSeek, Qwen, Kimi, GLM-5, MiniMax, MiMo. 🍕 [Use our referral link to get started!](https://opencode.ai/go?ref=BHMEEK48QX)|
 
 ### 🎩 License
 `BSD-2-Clause` OR `CC0-1.0` license. NimCypher is a port of [Monocypher](https://monocypher.org/) in Nim.
