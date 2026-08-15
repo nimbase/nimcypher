@@ -59,6 +59,21 @@
 </li>
 <li>
   <details open>
+    <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
+    <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#Chacha20Context" title="Chacha20Context = object
+  mode*: Chacha20Mode
+  key*: array[32, byte]
+  nonce*: array[8, byte]
+  counter*: uint64">Chacha20Context</a></li>
+<li><a class="reference" href="#Chacha20Mode" title="Chacha20Mode = enum
+  chacha20DjbMode, chacha20IetfMode, chacha20XMode">Chacha20Mode</a></li>
+
+    </ul>
+  </details>
+</li>
+<li>
+  <details open>
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">chacha20
@@ -77,6 +92,16 @@
   <li><a class="reference" href="#chacha20DjbScalar%2CBytePtr%2CBytePtr%2Cint%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64" title="chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
                   key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64">chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
                   key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">chacha20Encrypt
+  <li><a class="reference" href="#chacha20Encrypt%2CChacha20Context%2CopenArray%5Bbyte%5D" title="chacha20Encrypt(ctx: var Chacha20Context; data: openArray[byte]): seq[byte]">chacha20Encrypt(ctx: var Chacha20Context; data: openArray[byte]): seq[byte]</a></li>
+<li><a class="reference" href="#chacha20Encrypt%2CChacha20Context%2CBytePtr%2CBytePtr%2Cint" title="chacha20Encrypt(ctx: var Chacha20Context; dst, src: BytePtr; size: int): int">chacha20Encrypt(ctx: var Chacha20Context; dst, src: BytePtr; size: int): int</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">chacha20Final
+  <li><a class="reference" href="#chacha20Final%2CChacha20Context" title="chacha20Final(ctx: var Chacha20Context): seq[byte]">chacha20Final(ctx: var Chacha20Context): seq[byte]</a></li>
+<li><a class="reference" href="#chacha20Final%2CChacha20Context%2CBytePtr" title="chacha20Final(ctx: var Chacha20Context; dst: BytePtr): int">chacha20Final(ctx: var Chacha20Context; dst: BytePtr): int</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">chacha20H
@@ -115,6 +140,24 @@
           counter: uint64 = 0): seq[byte]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">initChacha20Djb
+  <li><a class="reference" href="#initChacha20Djb%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64" title="initChacha20Djb(ctx: var Chacha20Context; key: array[32, byte];
+                nonce: array[8, byte]; counter: uint64 = 0)">initChacha20Djb(ctx: var Chacha20Context; key: array[32, byte];
+                nonce: array[8, byte]; counter: uint64 = 0)</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initChacha20Ietf
+  <li><a class="reference" href="#initChacha20Ietf%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint32" title="initChacha20Ietf(ctx: var Chacha20Context; key: array[32, byte];
+                 nonce: array[12, byte]; counter: uint32 = 0)">initChacha20Ietf(ctx: var Chacha20Context; key: array[32, byte];
+                 nonce: array[12, byte]; counter: uint32 = 0)</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initChacha20X
+  <li><a class="reference" href="#initChacha20X%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64" title="initChacha20X(ctx: var Chacha20Context; key: array[32, byte];
+              nonce: array[24, byte]; counter: uint64 = 0)">initChacha20X(ctx: var Chacha20Context; key: array[32, byte];
+              nonce: array[24, byte]; counter: uint64 = 0)</a></li>
+
+</ul>
 
     </ul>
   </details>
@@ -132,6 +175,33 @@
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
     <a class="reference external" href="common.html">common</a>
+  </dl>
+</div>
+<div class="section" id="7">
+  <h1><a class="toc-backref" href="#7">Types</a></h1>
+  <dl class="item">
+    <div id="Chacha20Context">
+  <dt><pre><a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
+  <span class="Identifier">mode</span><span class="Operator">*</span><span class="Other">:</span> <a href="#Chacha20Mode"><span class="Identifier">Chacha20Mode</span></a>
+  <span class="Identifier">key</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span>
+  <span class="Identifier">nonce</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">8</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span>
+  <span class="Identifier">counter</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span></pre></dt>
+  <dd>
+    
+    A streaming ChaCha20 state. All three variants collapse to the DJB form once initialized, so the state always holds an 8-byte nonce.
+    
+  </dd>
+</div>
+<div id="Chacha20Mode">
+  <dt><pre><a href="#Chacha20Mode"><span class="Identifier">Chacha20Mode</span></a> <span class="Other">=</span> <span class="Keyword">enum</span>
+  <span class="Identifier">chacha20DjbMode</span><span class="Other">,</span> <span class="Identifier">chacha20IetfMode</span><span class="Other">,</span> <span class="Identifier">chacha20XMode</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
   </dl>
 </div>
 <div class="section" id="12">
@@ -171,6 +241,48 @@
   <dd>
     
     Scalar reference ChaCha20-DJB (never SIMD-accelerated).
+    
+  </dd>
+</div>
+
+</div>
+<div id="chacha20Encrypt-procs-all">
+  <div id="chacha20Encrypt,Chacha20Context,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20Encrypt%2CChacha20Context%2CopenArray%5Bbyte%5D"><span class="Identifier">chacha20Encrypt</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Encrypt (or decrypt) <tt class="docutils literal"><span class="pre"><span class="Identifier">data</span></span></tt>, returning the emitted ciphertext (or plaintext). Completing a buffered partial block can emit up to 64 bytes more than the input. A trailing partial block is buffered; flush it with <tt class="docutils literal"><span class="pre"><span class="Identifier">chacha20Final</span></span></tt> after the last chunk.
+    
+  </dd>
+</div>
+<div id="chacha20Encrypt,Chacha20Context,BytePtr,BytePtr,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20Encrypt%2CChacha20Context%2CBytePtr%2CBytePtr%2Cint"><span class="Identifier">chacha20Encrypt</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">;</span> <span class="Identifier">dst</span><span class="Other">,</span> <span class="Identifier">src</span><span class="Other">:</span> <a href="common.html#BytePtr"><span class="Identifier">BytePtr</span></a><span class="Other">;</span> <span class="Identifier">size</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Encrypt (or decrypt) <tt class="docutils literal"><span class="pre"><span class="Identifier">size</span></span></tt> bytes of the stream, returning the number of bytes written to <tt class="docutils literal"><span class="pre"><span class="Identifier">dst</span></span></tt>. The tail of an incomplete 64-byte block is buffered and written by the next call or by <tt class="docutils literal"><span class="pre"><span class="Identifier">chacha20Final</span></span></tt>, so the concatenated output always equals the one-shot over the concatenated input, regardless of chunk boundaries.
+    
+  </dd>
+</div>
+
+</div>
+<div id="chacha20Final-procs-all">
+  <div id="chacha20Final,Chacha20Context">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20Final%2CChacha20Context"><span class="Identifier">chacha20Final</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Flush the buffered tail of the stream and return it.
+    
+  </dd>
+</div>
+<div id="chacha20Final,Chacha20Context,BytePtr">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20Final%2CChacha20Context%2CBytePtr"><span class="Identifier">chacha20Final</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">;</span> <span class="Identifier">dst</span><span class="Other">:</span> <a href="common.html#BytePtr"><span class="Identifier">BytePtr</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Flush the buffered tail of the stream, returning the number of bytes written to <tt class="docutils literal"><span class="pre"><span class="Identifier">dst</span></span></tt> (0 if no tail was pending).
     
   </dd>
 </div>
@@ -288,6 +400,45 @@
 </div>
 
 </div>
+<div id="initChacha20Djb-procs-all">
+  <div id="initChacha20Djb,Chacha20Context,array[,byte],array[,byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initChacha20Djb%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64"><span class="Identifier">initChacha20Djb</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+                     <span class="Identifier">nonce</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">8</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">counter</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Initialize a ChaCha20 streaming context (DJB variant).
+    
+  </dd>
+</div>
+
+</div>
+<div id="initChacha20Ietf-procs-all">
+  <div id="initChacha20Ietf,Chacha20Context,array[,byte],array[,byte],uint32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initChacha20Ietf%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint32"><span class="Identifier">initChacha20Ietf</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+                      <span class="Identifier">nonce</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">12</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">counter</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Initialize a ChaCha20 streaming context (IETF variant). The first four nonce bytes become the upper 32 bits of the 64-bit stream counter.
+    
+  </dd>
+</div>
+
+</div>
+<div id="initChacha20X-procs-all">
+  <div id="initChacha20X,Chacha20Context,array[,byte],array[,byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initChacha20X%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64"><span class="Identifier">initChacha20X</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+                   <span class="Identifier">nonce</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">24</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">counter</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Initialize a ChaCha20 streaming context (XChaCha20 variant). The subkey is derived once from the first 16 nonce bytes.
+    
+  </dd>
+</div>
+
+</div>
 
   </dl>
 </div>
@@ -298,7 +449,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 11:36:37 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 13:27:51 UTC</small>
       </div>
     </div>
   </div>

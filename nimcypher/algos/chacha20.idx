@@ -12,7 +12,21 @@ nim	chacha20Ietf	nimcypher/algos/chacha20.html#chacha20Ietf,openArray[byte],arra
 nim	chacha20X	nimcypher/algos/chacha20.html#chacha20X,openArray[byte],array[,byte],array[,byte],uint64	proc chacha20X(data: openArray[byte]; key: array[32, byte]; nonce: array[24, byte];\n          counter: uint64 = 0): seq[byte]		339
 nim	chacha20H	nimcypher/algos/chacha20.html#chacha20H,array[,byte],array[,byte]	proc chacha20H(key: array[32, byte]; input: array[16, byte]): array[32, byte]		347
 nim	chacha20HScalar	nimcypher/algos/chacha20.html#chacha20HScalar,array[,byte],array[,byte]	proc chacha20HScalar(key: array[32, byte]; input: array[16, byte]): array[32, byte]		352
+nim	chacha20DjbMode	nimcypher/algos/chacha20.html#chacha20DjbMode	Chacha20Mode.chacha20DjbMode		359
+nim	chacha20IetfMode	nimcypher/algos/chacha20.html#chacha20IetfMode	Chacha20Mode.chacha20IetfMode		359
+nim	chacha20XMode	nimcypher/algos/chacha20.html#chacha20XMode	Chacha20Mode.chacha20XMode		359
+nim	Chacha20Mode	nimcypher/algos/chacha20.html#Chacha20Mode	enum Chacha20Mode		359
+nim	Chacha20Context	nimcypher/algos/chacha20.html#Chacha20Context	object Chacha20Context		362
+nim	initChacha20Djb	nimcypher/algos/chacha20.html#initChacha20Djb,Chacha20Context,array[,byte],array[,byte],uint64	proc initChacha20Djb(ctx: var Chacha20Context; key: array[32, byte];\n                nonce: array[8, byte]; counter: uint64 = 0)		372
+nim	initChacha20Ietf	nimcypher/algos/chacha20.html#initChacha20Ietf,Chacha20Context,array[,byte],array[,byte],uint32	proc initChacha20Ietf(ctx: var Chacha20Context; key: array[32, byte];\n                 nonce: array[12, byte]; counter: uint32 = 0)		381
+nim	initChacha20X	nimcypher/algos/chacha20.html#initChacha20X,Chacha20Context,array[,byte],array[,byte],uint64	proc initChacha20X(ctx: var Chacha20Context; key: array[32, byte];\n              nonce: array[24, byte]; counter: uint64 = 0)		393
+nim	chacha20Encrypt	nimcypher/algos/chacha20.html#chacha20Encrypt,Chacha20Context,BytePtr,BytePtr,int	proc chacha20Encrypt(ctx: var Chacha20Context; dst, src: BytePtr; size: int): int		407
+nim	chacha20Encrypt	nimcypher/algos/chacha20.html#chacha20Encrypt,Chacha20Context,openArray[byte]	proc chacha20Encrypt(ctx: var Chacha20Context; data: openArray[byte]): seq[byte]		457
+nim	chacha20Final	nimcypher/algos/chacha20.html#chacha20Final,Chacha20Context,BytePtr	proc chacha20Final(ctx: var Chacha20Context; dst: BytePtr): int		467
+nim	chacha20Final	nimcypher/algos/chacha20.html#chacha20Final,Chacha20Context	proc chacha20Final(ctx: var Chacha20Context): seq[byte]		483
+nimgrp	chacha20encrypt	nimcypher/algos/chacha20.html#chacha20Encrypt-procs-all	proc		407
 nimgrp	chacha20hscalar	nimcypher/algos/chacha20.html#chacha20HScalar-procs-all	proc		74
+nimgrp	chacha20final	nimcypher/algos/chacha20.html#chacha20Final-procs-all	proc		467
 nimgrp	chacha20h	nimcypher/algos/chacha20.html#chacha20H-procs-all	proc		61
 nimgrp	chacha20ietf	nimcypher/algos/chacha20.html#chacha20Ietf-procs-all	proc		296
 nimgrp	chacha20x	nimcypher/algos/chacha20.html#chacha20X-procs-all	proc		306

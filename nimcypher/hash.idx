@@ -44,13 +44,14 @@ nim	update	nimcypher/hash.html#update,Sha512HmacState,openArray[byte]	proc updat
 nim	update	nimcypher/hash.html#update,Sha512HmacState,string	proc update(state: var Sha512HmacState; message: string)		182
 nim	finish	nimcypher/hash.html#finish,Sha512HmacState	proc finish(state: var Sha512HmacState): Sha512Hmac		185
 nim	finishHex	nimcypher/hash.html#finishHex,Sha512HmacState	proc finishHex(state: var Sha512HmacState): string		191
-nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte],Natural	proc hkdfSha512(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]		195
-nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,string,string,string,Natural	proc hkdfSha512(ikm, salt, info: string; okmLen: Natural): seq[byte]		199
-nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte],Natural	proc hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]		202
-nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,string,string,Natural	proc hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]		206
-nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte]	proc hkdfSha512[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]		209
-nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte]	proc hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]		215
-nim	verifyDigest	nimcypher/hash.html#verifyDigest,openArray[byte],openArray[byte]	proc verifyDigest(a, b: openArray[byte]): bool		221
+nim	HkdfMaxOkmLen	nimcypher/hash.html#HkdfMaxOkmLen	const HkdfMaxOkmLen		197
+nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte],Natural	proc hkdfSha512(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]		204
+nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,string,string,string,Natural	proc hkdfSha512(ikm, salt, info: string; okmLen: Natural): seq[byte]		209
+nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte],Natural	proc hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]		212
+nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,string,string,Natural	proc hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]		217
+nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte]	proc hkdfSha512[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]		220
+nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte]	proc hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]		226
+nim	verifyDigest	nimcypher/hash.html#verifyDigest,openArray[byte],openArray[byte]	proc verifyDigest(a, b: openArray[byte]): bool		232
 nimgrp	sha512	nimcypher/hash.html#sha512-procs-all	proc		122
 nimgrp	sha512hex	nimcypher/hash.html#sha512Hex-procs-all	proc		128
 nimgrp	blake	nimcypher/hash.html#blake-procs-all	proc		49
@@ -64,5 +65,5 @@ nimgrp	update	nimcypher/hash.html#update-procs-all	proc		104
 nimgrp	sha512hmac	nimcypher/hash.html#sha512Hmac-procs-all	proc		157
 nimgrp	initblake2bkeyed	nimcypher/hash.html#initBlake2bKeyed-procs-all	proc		92
 nimgrp	sha512hmachex	nimcypher/hash.html#sha512HmacHex-procs-all	proc		163
-nimgrp	hkdfsha512	nimcypher/hash.html#hkdfSha512-procs-all	proc		195
-nimgrp	hkdfexpandsha512	nimcypher/hash.html#hkdfExpandSha512-procs-all	proc		202
+nimgrp	hkdfsha512	nimcypher/hash.html#hkdfSha512-procs-all	proc		204
+nimgrp	hkdfexpandsha512	nimcypher/hash.html#hkdfExpandSha512-procs-all	proc		212

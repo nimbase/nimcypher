@@ -77,6 +77,18 @@
   <li><a class="reference" href="#eddsaKeyPair%2Carray%5B%2Cbyte%5D" title="eddsaKeyPair(seed: array[32, byte]): (array[64, byte], array[32, byte])">eddsaKeyPair(seed: array[32, byte]): (array[64, byte], array[32, byte])</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">eddsaPhCheck
+  <li><a class="reference" href="#eddsaPhCheck%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D" title="eddsaPhCheck(signature: array[64, byte]; publicKey: array[32, byte];
+             messageHash: array[64, byte]): bool">eddsaPhCheck(signature: array[64, byte]; publicKey: array[32, byte];
+             messageHash: array[64, byte]): bool</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">eddsaPhSign
+  <li><a class="reference" href="#eddsaPhSign%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D" title="eddsaPhSign(messageHash: array[64, byte]; secretKey: array[64, byte]): array[64,
+    byte]">eddsaPhSign(messageHash: array[64, byte]; secretKey: array[64, byte]): array[64,
+    byte]</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">eddsaSign
   <li><a class="reference" href="#eddsaSign%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D" title="eddsaSign(message: openArray[byte]; secretKey: array[64, byte]): array[64, byte]">eddsaSign(message: openArray[byte]; secretKey: array[64, byte]): array[64, byte]</a></li>
 
@@ -156,6 +168,31 @@
 </div>
 
 </div>
+<div id="eddsaPhCheck-procs-all">
+  <div id="eddsaPhCheck,array[,byte],array[,byte],array[,byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#eddsaPhCheck%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D"><span class="Identifier">eddsaPhCheck</span></a><span class="Other">(</span><span class="Identifier">signature</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">64</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">publicKey</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+                  <span class="Identifier">messageHash</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">64</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Verify a BLAKE2b-based EdDSAph signature of a pre-hashed message.
+    
+  </dd>
+</div>
+
+</div>
+<div id="eddsaPhSign-procs-all">
+  <div id="eddsaPhSign,array[,byte],array[,byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#eddsaPhSign%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D"><span class="Identifier">eddsaPhSign</span></a><span class="Other">(</span><span class="Identifier">messageHash</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">64</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">secretKey</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">64</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span>
+    <span class="DecNumber">64</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Sign a pre-hashed message (BLAKE2b-based EdDSAph, RFC 8032). <tt class="docutils literal"><span class="pre"><span class="Identifier">messageHash</span></span></tt> is the 64-byte BLAKE2b hash of the message. NimCypher extension: Monocypher 4.0.3 only provides the SHA-512 variant (<tt class="docutils literal"><span class="pre"><span class="Identifier">ed25519PhSign</span></span></tt>).
+    
+  </dd>
+</div>
+
+</div>
 <div id="eddsaSign-procs-all">
   <div id="eddsaSign,openArray[byte],array[,byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#eddsaSign%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D"><span class="Identifier">eddsaSign</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">secretKey</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">64</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">64</span><span class="Other">,</span>
@@ -226,7 +263,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 11:36:37 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 13:27:51 UTC</small>
       </div>
     </div>
   </div>

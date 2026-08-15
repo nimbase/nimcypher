@@ -7,3 +7,5 @@ nim	eddsaKeyPair	nimcypher/algos/eddsa.html#eddsaKeyPair,array[,byte]	proc eddsa
 nim	eddsaSign	nimcypher/algos/eddsa.html#eddsaSign,openArray[byte],array[,byte]	proc eddsaSign(message: openArray[byte]; secretKey: array[64, byte]): array[64, byte]		70
 nim	checkEquation	nimcypher/algos/eddsa.html#checkEquation,array[,byte],array[,byte],array[,byte]	proc checkEquation(signature: array[64, byte]; publicKey: array[32, byte];\n              h: array[32, byte]): bool		93
 nim	eddsaCheck	nimcypher/algos/eddsa.html#eddsaCheck,array[,byte],array[,byte],openArray[byte]	proc eddsaCheck(signature: array[64, byte]; publicKey: array[32, byte];\n           message: openArray[byte]): bool		156
+nim	eddsaPhSign	nimcypher/algos/eddsa.html#eddsaPhSign,array[,byte],array[,byte]	proc eddsaPhSign(messageHash: array[64, byte]; secretKey: array[64, byte]): array[64,\n    byte]		163
+nim	eddsaPhCheck	nimcypher/algos/eddsa.html#eddsaPhCheck,array[,byte],array[,byte],array[,byte]	proc eddsaPhCheck(signature: array[64, byte]; publicKey: array[32, byte];\n             messageHash: array[64, byte]): bool		171

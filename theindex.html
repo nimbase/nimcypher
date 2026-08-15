@@ -28,10 +28,14 @@
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="index.html">nimcypher</a>, <a href="nimcypher/algos/aead.html">nimcypher/algos/aead</a>, <a href="nimcypher/algos/argon2.html">nimcypher/algos/argon2</a>, <a href="nimcypher/algos/blake2b.html">nimcypher/algos/blake2b</a>, <a href="nimcypher/algos/chacha20.html">nimcypher/algos/chacha20</a>, <a href="nimcypher/algos/common.html">nimcypher/algos/common</a>, <a href="nimcypher/algos/eddsa.html">nimcypher/algos/eddsa</a>, <a href="nimcypher/algos/hkdf.html">nimcypher/algos/hkdf</a>, <a href="nimcypher/algos/internal/edl.html">nimcypher/algos/internal/edl</a>, <a href="nimcypher/algos/internal/fe.html">nimcypher/algos/internal/fe</a>, <a href="nimcypher/algos/internal/ge.html">nimcypher/algos/internal/ge</a>, <a href="nimcypher/algos/poly1305.html">nimcypher/algos/poly1305</a>, <a href="nimcypher/algos/sha512.html">nimcypher/algos/sha512</a>, <a href="nimcypher/algos/x25519.html">nimcypher/algos/x25519</a>, <a href="nimcypher/encrypt.html">nimcypher/encrypt</a>, <a href="nimcypher/hash.html">nimcypher/hash</a>, <a href="nimcypher/password.html">nimcypher/password</a>, <a href="nimcypher/sign.html">nimcypher/sign</a>, <a href="nimcypher/utils.html">nimcypher/utils</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="index.html">nimcypher</a>, <a href="nimcypher/algos/aead.html">nimcypher/algos/aead</a>, <a href="nimcypher/algos/argon2.html">nimcypher/algos/argon2</a>, <a href="nimcypher/algos/blake2b.html">nimcypher/algos/blake2b</a>, <a href="nimcypher/algos/chacha20.html">nimcypher/algos/chacha20</a>, <a href="nimcypher/algos/common.html">nimcypher/algos/common</a>, <a href="nimcypher/algos/eddsa.html">nimcypher/algos/eddsa</a>, <a href="nimcypher/algos/hkdf.html">nimcypher/algos/hkdf</a>, <a href="nimcypher/algos/internal/edl.html">nimcypher/algos/internal/edl</a>, <a href="nimcypher/algos/internal/fe.html">nimcypher/algos/internal/fe</a>, <a href="nimcypher/algos/internal/ge.html">nimcypher/algos/internal/ge</a>, <a href="nimcypher/algos/poly1305.html">nimcypher/algos/poly1305</a>, <a href="nimcypher/algos/sha512.html">nimcypher/algos/sha512</a>, <a href="nimcypher/algos/x25519.html">nimcypher/algos/x25519</a>, <a href="nimcypher/encrypt.html">nimcypher/encrypt</a>, <a href="nimcypher/hash.html">nimcypher/hash</a>, <a href="nimcypher/password.html">nimcypher/password</a>, <a href="nimcypher/secret.html">nimcypher/secret</a>, <a href="nimcypher/sign.html">nimcypher/sign</a>, <a href="nimcypher/utils.html">nimcypher/utils</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%2B%60" href="#%60%2B%60"><span>`+`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc `+`(p: BytePtr; n: int): BytePtr" href="nimcypher/algos/common.html#%2B%2CBytePtr%2Cint">common: proc `+`(p: BytePtr; n: int): BytePtr</a></li>
+          </ul></dd>
+<dt><a name="%60%3Ddestroy%60" href="#%60%3Ddestroy%60"><span>`=destroy`:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="secret: proc `=destroy`[T](s: var Secret[T])" href="nimcypher/secret.html#%3Ddestroy%2CSecret%5BT%5D">secret: proc `=destroy`[T](s: var Secret[T])</a></li>
           </ul></dd>
 <dt><a name="A2" href="#A2"><span>A2:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -151,6 +155,10 @@
 <li><a class="reference external"
           data-doc-search-tag="hash: const Blake2bDefaultDigestSize" href="nimcypher/hash.html#Blake2bDefaultDigestSize">hash: const Blake2bDefaultDigestSize</a></li>
           </ul></dd>
+<dt><a name="blake2bIv" href="#blake2bIv"><span>blake2bIv:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: const blake2bIv" href="nimcypher/algos/common.html#blake2bIv">common: const blake2bIv</a></li>
+          </ul></dd>
 <dt><a name="Blake2bMaxDigestSize" href="#Blake2bMaxDigestSize"><span>Blake2bMaxDigestSize:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="hash: const Blake2bMaxDigestSize" href="nimcypher/hash.html#Blake2bMaxDigestSize">hash: const Blake2bMaxDigestSize</a></li>
@@ -162,6 +170,10 @@
 <dt><a name="Blake2bMinDigestSize" href="#Blake2bMinDigestSize"><span>Blake2bMinDigestSize:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="hash: const Blake2bMinDigestSize" href="nimcypher/hash.html#Blake2bMinDigestSize">hash: const Blake2bMinDigestSize</a></li>
+          </ul></dd>
+<dt><a name="blake2bSigma" href="#blake2bSigma"><span>blake2bSigma:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: const blake2bSigma" href="nimcypher/algos/common.html#blake2bSigma">common: const blake2bSigma</a></li>
           </ul></dd>
 <dt><a name="blakeHex" href="#blakeHex"><span>blakeHex:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -205,17 +217,37 @@
          counter: uint64 = 0): seq[byte]" href="nimcypher/algos/chacha20.html#chacha20%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc chacha20(data: openArray[byte]; key: array[32, byte]; nonce: array[8, byte];
          counter: uint64 = 0): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="Chacha20Context" href="#Chacha20Context"><span>Chacha20Context:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: object Chacha20Context" href="nimcypher/algos/chacha20.html#Chacha20Context">chacha20: object Chacha20Context</a></li>
+          </ul></dd>
 <dt><a name="chacha20Djb" href="#chacha20Djb"><span>chacha20Djb:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="chacha20: proc chacha20Djb(cipherText: BytePtr; plainText: BytePtr; textSize: int;
             key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64" href="nimcypher/algos/chacha20.html#chacha20Djb%2CBytePtr%2CBytePtr%2Cint%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc chacha20Djb(cipherText: BytePtr; plainText: BytePtr; textSize: int;
             key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64</a></li>
           </ul></dd>
+<dt><a name="chacha20DjbMode" href="#chacha20DjbMode"><span>chacha20DjbMode:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: Chacha20Mode.chacha20DjbMode" href="nimcypher/algos/chacha20.html#chacha20DjbMode">chacha20: Chacha20Mode.chacha20DjbMode</a></li>
+          </ul></dd>
 <dt><a name="chacha20DjbScalar" href="#chacha20DjbScalar"><span>chacha20DjbScalar:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="chacha20: proc chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
                   key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64" href="nimcypher/algos/chacha20.html#chacha20DjbScalar%2CBytePtr%2CBytePtr%2Cint%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
                   key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64</a></li>
+          </ul></dd>
+<dt><a name="chacha20Encrypt" href="#chacha20Encrypt"><span>chacha20Encrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20Encrypt(ctx: var Chacha20Context; dst, src: BytePtr; size: int): int" href="nimcypher/algos/chacha20.html#chacha20Encrypt%2CChacha20Context%2CBytePtr%2CBytePtr%2Cint">chacha20: proc chacha20Encrypt(ctx: var Chacha20Context; dst, src: BytePtr; size: int): int</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20Encrypt(ctx: var Chacha20Context; data: openArray[byte]): seq[byte]" href="nimcypher/algos/chacha20.html#chacha20Encrypt%2CChacha20Context%2CopenArray%5Bbyte%5D">chacha20: proc chacha20Encrypt(ctx: var Chacha20Context; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="chacha20Final" href="#chacha20Final"><span>chacha20Final:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20Final(ctx: var Chacha20Context): seq[byte]" href="nimcypher/algos/chacha20.html#chacha20Final%2CChacha20Context">chacha20: proc chacha20Final(ctx: var Chacha20Context): seq[byte]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20Final(ctx: var Chacha20Context; dst: BytePtr): int" href="nimcypher/algos/chacha20.html#chacha20Final%2CChacha20Context%2CBytePtr">chacha20: proc chacha20Final(ctx: var Chacha20Context; dst: BytePtr): int</a></li>
           </ul></dd>
 <dt><a name="chacha20H" href="#chacha20H"><span>chacha20H:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -239,6 +271,14 @@
              nonce: array[12, byte]; counter: uint32 = 0): seq[byte]" href="nimcypher/algos/chacha20.html#chacha20Ietf%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint32">chacha20: proc chacha20Ietf(data: openArray[byte]; key: array[32, byte];
              nonce: array[12, byte]; counter: uint32 = 0): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="chacha20IetfMode" href="#chacha20IetfMode"><span>chacha20IetfMode:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: Chacha20Mode.chacha20IetfMode" href="nimcypher/algos/chacha20.html#chacha20IetfMode">chacha20: Chacha20Mode.chacha20IetfMode</a></li>
+          </ul></dd>
+<dt><a name="Chacha20Mode" href="#Chacha20Mode"><span>Chacha20Mode:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: enum Chacha20Mode" href="nimcypher/algos/chacha20.html#Chacha20Mode">chacha20: enum Chacha20Mode</a></li>
+          </ul></dd>
 <dt><a name="chacha20Rounds" href="#chacha20Rounds"><span>chacha20Rounds:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="chacha20: proc chacha20Rounds(outp: var array[16, uint32]; inp: array[16, uint32])" href="nimcypher/algos/chacha20.html#chacha20Rounds%2Carray%5B%2Cuint32%5D%2Carray%5B%2Cuint32%5D">chacha20: proc chacha20Rounds(outp: var array[16, uint32]; inp: array[16, uint32])</a></li>
@@ -256,6 +296,10 @@
           data-doc-search-tag="chacha20: proc chacha20X(data: openArray[byte]; key: array[32, byte]; nonce: array[24, byte];
           counter: uint64 = 0): seq[byte]" href="nimcypher/algos/chacha20.html#chacha20X%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc chacha20X(data: openArray[byte]; key: array[32, byte]; nonce: array[24, byte];
           counter: uint64 = 0): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="chacha20XMode" href="#chacha20XMode"><span>chacha20XMode:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: Chacha20Mode.chacha20XMode" href="nimcypher/algos/chacha20.html#chacha20XMode">chacha20: Chacha20Mode.chacha20XMode</a></li>
           </ul></dd>
 <dt><a name="checkEquation" href="#checkEquation"><span>checkEquation:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -293,7 +337,7 @@
           </ul></dd>
 <dt><a name="deriveKeyFromPassword" href="#deriveKeyFromPassword"><span>deriveKeyFromPassword:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="password: proc deriveKeyFromPassword(password: string; salt: RandomBytes): Key32" href="nimcypher/password.html#deriveKeyFromPassword%2Cstring%2CRandomBytes">password: proc deriveKeyFromPassword(password: string; salt: RandomBytes): Key32</a></li>
+          data-doc-search-tag="password: proc deriveKeyFromPassword(password: string; salt: RandomBytes): Secret[Key32]" href="nimcypher/password.html#deriveKeyFromPassword%2Cstring%2CRandomBytes">password: proc deriveKeyFromPassword(password: string; salt: RandomBytes): Secret[Key32]</a></li>
           </ul></dd>
 <dt><a name="eddsaCheck" href="#eddsaCheck"><span>eddsaCheck:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -304,6 +348,22 @@
 <dt><a name="eddsaKeyPair" href="#eddsaKeyPair"><span>eddsaKeyPair:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="eddsa: proc eddsaKeyPair(seed: array[32, byte]): (array[64, byte], array[32, byte])" href="nimcypher/algos/eddsa.html#eddsaKeyPair%2Carray%5B%2Cbyte%5D">eddsa: proc eddsaKeyPair(seed: array[32, byte]): (array[64, byte], array[32, byte])</a></li>
+          </ul></dd>
+<dt><a name="eddsaPhCheck" href="#eddsaPhCheck"><span>eddsaPhCheck:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eddsa: proc eddsaPhCheck(signature: array[64, byte]; publicKey: array[32, byte];
+             messageHash: array[64, byte]): bool" href="nimcypher/algos/eddsa.html#eddsaPhCheck%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">eddsa: proc eddsaPhCheck(signature: array[64, byte]; publicKey: array[32, byte];
+             messageHash: array[64, byte]): bool</a></li>
+          </ul></dd>
+<dt><a name="eddsaPhSign" href="#eddsaPhSign"><span>eddsaPhSign:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="eddsa: proc eddsaPhSign(messageHash: array[64, byte]; secretKey: array[64, byte]): array[64,
+    byte]" href="nimcypher/algos/eddsa.html#eddsaPhSign%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">eddsa: proc eddsaPhSign(messageHash: array[64, byte]; secretKey: array[64, byte]): array[64,
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="eddsaSecretToX25519" href="#eddsaSecretToX25519"><span>eddsaSecretToX25519:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="x25519: proc eddsaSecretToX25519(eddsaSecret: array[64, byte]): array[32, byte]" href="nimcypher/algos/x25519.html#eddsaSecretToX25519%2Carray%5B%2Cbyte%5D">x25519: proc eddsaSecretToX25519(eddsaSecret: array[64, byte]): array[32, byte]</a></li>
           </ul></dd>
 <dt><a name="eddsaSign" href="#eddsaSign"><span>eddsaSign:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -463,7 +523,9 @@
           </ul></dd>
 <dt><a name="generateSalt" href="#generateSalt"><span>generateSalt:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="utils: proc generateSalt(len: static int = 16): RandomBytes" href="nimcypher/utils.html#generateSalt%2Cstaticint">utils: proc generateSalt(len: static int = 16): RandomBytes</a></li>
+          data-doc-search-tag="utils: proc generateSalt(): RandomBytes" href="nimcypher/utils.html#generateSalt">utils: proc generateSalt(): RandomBytes</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="utils: proc generateSalt(len: static int): array[len, uint8]" href="nimcypher/utils.html#generateSalt%2Cstaticint">utils: proc generateSalt(len: static int): array[len, uint8]</a></li>
           </ul></dd>
 <dt><a name="generateSigningKeyPair" href="#generateSigningKeyPair"><span>generateSigningKeyPair:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -503,6 +565,10 @@
           <li><a class="reference external"
           data-doc-search-tag="hash: proc hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]" href="nimcypher/hash.html#hkdfExpandSha512%2Cstring%2Cstring%2CNatural">hash: proc hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="HkdfMaxOkmLen" href="#HkdfMaxOkmLen"><span>HkdfMaxOkmLen:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hash: const HkdfMaxOkmLen" href="nimcypher/hash.html#HkdfMaxOkmLen">hash: const HkdfMaxOkmLen</a></li>
+          </ul></dd>
 <dt><a name="hkdfSha512" href="#hkdfSha512"><span>hkdfSha512:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="hash: proc hkdfSha512[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]" href="nimcypher/hash.html#hkdfSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">hash: proc hkdfSha512[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]</a></li>
@@ -538,6 +604,24 @@
           data-doc-search-tag="hash: proc initBlake2bKeyed(key: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): Blake2b" href="nimcypher/hash.html#initBlake2bKeyed%2CopenArray%5Bbyte%5D%2Cint">hash: proc initBlake2bKeyed(key: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): Blake2b</a></li>
           <li><a class="reference external"
           data-doc-search-tag="hash: proc initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b" href="nimcypher/hash.html#initBlake2bKeyed%2Cstring%2Cint">hash: proc initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b</a></li>
+          </ul></dd>
+<dt><a name="initChacha20Djb" href="#initChacha20Djb"><span>initChacha20Djb:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc initChacha20Djb(ctx: var Chacha20Context; key: array[32, byte];
+                nonce: array[8, byte]; counter: uint64 = 0)" href="nimcypher/algos/chacha20.html#initChacha20Djb%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc initChacha20Djb(ctx: var Chacha20Context; key: array[32, byte];
+                nonce: array[8, byte]; counter: uint64 = 0)</a></li>
+          </ul></dd>
+<dt><a name="initChacha20Ietf" href="#initChacha20Ietf"><span>initChacha20Ietf:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc initChacha20Ietf(ctx: var Chacha20Context; key: array[32, byte];
+                 nonce: array[12, byte]; counter: uint32 = 0)" href="nimcypher/algos/chacha20.html#initChacha20Ietf%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint32">chacha20: proc initChacha20Ietf(ctx: var Chacha20Context; key: array[32, byte];
+                 nonce: array[12, byte]; counter: uint32 = 0)</a></li>
+          </ul></dd>
+<dt><a name="initChacha20X" href="#initChacha20X"><span>initChacha20X:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc initChacha20X(ctx: var Chacha20Context; key: array[32, byte];
+              nonce: array[24, byte]; counter: uint64 = 0)" href="nimcypher/algos/chacha20.html#initChacha20X%2CChacha20Context%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc initChacha20X(ctx: var Chacha20Context; key: array[32, byte];
+              nonce: array[24, byte]; counter: uint64 = 0)</a></li>
           </ul></dd>
 <dt><a name="initDjb" href="#initDjb"><span>initDjb:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -587,7 +671,7 @@
           </ul></dd>
 <dt><a name="keyPairFromPassword" href="#keyPairFromPassword"><span>keyPairFromPassword:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="password: proc keyPairFromPassword(password: string; salt: RandomBytes): (Key32, Key32)" href="nimcypher/password.html#keyPairFromPassword%2Cstring%2CRandomBytes">password: proc keyPairFromPassword(password: string; salt: RandomBytes): (Key32, Key32)</a></li>
+          data-doc-search-tag="password: proc keyPairFromPassword(password: string; salt: RandomBytes): (Secret[Key32], Key32)" href="nimcypher/password.html#keyPairFromPassword%2Cstring%2CRandomBytes">password: proc keyPairFromPassword(password: string; salt: RandomBytes): (Secret[Key32], Key32)</a></li>
           </ul></dd>
 <dt><a name="load24Le" href="#load24Le"><span>load24Le:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -727,6 +811,14 @@
 <li><a class="reference external"
           data-doc-search-tag="encrypt: object SealedMessage" href="nimcypher/encrypt.html#SealedMessage">encrypt: object SealedMessage</a></li>
           </ul></dd>
+<dt><a name="Secret" href="#Secret"><span>Secret:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="secret: object Secret" href="nimcypher/secret.html#Secret">secret: object Secret</a></li>
+          </ul></dd>
+<dt><a name="secret" href="#secret"><span>secret:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="secret: proc secret[T](data: T): Secret[T]" href="nimcypher/secret.html#secret%2CT">secret: proc secret[T](data: T): Secret[T]</a></li>
+          </ul></dd>
 <dt><a name="SecretKey" href="#SecretKey"><span>SecretKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="utils: type SecretKey" href="nimcypher/utils.html#SecretKey">utils: type SecretKey</a></li>
@@ -737,6 +829,8 @@
           </ul></dd>
 <dt><a name="secretKeyToHex" href="#secretKeyToHex"><span>secretKeyToHex:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="sign: proc secretKeyToHex(k: Secret[SecretKey]): string" href="nimcypher/sign.html#secretKeyToHex%2CSecret%5BSecretKey%5D">sign: proc secretKeyToHex(k: Secret[SecretKey]): string</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="sign: proc secretKeyToHex(k: SecretKey): string" href="nimcypher/sign.html#secretKeyToHex%2CSecretKey">sign: proc secretKeyToHex(k: SecretKey): string</a></li>
           </ul></dd>
 <dt><a name="Seed32" href="#Seed32"><span>Seed32:</span></a></dt><dd><ul class="simple">
@@ -819,10 +913,14 @@
           </ul></dd>
 <dt><a name="sharedSecret" href="#sharedSecret"><span>sharedSecret:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="encrypt: proc sharedSecret(mySecret: Key32; theirPublic: Key32): Key32" href="nimcypher/encrypt.html#sharedSecret%2CKey32%2CKey32">encrypt: proc sharedSecret(mySecret: Key32; theirPublic: Key32): Key32</a></li>
+          data-doc-search-tag="encrypt: proc sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]" href="nimcypher/encrypt.html#sharedSecret%2CKey32%2CKey32">encrypt: proc sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]</a></li>
           </ul></dd>
 <dt><a name="sign" href="#sign"><span>sign:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
+          data-doc-search-tag="sign: proc sign(secretKey: Secret[SecretKey]; message: openArray[byte]): Signature" href="nimcypher/sign.html#sign%2CSecret%5BSecretKey%5D%2CopenArray%5Bbyte%5D">sign: proc sign(secretKey: Secret[SecretKey]; message: openArray[byte]): Signature</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="sign: proc sign(secretKey: Secret[SecretKey]; message: string): Signature" href="nimcypher/sign.html#sign%2CSecret%5BSecretKey%5D%2Cstring">sign: proc sign(secretKey: Secret[SecretKey]; message: string): Signature</a></li>
+          <li><a class="reference external"
           data-doc-search-tag="sign: proc sign(secretKey: SecretKey; message: openArray[byte]): Signature" href="nimcypher/sign.html#sign%2CSecretKey%2CopenArray%5Bbyte%5D">sign: proc sign(secretKey: SecretKey; message: openArray[byte]): Signature</a></li>
           <li><a class="reference external"
           data-doc-search-tag="sign: proc sign(secretKey: SecretKey; message: string): Signature" href="nimcypher/sign.html#sign%2CSecretKey%2Cstring">sign: proc sign(secretKey: SecretKey; message: string): Signature</a></li>
@@ -933,6 +1031,18 @@
           <li><a class="reference external"
           data-doc-search-tag="sign: proc verify(publicKey: PublicKey; message: string; signature: Signature): bool" href="nimcypher/sign.html#verify%2CPublicKey%2Cstring%2CSignature">sign: proc verify(publicKey: PublicKey; message: string; signature: Signature): bool</a></li>
           </ul></dd>
+<dt><a name="verify16" href="#verify16"><span>verify16:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc verify16(a, b: array[16, byte]): bool" href="nimcypher/algos/common.html#verify16%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">common: proc verify16(a, b: array[16, byte]): bool</a></li>
+          </ul></dd>
+<dt><a name="verify32" href="#verify32"><span>verify32:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc verify32(a, b: array[32, byte]): bool" href="nimcypher/algos/common.html#verify32%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">common: proc verify32(a, b: array[32, byte]): bool</a></li>
+          </ul></dd>
+<dt><a name="verify64" href="#verify64"><span>verify64:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="common: proc verify64(a, b: array[64, byte]): bool" href="nimcypher/algos/common.html#verify64%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">common: proc verify64(a, b: array[64, byte]): bool</a></li>
+          </ul></dd>
 <dt><a name="verifyChallengeMac" href="#verifyChallengeMac"><span>verifyChallengeMac:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="encrypt: proc verifyChallengeMac(secret: Key32; challenge: Mac16; received: Mac16): bool" href="nimcypher/encrypt.html#verifyChallengeMac%2CKey32%2CMac16%2CMac16">encrypt: proc verifyChallengeMac(secret: Key32; challenge: Mac16; received: Mac16): bool</a></li>
@@ -952,6 +1062,10 @@
           data-doc-search-tag="common: proc wipe[T](x: var T)" href="nimcypher/algos/common.html#wipe%2CT">common: proc wipe[T](x: var T)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="utils: proc wipe(secret: var openArray[byte])" href="nimcypher/utils.html#wipe%2CopenArray%5Bbyte%5D">utils: proc wipe(secret: var openArray[byte])</a></li>
+          </ul></dd>
+<dt><a name="wipeSecret" href="#wipeSecret"><span>wipeSecret:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="secret: proc wipeSecret[T](s: var Secret[T])" href="nimcypher/secret.html#wipeSecret%2CSecret%5BT%5D">secret: proc wipeSecret[T](s: var Secret[T])</a></li>
           </ul></dd>
 <dt><a name="write" href="#write"><span>write:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -997,7 +1111,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 11:36:37 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 13:27:51 UTC</small>
       </div>
     </div>
   </div>

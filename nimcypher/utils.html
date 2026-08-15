@@ -86,7 +86,8 @@
 
 </ul>
 <ul class="simple nested-toc-section">generateSalt
-  <li><a class="reference" href="#generateSalt%2Cstaticint" title="generateSalt(len: static int = 16): RandomBytes">generateSalt(len: static int = 16): RandomBytes</a></li>
+  <li><a class="reference" href="#generateSalt" title="generateSalt(): RandomBytes">generateSalt(): RandomBytes</a></li>
+<li><a class="reference" href="#generateSalt%2Cstaticint" title="generateSalt(len: static int): array[len, uint8]">generateSalt(len: static int): array[len, uint8]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">randomBytes
@@ -229,11 +230,20 @@
 
 </div>
 <div id="generateSalt-procs-all">
-  <div id="generateSalt,staticint">
-  <dt><pre><span class="Keyword">proc</span> <a href="#generateSalt%2Cstaticint"><span class="Identifier">generateSalt</span></a><span class="Other">(</span><span class="Identifier">len</span><span class="Other">:</span> <span class="Keyword">static</span> <span class="Identifier">int</span> <span class="Other">=</span> <span class="DecNumber">16</span><span class="Other">)</span><span class="Other">:</span> <a href="#RandomBytes"><span class="Identifier">RandomBytes</span></a></pre></dt>
+  <div id="generateSalt">
+  <dt><pre><span class="Keyword">proc</span> <a href="#generateSalt"><span class="Identifier">generateSalt</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="#RandomBytes"><span class="Identifier">RandomBytes</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+                                   <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Generate a random salt (default 16 bytes).
+    Generate a random 16-byte salt.
+    
+  </dd>
+</div>
+<div id="generateSalt,staticint">
+  <dt><pre><span class="Keyword">proc</span> <a href="#generateSalt%2Cstaticint"><span class="Identifier">generateSalt</span></a><span class="Other">(</span><span class="Identifier">len</span><span class="Other">:</span> <span class="Keyword">static</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">len</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    Generate a random salt of <tt class="docutils literal"><span class="pre"><span class="Identifier">len</span></span></tt> bytes.
     
   </dd>
 </div>
@@ -255,7 +265,7 @@
   <dt><pre><span class="Keyword">proc</span> <a href="#toArray%2CopenArray%5Bbyte%5D"><span class="Identifier">toArray</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">:</span> <span class="Keyword">static</span> <span class="Identifier">int</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">b</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
   <dd>
     
-    Convert a byte buffer to a fixed-size array.
+    Convert a byte buffer to a fixed-size array. Raises <tt class="docutils literal"><span class="pre"><span class="Identifier">ValueError</span></span></tt> if the buffer length does not match <tt class="docutils literal"><span class="pre"><span class="Identifier">N</span></span></tt>.
     
   </dd>
 </div>
@@ -315,7 +325,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 11:36:37 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 13:27:51 UTC</small>
       </div>
     </div>
   </div>

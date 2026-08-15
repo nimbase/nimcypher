@@ -1,29 +1,29 @@
 nimTitle	encrypt	nimcypher/encrypt.html	module nimcypher/encrypt		0
-nim	SealedMessage	nimcypher/encrypt.html#SealedMessage	object SealedMessage		17
-nim	aeadX	nimcypher/encrypt.html#aeadX	AeadStreamMode.aeadX		22
-nim	aeadDjb	nimcypher/encrypt.html#aeadDjb	AeadStreamMode.aeadDjb		22
-nim	aeadIetf	nimcypher/encrypt.html#aeadIetf	AeadStreamMode.aeadIetf		22
-nim	AeadStreamMode	nimcypher/encrypt.html#AeadStreamMode	enum AeadStreamMode		22
-nim	AeadStream	nimcypher/encrypt.html#AeadStream	object AeadStream		27
-nim	encrypt	nimcypher/encrypt.html#encrypt,openArray[byte],Key32,Nonce24	proc encrypt(text: openArray[byte]; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)		32
-nim	encrypt	nimcypher/encrypt.html#encrypt,string,Key32,Nonce24	proc encrypt(text: string; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)		37
-nim	decrypt	nimcypher/encrypt.html#decrypt,openArray[byte],Mac16,Key32,Nonce24	proc decrypt(cipherText: openArray[byte]; mac: Mac16; key: Key32; nonce: Nonce24): seq[\n    byte]		41
-nim	decrypt	nimcypher/encrypt.html#decrypt,string,Mac16,Key32,Nonce24	proc decrypt(cipherText: string; mac: Mac16; key: Key32; nonce: Nonce24): string		50
-nim	seal	nimcypher/encrypt.html#seal,openArray[byte],Key32	proc seal(plainText: openArray[byte]; key: Key32): SealedMessage		55
-nim	seal	nimcypher/encrypt.html#seal,string,Key32	proc seal(plainText: string; key: Key32): SealedMessage		61
-nim	unseal	nimcypher/encrypt.html#unseal,SealedMessage,Key32	proc unseal(msg: SealedMessage; key: Key32): seq[byte]		64
-nim	aeadStreamInit	nimcypher/encrypt.html#aeadStreamInit,AeadStreamMode,Key32,openArray[uint8]	proc aeadStreamInit(mode: AeadStreamMode; key: Key32; nonce: openArray[uint8]): AeadStream		69
-nim	aeadStreamInitX	nimcypher/encrypt.html#aeadStreamInitX,Key32,Nonce24	proc aeadStreamInitX(key: Key32; nonce: Nonce24): AeadStream		85
-nim	aeadStreamInitDjb	nimcypher/encrypt.html#aeadStreamInitDjb,Key32,array[,uint8]	proc aeadStreamInitDjb(key: Key32; nonce: array[8, uint8]): AeadStream		90
-nim	aeadStreamInitIetf	nimcypher/encrypt.html#aeadStreamInitIetf,Key32,array[,uint8]	proc aeadStreamInitIetf(key: Key32; nonce: array[12, uint8]): AeadStream		95
-nim	aeadStreamWrite	nimcypher/encrypt.html#aeadStreamWrite,AeadStream,openArray[byte],openArray[byte]	proc aeadStreamWrite(stream: var AeadStream; plainText: openArray[byte];\n                ad: openArray[byte] = []): (seq[uint8], Mac16)		100
-nim	aeadStreamRead	nimcypher/encrypt.html#aeadStreamRead,AeadStream,openArray[byte],Mac16,openArray[byte]	proc aeadStreamRead(stream: var AeadStream; cipherText: openArray[byte]; mac: Mac16;\n               ad: openArray[byte] = []): seq[byte]		105
-nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair,Key32	proc x25519KeyPair(secret: Key32): (Key32, Key32)		114
-nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair	proc x25519KeyPair(): (Key32, Key32)		118
-nim	sharedSecret	nimcypher/encrypt.html#sharedSecret,Key32,Key32	proc sharedSecret(mySecret: Key32; theirPublic: Key32): Key32		123
-nim	computeChallengeMac	nimcypher/encrypt.html#computeChallengeMac,Key32,Mac16	proc computeChallengeMac(secret: Key32; challenge: Mac16): Mac16		128
-nim	verifyChallengeMac	nimcypher/encrypt.html#verifyChallengeMac,Key32,Mac16,Mac16	proc verifyChallengeMac(secret: Key32; challenge: Mac16; received: Mac16): bool		134
-nimgrp	seal	nimcypher/encrypt.html#seal-procs-all	proc		55
-nimgrp	encrypt	nimcypher/encrypt.html#encrypt-procs-all	proc		32
-nimgrp	decrypt	nimcypher/encrypt.html#decrypt-procs-all	proc		41
-nimgrp	x25519keypair	nimcypher/encrypt.html#x25519KeyPair-procs-all	proc		114
+nim	SealedMessage	nimcypher/encrypt.html#SealedMessage	object SealedMessage		18
+nim	aeadX	nimcypher/encrypt.html#aeadX	AeadStreamMode.aeadX		23
+nim	aeadDjb	nimcypher/encrypt.html#aeadDjb	AeadStreamMode.aeadDjb		23
+nim	aeadIetf	nimcypher/encrypt.html#aeadIetf	AeadStreamMode.aeadIetf		23
+nim	AeadStreamMode	nimcypher/encrypt.html#AeadStreamMode	enum AeadStreamMode		23
+nim	AeadStream	nimcypher/encrypt.html#AeadStream	object AeadStream		28
+nim	encrypt	nimcypher/encrypt.html#encrypt,openArray[byte],Key32,Nonce24	proc encrypt(text: openArray[byte]; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)		33
+nim	encrypt	nimcypher/encrypt.html#encrypt,string,Key32,Nonce24	proc encrypt(text: string; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)		38
+nim	decrypt	nimcypher/encrypt.html#decrypt,openArray[byte],Mac16,Key32,Nonce24	proc decrypt(cipherText: openArray[byte]; mac: Mac16; key: Key32; nonce: Nonce24): seq[\n    byte]		42
+nim	decrypt	nimcypher/encrypt.html#decrypt,string,Mac16,Key32,Nonce24	proc decrypt(cipherText: string; mac: Mac16; key: Key32; nonce: Nonce24): string		51
+nim	seal	nimcypher/encrypt.html#seal,openArray[byte],Key32	proc seal(plainText: openArray[byte]; key: Key32): SealedMessage		56
+nim	seal	nimcypher/encrypt.html#seal,string,Key32	proc seal(plainText: string; key: Key32): SealedMessage		62
+nim	unseal	nimcypher/encrypt.html#unseal,SealedMessage,Key32	proc unseal(msg: SealedMessage; key: Key32): seq[byte]		65
+nim	aeadStreamInit	nimcypher/encrypt.html#aeadStreamInit,AeadStreamMode,Key32,openArray[uint8]	proc aeadStreamInit(mode: AeadStreamMode; key: Key32; nonce: openArray[uint8]): AeadStream		70
+nim	aeadStreamInitX	nimcypher/encrypt.html#aeadStreamInitX,Key32,Nonce24	proc aeadStreamInitX(key: Key32; nonce: Nonce24): AeadStream		92
+nim	aeadStreamInitDjb	nimcypher/encrypt.html#aeadStreamInitDjb,Key32,array[,uint8]	proc aeadStreamInitDjb(key: Key32; nonce: array[8, uint8]): AeadStream		97
+nim	aeadStreamInitIetf	nimcypher/encrypt.html#aeadStreamInitIetf,Key32,array[,uint8]	proc aeadStreamInitIetf(key: Key32; nonce: array[12, uint8]): AeadStream		102
+nim	aeadStreamWrite	nimcypher/encrypt.html#aeadStreamWrite,AeadStream,openArray[byte],openArray[byte]	proc aeadStreamWrite(stream: var AeadStream; plainText: openArray[byte];\n                ad: openArray[byte] = []): (seq[uint8], Mac16)		107
+nim	aeadStreamRead	nimcypher/encrypt.html#aeadStreamRead,AeadStream,openArray[byte],Mac16,openArray[byte]	proc aeadStreamRead(stream: var AeadStream; cipherText: openArray[byte]; mac: Mac16;\n               ad: openArray[byte] = []): seq[byte]		112
+nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair,Key32	proc x25519KeyPair(secret: Key32): (Key32, Key32)		121
+nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair	proc x25519KeyPair(): (Key32, Key32)		125
+nim	sharedSecret	nimcypher/encrypt.html#sharedSecret,Key32,Key32	proc sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]		130
+nim	computeChallengeMac	nimcypher/encrypt.html#computeChallengeMac,Key32,Mac16	proc computeChallengeMac(secret: Key32; challenge: Mac16): Mac16		136
+nim	verifyChallengeMac	nimcypher/encrypt.html#verifyChallengeMac,Key32,Mac16,Mac16	proc verifyChallengeMac(secret: Key32; challenge: Mac16; received: Mac16): bool		142
+nimgrp	seal	nimcypher/encrypt.html#seal-procs-all	proc		56
+nimgrp	encrypt	nimcypher/encrypt.html#encrypt-procs-all	proc		33
+nimgrp	decrypt	nimcypher/encrypt.html#decrypt-procs-all	proc		42
+nimgrp	x25519keypair	nimcypher/encrypt.html#x25519KeyPair-procs-all	proc		121

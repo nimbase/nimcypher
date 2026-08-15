@@ -78,6 +78,7 @@
 <li><a class="reference" href="#Blake2bMaxDigestSize" title="Blake2bMaxDigestSize = 64">Blake2bMaxDigestSize</a></li>
 <li><a class="reference" href="#Blake2bMaxKeySize" title="Blake2bMaxKeySize = 64">Blake2bMaxKeySize</a></li>
 <li><a class="reference" href="#Blake2bMinDigestSize" title="Blake2bMinDigestSize = 1">Blake2bMinDigestSize</a></li>
+<li><a class="reference" href="#HkdfMaxOkmLen" title="HkdfMaxOkmLen = 16320">HkdfMaxOkmLen</a></li>
 <li><a class="reference" href="#Sha512BlockSize" title="Sha512BlockSize = 128">Sha512BlockSize</a></li>
 <li><a class="reference" href="#Sha512DigestSize" title="Sha512DigestSize = 64">Sha512DigestSize</a></li>
 
@@ -291,6 +292,14 @@
     
   </dd>
 </div>
+<div id="HkdfMaxOkmLen">
+  <dt><pre><a href="#HkdfMaxOkmLen"><span class="Identifier">HkdfMaxOkmLen</span></a> <span class="Other">=</span> <span class="DecNumber">16320</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="Sha512BlockSize">
   <dt><pre><a href="#Sha512BlockSize"><span class="Identifier">Sha512BlockSize</span></a> <span class="Other">=</span> <span class="DecNumber">128</span></pre></dt>
   <dd>
@@ -463,7 +472,7 @@
 <div id="hkdfExpandSha512-procs-all">
   <div id="hkdfExpandSha512,openArray[byte],openArray[byte],Natural">
   <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural"><span class="Identifier">hkdfExpandSha512</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Expand a pseudo-random key with HKDF-SHA-512.
@@ -472,7 +481,7 @@
 </div>
 <div id="hkdfExpandSha512,string,string,Natural">
   <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha512%2Cstring%2Cstring%2CNatural"><span class="Identifier">hkdfExpandSha512</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -493,7 +502,7 @@
 <div id="hkdfSha512-procs-all">
   <div id="hkdfSha512,openArray[byte],openArray[byte],openArray[byte],Natural">
   <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural"><span class="Identifier">hkdfSha512</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Derive output keying material of <tt class="docutils literal"><span class="pre"><span class="Identifier">okmLen</span></span></tt> bytes with HKDF-SHA-512.
@@ -502,7 +511,7 @@
 </div>
 <div id="hkdfSha512,string,string,string,Natural">
   <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha512%2Cstring%2Cstring%2Cstring%2CNatural"><span class="Identifier">hkdfSha512</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -747,7 +756,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 11:36:37 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 13:27:51 UTC</small>
       </div>
     </div>
   </div>
