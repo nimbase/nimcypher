@@ -138,39 +138,43 @@ See the test suite (`tests/`) for a complete walk-through of both layers.
 
 ## Benchmarks
 
-`nimble bench` compares the pure-Nim port against the **C Monocypher library** (installed
-system-wide and called through the FFI test bindings). Both sides are compiled with
-`-d:danger --opt:speed` (the port with `--mm:arc`). The ratio is
+`nimble bench` compares the pure-Nim port against the **C Monocypher library**
+(installed system-wide and called through the FFI test bindings). Both sides are
+compiled with `-d:danger --opt:speed` (the port with `--mm:arc` and
+`-d:features.nimcypher.nimsimd`). The ratio is
 `Monocypher time / NimCypher time`: **below 1 means Monocypher is faster, above 1 means
-NimCypher is faster**. Results vary a few percent run to run.
+NimCypher is faster**. The `NimCypher+SIMD` column shows the SIMD-accelerated kernels;
+`-` means the primitive has no SIMD kernel (BLAKE2b, SHA-512, Poly1305, X25519,
+signatures, Elligator, Argon2). Results vary a few percent run to run.
 
-| operation | iters | Monocypher | NimCypher | M/N |
-| --- | ---: | ---: | ---: | ---: |
-| blake2b 64B | 100000 | 0.0150s | 0.0179s | 0.84x |
-| blake2b 1024B | 20000 | 0.0196s | 0.0253s | 0.78x |
-| blake2b 65536B | 2000 | 0.1174s | 0.1552s | 0.76x |
-| sha512 64B | 50000 | 0.0156s | 0.0151s | 1.04x |
-| sha512 1024B | 20000 | 0.0516s | 0.0543s | 0.95x |
-| sha512 65536B | 1000 | 0.1435s | 0.1546s | 0.93x |
-| chacha20 64B | 50000 | 0.0058s | 0.0075s | 0.77x |
-| chacha20 1024B | 20000 | 0.0301s | 0.0366s | 0.82x |
-| chacha20 65536B | 1000 | 0.0956s | 0.1156s | 0.83x |
-| poly1305 1024B | 50000 | 0.0256s | 0.0279s | 0.92x |
-| poly1305 65536B | 2000 | 0.0634s | 0.0685s | 0.93x |
-| aead lock+unlock 1024B | 10000 | 0.0457s | 0.0533s | 0.86x |
-| aead lock+unlock 65536B | 500 | 0.1274s | 0.1505s | 0.85x |
-| x25519 | 2000 | 0.1575s | 0.1570s | 1.00x |
-| eddsa sign 1KB | 1000 | 0.0417s | 0.0403s | 1.03x |
-| eddsa check 1KB | 1000 | 0.1172s | 0.1158s | 1.01x |
-| ed25519 sign 1KB | 1000 | 0.0445s | 0.0433s | 1.03x |
-| ed25519 check 1KB | 1000 | 0.1173s | 0.1174s | 1.00x |
-| elligator map | 3000 | 0.0225s | 0.0207s | 1.09x |
-| elligator rev | 3000 | 0.0216s | 0.0197s | 1.10x |
-| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | 0.67x |
+| operation | iters | Monocypher | NimCypher | NimCypher+SIMD | M/Nim | M/SIMD |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| blake2b 64B | 100000 | 0.0153s | 0.0184s | - | 0.83x | - |
+| blake2b 1024B | 20000 | 0.0189s | 0.0256s | - | 0.74x | - |
+| blake2b 65536B | 2000 | 0.1178s | 0.1551s | - | 0.76x | - |
+| sha512 64B | 50000 | 0.0156s | 0.0154s | - | 1.01x | - |
+| sha512 1024B | 20000 | 0.0506s | 0.0531s | - | 0.95x | - |
+| sha512 65536B | 1000 | 0.1424s | 0.1516s | - | 0.94x | - |
+| chacha20 64B | 50000 | 0.0058s | 0.0071s | 0.0077s | 0.82x | 0.75x |
+| chacha20 1024B | 20000 | 0.0302s | 0.0379s | 0.0296s | 0.80x | 1.02x |
+| chacha20 65536B | 1000 | 0.0953s | 0.1183s | 0.0922s | 0.81x | 1.03x |
+| poly1305 1024B | 50000 | 0.0256s | 0.0282s | - | 0.91x | - |
+| poly1305 65536B | 2000 | 0.0628s | 0.0682s | - | 0.92x | - |
+| aead lock+unlock 1024B | 10000 | 0.0452s | 0.0545s | 0.0466s | 0.83x | 0.97x |
+| aead lock+unlock 65536B | 500 | 0.1273s | 0.1536s | 0.1282s | 0.83x | 0.99x |
+| x25519 | 2000 | 0.1571s | 0.1535s | - | 1.02x | - |
+| eddsa sign 1KB | 1000 | 0.0412s | 0.0395s | - | 1.04x | - |
+| eddsa check 1KB | 1000 | 0.1188s | 0.1185s | - | 1.00x | - |
+| ed25519 sign 1KB | 1000 | 0.0443s | 0.0424s | - | 1.04x | - |
+| ed25519 check 1KB | 1000 | 0.1181s | 0.1173s | - | 1.01x | - |
+| elligator map | 3000 | 0.0223s | 0.0206s | - | 1.08x | - |
+| elligator rev | 3000 | 0.0219s | 0.0193s | - | 1.13x | - |
+| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | 0.60x | - |
 
-The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator, and
-is roughly 1.1–1.6x slower on the symmetric primitives (BLAKE2b, ChaCha20, Poly1305, AEAD)
-and Argon2.
+The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator.
+On the symmetric primitives the scalar port is roughly 1.2–1.3x slower than C; with the
+SIMD kernels, ChaCha20 and the ChaCha20 half of AEAD reach **parity with (and at 1 KB+
+slightly beat) C Monocypher**.
 
 
 ## Testing
@@ -200,7 +204,45 @@ from the `openpeeps/e2ee` package (see `tests/monocypher_ffi.nim`).
 nimble bench
 ```
 
-Runs the benchmark suite in `tests/tbench.nim` (see [Benchmarks](#benchmarks)).
+`nimble bench` installs nimsimd, builds the suite with `-d:features.nimcypher.nimsimd`
+and prints a single Markdown table with both the scalar reference (`NimCypher`) and the
+SIMD-accelerated (`NimCypher+SIMD`) columns side by side (see
+[Benchmarks](#benchmarks)). The scalar-only baseline is obtained by compiling
+`tests/tbench.nim` directly without the feature flag.
+
+
+## Optional SIMD acceleration
+
+NimCypher ships optional SIMD-accelerated ChaCha20 kernels behind a feature flag. They
+are **off by default** — the library stays zero-dependency and runs on any CPU — and are
+selected with the Nimble `nimsimd` feature:
+
+```
+nimble install nimsimd                       # install the dependency
+nim c -d:features.nimcypher.nimsimd app.nim  # enable at build time
+```
+
+Consumers enable it from their own `*.nimble` file instead:
+
+```
+requires "nimcypher >= 0.1.0[nimsimd]"
+```
+
+Requirements and what gets accelerated:
+
+- **amd64**: an AVX2-capable CPU (the whole SIMD build is compiled with `-mavx2`); uses a
+  two-block AVX2 kernel.
+- **arm64**: NEON (baseline on all ARMv8 CPUs); uses a four-lane NEON kernel.
+- Accelerates **ChaCha20** (`chacha20Djb/Ietf/X`, HChaCha20) and therefore the ChaCha20
+  half of **AEAD** (`aeadLock`/`aeadUnlock`, streaming). BLAKE2b, SHA-512, Poly1305,
+  Argon2 and the Curve25519/EdDSA math are not SIMD-accelerated.
+
+On x86_64 with Clang the scalar ChaCha20 kernel is already auto-vectorized, so the
+two-block AVX2 kernel is what actually moves the needle (roughly 1.3x on the full
+one-shot, bringing ChaCha20 to parity with — and slightly past — C Monocypher). The SIMD
+kernels are cross-checked byte-for-byte against the scalar reference and the C library by
+the test suite (`nimble test_simd` runs ChaCha20, AEAD and interop tests with the feature
+enabled).
 
 
 ## Verification & provenance

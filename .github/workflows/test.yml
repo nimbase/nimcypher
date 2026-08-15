@@ -14,9 +14,20 @@ jobs:
           # Monocypher's shared library target uses -Wl,-soname, which the
           # macOS linker does not support. Install only the static library,
           # plus the pkg-config file so pkg-config can find it.
-          make static-library
+          #
+          # GitHub's macOS-15 runners are Apple Silicon, but the Nim toolchain
+          # installed by setup-nim-action targets x86_64 (Rosetta). Build a
+          # universal static library covering both architectures so linking
+          # works for whichever architecture Nim emits.
+          make static-library CC="clang -arch arm64 -std=c99" CFLAGS="-O3"
+          mv lib/libmonocypher.a /tmp/libmonocypher-arm64.a
+          make clean
+          make static-library CC="clang -arch x86_64 -std=c99" CFLAGS="-O3"
+          mv lib/libmonocypher.a /tmp/libmonocypher-x86_64.a
+          lipo -create /tmp/libmonocypher-arm64.a /tmp/libmonocypher-x86_64.a \
+            -output /tmp/libmonocypher.a
           sudo mkdir -p /usr/local/lib/pkgconfig /usr/local/include
-          sudo cp -P lib/libmonocypher.a /usr/local/lib
+          sudo cp -P /tmp/libmonocypher.a /usr/local/lib/libmonocypher.a
           sudo cp -P src/monocypher.h /usr/local/include
           sudo cp -P src/optional/monocypher-ed25519.h /usr/local/include
           sudo sh -c "sed 's|PREFIX|/usr/local|' monocypher.pc > /usr/local/lib/pkgconfig/monocypher.pc"
@@ -24,3 +35,7 @@ jobs:
           make
           sudo make install
         fi
+      # Run the SIMD-accelerated tests (ChaCha20, AEAD, C interop) before the
+      # full scalar suite.
+      pre-test-command: |
+        nimble test_simd

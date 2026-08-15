@@ -1,17 +1,22 @@
 # Benchmark suite: pure-Nim nimcypher port vs the real C Monocypher library.
 #
 # Every primitive is timed on identical inputs, once through the FFI bindings
-# (C) and once through the pure-Nim implementation (Nim). The reported ratio
-# is C-time / Nim-time: < 1 means the pure-Nim port is faster, > 1 means C is.
+# (C) and once through the pure-Nim implementation. When the library is built
+# with SIMD acceleration (see `nimble bench`, which passes
+# -d:features.nimcypher.nimsimd), the "NimCypher+SIMD" column reflects the
+# accelerated kernels while "NimCypher" shows the scalar reference. The
+# reported ratios are C-time / Nim-time: < 1 means NimCypher is faster,
+# > 1 means C is.
 #
-# Run with: nim c -r -d:danger --opt:speed tests/tbench.nim
-# (or `nimble bench`).
+# Run with: nimble bench   (SIMD comparison)
+#           nim c -r -d:danger --opt:speed tests/tbench.nim   (scalar only)
 
 import std/monotimes
 import std/times
 import std/strformat
 import std/options
 
+import nimcypher/algos/common
 import nimcypher/algos/blake2b
 import nimcypher/algos/sha512
 import nimcypher/algos/chacha20
@@ -35,10 +40,82 @@ proc timeIt(iterations: int, f: proc() {.closure.}): float =
     f()
   result = (getMonoTime() - start).inNanoseconds.float / 1e9
 
-proc bench(label: string, iterations: int, c, n: proc() {.closure.}) =
+# Scalar-reference AEAD (XChaCha20-Poly1305), using the always-available
+# scalar ChaCha20 one-shots, so it can be timed side by side with the SIMD
+# library build.
+proc lockAuthScalar(key: array[32, byte], ad, cipherText: openArray[byte]):
+    array[16, byte] =
+  var sizes: array[16, byte]
+  store64Le(cast[BytePtr](unsafeAddr sizes[0]), uint64(ad.len))
+  store64Le(cast[BytePtr](unsafeAddr sizes[8]), uint64(cipherText.len))
+  var polyCtx: Poly1305Context
+  initPoly1305(polyCtx, key)
+  update(polyCtx, ad)
+  let adGap = gap(ad.len, 16)
+  if adGap > 0:
+    update(polyCtx, newSeq[byte](adGap))
+  update(polyCtx, cipherText)
+  let ctGap = gap(cipherText.len, 16)
+  if ctGap > 0:
+    update(polyCtx, newSeq[byte](ctGap))
+  update(polyCtx, sizes)
+  result = final(polyCtx)
+
+proc aeadLockScalar(key: array[32, byte], nonce: array[24, byte],
+                    plaintext: openArray[byte]):
+    (seq[byte], array[16, byte]) =
+  var nonce16: array[16, byte]
+  for i in 0 ..< 16:
+    nonce16[i] = nonce[i]
+  let skey = chacha20HScalar(key, nonce16)
+  var nonce8: array[8, byte]
+  for i in 0 ..< 8:
+    nonce8[i] = nonce[16 + i]
+  var authKey: array[64, byte]
+  discard chacha20DjbScalar(cast[BytePtr](unsafeAddr authKey[0]), nil, 64,
+                            skey, nonce8, 0)
+  result[0] = newSeqUninit[byte](plaintext.len)
+  var dp = if plaintext.len > 0: cast[BytePtr](unsafeAddr plaintext[0]) else: nil
+  var rp = if result[0].len > 0: cast[BytePtr](unsafeAddr result[0][0]) else: nil
+  discard chacha20DjbScalar(rp, dp, plaintext.len, skey, nonce8, 1)
+  var auth32: array[32, byte]
+  for i in 0 ..< 32:
+    auth32[i] = authKey[i]
+  result[1] = lockAuthScalar(auth32, [], result[0])
+
+proc aeadUnlockScalar(key: array[32, byte], nonce: array[24, byte],
+                      ciphertext: openArray[byte],
+                      mac: array[16, byte]): Option[seq[byte]] =
+  var nonce16: array[16, byte]
+  for i in 0 ..< 16:
+    nonce16[i] = nonce[i]
+  let skey = chacha20HScalar(key, nonce16)
+  var nonce8: array[8, byte]
+  for i in 0 ..< 8:
+    nonce8[i] = nonce[16 + i]
+  var authKey: array[64, byte]
+  discard chacha20DjbScalar(cast[BytePtr](unsafeAddr authKey[0]), nil, 64,
+                            skey, nonce8, 0)
+  var auth32: array[32, byte]
+  for i in 0 ..< 32:
+    auth32[i] = authKey[i]
+  let realMac = lockAuthScalar(auth32, [], ciphertext)
+  if constantTimeEqual(mac, realMac):
+    var plain = newSeqUninit[byte](ciphertext.len)
+    var cp = if ciphertext.len > 0: cast[BytePtr](unsafeAddr ciphertext[0]) else: nil
+    var rp = if plain.len > 0: cast[BytePtr](unsafeAddr plain[0]) else: nil
+    discard chacha20DjbScalar(rp, cp, ciphertext.len, skey, nonce8, 1)
+    result = some(plain)
+
+proc bench(label: string, iterations: int, c, n: proc() {.closure.},
+           ns: proc() {.closure.} = nil) =
   let ct = timeIt(iterations, c)
   let nt = timeIt(iterations, n)
-  echo fmt"| {label} | {iterations} | {ct:.4f}s | {nt:.4f}s | {ct / nt:.2f}x |"
+  if ns.isNil:
+    echo fmt"| {label} | {iterations} | {ct:.4f}s | {nt:.4f}s | - | {ct / nt:.2f}x | - |"
+  else:
+    let st = timeIt(iterations, ns)
+    echo fmt"| {label} | {iterations} | {ct:.4f}s | {nt:.4f}s | {st:.4f}s | {ct / nt:.2f}x | {ct / st:.2f}x |"
 
 proc makeMsg(n: int): seq[byte] =
   result = newSeq[byte](n)
@@ -85,11 +162,16 @@ proc benchChacha20() =
     var nonce: array[8, uint8]
     for i in 0 ..< 32: key[i] = byte(i)
     var ctC = newSeq[uint8](size)
+    var ctS = newSeq[uint8](size)
     bench("chacha20 " & $size & "B", iters,
       proc() =
         discard crypto_chacha20_djb(addr ctC[0], toPtr(msg), csize_t(msg.len),
                                     addr key[0], addr nonce[0], 0)
         sink = sink xor ctC[0],
+      proc() =
+        discard chacha20DjbScalar(cast[BytePtr](unsafeAddr ctS[0]),
+                                  cast[BytePtr](toPtr(msg)), size, key, nonce, 0)
+        sink = sink xor ctS[0],
       proc() =
         let c = chacha20(msg, key, nonce)
         sink = sink xor c[0])
@@ -128,6 +210,10 @@ proc benchAead() =
                                    addr nonce[0], nil, 0,
                                    addr ctC[0], csize_t(msg.len))
         sink = sink xor ctC[0],
+      proc() =
+        let (c, t) = aeadLockScalar(key, nonce, msg)
+        discard aeadUnlockScalar(key, nonce, c, t)
+        sink = sink xor c[0],
       proc() =
         let (c, t) = aeadLock(key, nonce, msg)
         discard aeadUnlock(key, nonce, c, t)
@@ -254,9 +340,10 @@ proc benchArgon2() =
 when isMainModule:
   echo "Benchmark: pure-Nim NimCypher vs C Monocypher"
   echo "Ratio = Monocypher time / NimCypher time (< 1 means NimCypher slower, > 1 means NimCypher faster)"
+  echo "NimCypher+SIMD uses the SIMD-accelerated kernels ('-' = no SIMD kernel for this primitive)"
   echo ""
-  echo "| operation | iters | Monocypher | NimCypher | M/N |"
-  echo "| --- | ---: | ---: | ---: | ---: |"
+  echo "| operation | iters | Monocypher | NimCypher | NimCypher+SIMD | M/Nim | M/SIMD |"
+  echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
   benchBlake2b()
   benchSha512()
   benchChacha20()
