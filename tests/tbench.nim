@@ -10,7 +10,6 @@
 import std/monotimes
 import std/times
 import std/strformat
-import std/strutils
 import std/options
 
 import nimcypher/algos/blake2b
@@ -39,7 +38,7 @@ proc timeIt(iterations: int, f: proc() {.closure.}): float =
 proc bench(label: string, iterations: int, c, n: proc() {.closure.}) =
   let ct = timeIt(iterations, c)
   let nt = timeIt(iterations, n)
-  echo fmt"{label:<34} {iterations:>9} {ct:9.4f}s {nt:9.4f}s {ct / nt:5.2f}x"
+  echo fmt"| {label} | {iterations} | {ct:.4f}s | {nt:.4f}s | {ct / nt:.2f}x |"
 
 proc makeMsg(n: int): seq[byte] =
   result = newSeq[byte](n)
@@ -253,11 +252,11 @@ proc benchArgon2() =
       sink = sink xor h[0])
 
 when isMainModule:
-  echo "Benchmark: pure-Nim nimcypher vs C Monocypher"
-  echo "Ratio = C time / Nim time (< 1 means Nim faster, > 1 means C faster)"
+  echo "Benchmark: pure-Nim NimCypher vs C Monocypher"
+  echo "Ratio = Monocypher time / NimCypher time (< 1 means NimCypher slower, > 1 means NimCypher faster)"
   echo ""
-  echo "operation                           iters         C         Nim     C/Nim"
-  echo repeat('-', 72)
+  echo "| operation | iters | Monocypher | NimCypher | M/N |"
+  echo "| --- | ---: | ---: | ---: | ---: |"
   benchBlake2b()
   benchSha512()
   benchChacha20()
@@ -267,5 +266,4 @@ when isMainModule:
   benchSignatures()
   benchElligator()
   benchArgon2()
-  echo repeat('-', 72)
-  echo "sink=", sink
+  echo "checksum (prevents dead-code elimination): ", sink

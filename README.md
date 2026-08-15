@@ -14,7 +14,7 @@
 
 ## About
 
-NimCypher is a **pure-Nim port of [Monocypher](https://monocypher.org/) 4.0.3** — a small,
+NimCypher is a **pure-Nim port of [Monocypher](https://monocypher.org/) 4.0.3**: a small,
 auditable, easy-to-use cryptographic library. It has **zero C dependency** and no runtime
 dependencies beyond the Nim standard library, so it is easy to deploy and easy to audit.
 
@@ -35,32 +35,23 @@ the test suite.
 ## Key features
 
 High-level API (`import nimcypher`):
-- **Authenticated encryption & sealing** — `encrypt` / `decrypt`, `seal` / `unseal`
+- **Authenticated encryption & sealing**: `encrypt` / `decrypt`, `seal` / `unseal`
   (XChaCha20-Poly1305, RFC 8439), streaming via `aeadStreamInitX/Djb/Ietf`
-- **Hashing** — `blake` / `blakeKeyed`, `sha512`, `sha512Hmac`, `hkdfSha512`
-- **Password hashing** — `hashPassword` / `verifyPassword` / `deriveKeyFromPassword` (Argon2id)
-- **Key exchange** — `x25519KeyPair` / `sharedSecret` / `computeChallengeMac`
-- **Signatures** — `generateSigningKeyPair` / `sign` / `verify` (EdDSA with BLAKE2b)
-- **Utilities** — `constantTimeEqual`, `wipe`, `randomBytes`, `toHex` / `fromHex`
+- **Hashing**: `blake` / `blakeKeyed`, `sha512`, `sha512Hmac`, `hkdfSha512`
+- **Password hashing**: `hashPassword` / `verifyPassword` / `deriveKeyFromPassword` (Argon2id)
+- **Key exchange**: `x25519KeyPair` / `sharedSecret` / `computeChallengeMac`
+- **Signatures**: `generateSigningKeyPair` / `sign` / `verify` (EdDSA with BLAKE2b)
+- **Utilities**: `constantTimeEqual`, `wipe`, `randomBytes`, `toHex` / `fromHex`
 
 Low-level primitives (`nimcypher/algos/...`):
-- **Authenticated encryption** — `aeadLock` / `aeadUnlock` + streaming `AeadContext`
-- **Hashing** — BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HKDF
-- **Password hashing** — Argon2 (`d`, `i`, `id`)
-- **Key exchange** — X25519 (incl. dirty keys, scalar inverse / OPRF, EdDSA↔X25519 conversion)
-- **Signatures** — EdDSA (BLAKE2b + Curve25519), Ed25519, Ed25519ph (SHA-512)
-- **Steganography & PAKE** — Elligator 2 (map / reverse map / key pair)
-- **Stream ciphers** — ChaCha20 (DJB, IETF, XChaCha20, HChaCha20), Poly1305
-- **EdDSA building blocks** — `trimScalar`, `reduce`, `mulAdd`, `scalarbase`, `checkEquation`
-
-
-## Installation
-
-```
-nimble install nimcypher
-```
-
-Or copy the `src/` directory into your project and `import nimcypher`.
+- **Authenticated encryption**: `aeadLock` / `aeadUnlock` + streaming `AeadContext`
+- **Hashing: BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HKDF
+- **Password hashing**: Argon2 (`d`, `i`, `id`)
+- **Key exchange**: X25519 (incl. dirty keys, scalar inverse / OPRF, EdDSA↔X25519 conversion)
+- **Signatures**: EdDSA (BLAKE2b + Curve25519), Ed25519, Ed25519ph (SHA-512)
+- **Steganography & PAKE**: Elligator 2 (map / reverse map / key pair)
+- **Stream ciphers**: ChaCha20 (DJB, IETF, XChaCha20, HChaCha20), Poly1305
+- **EdDSA building blocks**: `trimScalar`, `reduce`, `mulAdd`, `scalarbase`, `checkEquation`
 
 
 ## Examples
@@ -141,35 +132,33 @@ See the test suite (`tests/`) for a complete walk-through of both layers.
 
 `nimble bench` compares the pure-Nim port against the **C Monocypher library** (installed
 system-wide and called through the FFI test bindings). Both sides are compiled with
-`-d:danger --opt:speed` (the port with `--mm:arc`). The ratio is `C time / Nim time`:
-**below 1 means C is faster, above 1 means the pure-Nim port is faster**. Results vary a
-few percent run to run.
+`-d:danger --opt:speed` (the port with `--mm:arc`). The ratio is
+`Monocypher time / NimCypher time`: **below 1 means Monocypher is faster, above 1 means
+NimCypher is faster**. Results vary a few percent run to run.
 
-```
-operation                          iters         C         Nim     C/Nim
--------------------------------------------------------------------------
-blake2b 64B                        100000    0.0152s    0.0177s  0.86x
-blake2b 1024B                       20000    0.0190s    0.0253s  0.75x
-blake2b 65536B                       2000    0.1172s    0.1544s  0.76x
-sha512 64B                          50000    0.0155s    0.0153s  1.01x
-sha512 1024B                        20000    0.0489s    0.0551s  0.89x
-sha512 65536B                        1000    0.1376s    0.1541s  0.89x
-chacha20 64B                        50000    0.0060s    0.0073s  0.82x
-chacha20 1024B                      20000    0.0301s    0.0370s  0.81x
-chacha20 65536B                      1000    0.0952s    0.1145s  0.83x
-poly1305 1024B                      50000    0.0251s    0.0277s  0.91x
-poly1305 65536B                      2000    0.0617s    0.0680s  0.91x
-aead lock+unlock 1024B              10000    0.0450s    0.0528s  0.85x
-aead lock+unlock 65536B               500    0.1264s    0.1498s  0.84x
-x25519                               2000    0.1574s    0.1531s  1.03x
-eddsa sign 1KB                       1000    0.0411s    0.0392s  1.05x
-eddsa check 1KB                      1000    0.1155s    0.1149s  1.01x
-ed25519 sign 1KB                     1000    0.0440s    0.0421s  1.04x
-ed25519 check 1KB                    1000    0.1168s    0.1164s  1.00x
-elligator map                        3000    0.0224s    0.0202s  1.11x
-elligator rev                        3000    0.0215s    0.0195s  1.09x
-argon2i 8blk 1pass                     20    0.0003s    0.0005s  0.61x
-```
+| operation | iters | Monocypher | NimCypher | M/N |
+| --- | ---: | ---: | ---: | ---: |
+| blake2b 64B | 100000 | 0.0150s | 0.0179s | 0.84x |
+| blake2b 1024B | 20000 | 0.0196s | 0.0253s | 0.78x |
+| blake2b 65536B | 2000 | 0.1174s | 0.1552s | 0.76x |
+| sha512 64B | 50000 | 0.0156s | 0.0151s | 1.04x |
+| sha512 1024B | 20000 | 0.0516s | 0.0543s | 0.95x |
+| sha512 65536B | 1000 | 0.1435s | 0.1546s | 0.93x |
+| chacha20 64B | 50000 | 0.0058s | 0.0075s | 0.77x |
+| chacha20 1024B | 20000 | 0.0301s | 0.0366s | 0.82x |
+| chacha20 65536B | 1000 | 0.0956s | 0.1156s | 0.83x |
+| poly1305 1024B | 50000 | 0.0256s | 0.0279s | 0.92x |
+| poly1305 65536B | 2000 | 0.0634s | 0.0685s | 0.93x |
+| aead lock+unlock 1024B | 10000 | 0.0457s | 0.0533s | 0.86x |
+| aead lock+unlock 65536B | 500 | 0.1274s | 0.1505s | 0.85x |
+| x25519 | 2000 | 0.1575s | 0.1570s | 1.00x |
+| eddsa sign 1KB | 1000 | 0.0417s | 0.0403s | 1.03x |
+| eddsa check 1KB | 1000 | 0.1172s | 0.1158s | 1.01x |
+| ed25519 sign 1KB | 1000 | 0.0445s | 0.0433s | 1.03x |
+| ed25519 check 1KB | 1000 | 0.1173s | 0.1174s | 1.00x |
+| elligator map | 3000 | 0.0225s | 0.0207s | 1.09x |
+| elligator rev | 3000 | 0.0216s | 0.0197s | 1.10x |
+| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | 0.67x |
 
 The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator, and
 is roughly 1.1–1.6x slower on the symmetric primitives (BLAKE2b, ChaCha20, Poly1305, AEAD)
@@ -184,12 +173,12 @@ nimble test
 
 Runs three suites:
 
-- **Vector tests** — Monocypher's own deterministic test vectors (RFC and known-answer
+- **Vector tests**: Monocypher's own deterministic test vectors (RFC and known-answer
   vectors, over 16,000 of them), ported into `tests/vectors.nim`, covering every primitive.
-- **Interop tests** — byte-for-byte cross-checks between the pure-Nim port and the real C
+- **Interop tests**: byte-for-byte cross-checks between the pure-Nim port and the real C
   Monocypher library: key exchange, signatures, AEAD encryption/decryption, streaming,
   hashing, Argon2, Elligator, and constant-time verification.
-- **High-level tests** — round trips and error handling for the `import nimcypher` API
+- **High-level tests**: round trips and error handling for the `import nimcypher` API
   (`thighlevel.nim`), cross-checked against the low-level primitives.
 
 The interop tests require a system-installed C Monocypher discoverable via `pkg-config`
@@ -223,7 +212,7 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
 
 ## Security notes
 
-- The low-level primitives have **no random number generator** — provide keys, nonces and
+- The low-level primitives have **no random number generator**: provide keys, nonces and
   seeds yourself. The high-level API's `randomBytes` / `generateSalt` use `urandom`.
 - Never reuse a ChaCha20 nonce with the same key. The XChaCha20 AEAD nonce is 192 bits,
   so random nonces (`seal`) are safe in practice.
