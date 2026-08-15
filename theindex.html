@@ -211,11 +211,23 @@
             key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64" href="nimcypher/algos/chacha20.html#chacha20Djb%2CBytePtr%2CBytePtr%2Cint%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc chacha20Djb(cipherText: BytePtr; plainText: BytePtr; textSize: int;
             key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64</a></li>
           </ul></dd>
+<dt><a name="chacha20DjbScalar" href="#chacha20DjbScalar"><span>chacha20DjbScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
+                  key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64" href="nimcypher/algos/chacha20.html#chacha20DjbScalar%2CBytePtr%2CBytePtr%2Cint%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64">chacha20: proc chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
+                  key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64</a></li>
+          </ul></dd>
 <dt><a name="chacha20H" href="#chacha20H"><span>chacha20H:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="chacha20: proc chacha20H(key: array[32, byte]; input: array[16, byte]): array[32, byte]" href="nimcypher/algos/chacha20.html#chacha20H%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">chacha20: proc chacha20H(key: array[32, byte]; input: array[16, byte]): array[32, byte]</a></li>
           <li><a class="reference external"
           data-doc-search-tag="chacha20: proc chacha20H(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])" href="nimcypher/algos/chacha20.html#chacha20H%2CBytePtr%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">chacha20: proc chacha20H(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="chacha20HScalar" href="#chacha20HScalar"><span>chacha20HScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20HScalar(key: array[32, byte]; input: array[16, byte]): array[32, byte]" href="nimcypher/algos/chacha20.html#chacha20HScalar%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">chacha20: proc chacha20HScalar(key: array[32, byte]; input: array[16, byte]): array[32, byte]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20HScalar(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])" href="nimcypher/algos/chacha20.html#chacha20HScalar%2CBytePtr%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">chacha20: proc chacha20HScalar(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])</a></li>
           </ul></dd>
 <dt><a name="chacha20Ietf" href="#chacha20Ietf"><span>chacha20Ietf:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -226,6 +238,14 @@
           data-doc-search-tag="chacha20: proc chacha20Ietf(data: openArray[byte]; key: array[32, byte];
              nonce: array[12, byte]; counter: uint32 = 0): seq[byte]" href="nimcypher/algos/chacha20.html#chacha20Ietf%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint32">chacha20: proc chacha20Ietf(data: openArray[byte]; key: array[32, byte];
              nonce: array[12, byte]; counter: uint32 = 0): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="chacha20Rounds" href="#chacha20Rounds"><span>chacha20Rounds:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20Rounds(outp: var array[16, uint32]; inp: array[16, uint32])" href="nimcypher/algos/chacha20.html#chacha20Rounds%2Carray%5B%2Cuint32%5D%2Carray%5B%2Cuint32%5D">chacha20: proc chacha20Rounds(outp: var array[16, uint32]; inp: array[16, uint32])</a></li>
+          </ul></dd>
+<dt><a name="chacha20RoundsScalar" href="#chacha20RoundsScalar"><span>chacha20RoundsScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc chacha20RoundsScalar(outp: var array[16, uint32]; inp: array[16, uint32])" href="nimcypher/algos/chacha20.html#chacha20RoundsScalar%2Carray%5B%2Cuint32%5D%2Carray%5B%2Cuint32%5D">chacha20: proc chacha20RoundsScalar(outp: var array[16, uint32]; inp: array[16, uint32])</a></li>
           </ul></dd>
 <dt><a name="chacha20X" href="#chacha20X"><span>chacha20X:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -977,7 +997,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 10:34:46 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 11:32:29 UTC</small>
       </div>
     </div>
   </div>

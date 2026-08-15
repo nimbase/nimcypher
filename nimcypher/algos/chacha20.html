@@ -73,9 +73,20 @@
             key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">chacha20DjbScalar
+  <li><a class="reference" href="#chacha20DjbScalar%2CBytePtr%2CBytePtr%2Cint%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64" title="chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
+                  key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64">chacha20DjbScalar(cipherText: BytePtr; plainText: BytePtr; textSize: int;
+                  key: array[32, byte]; nonce: array[8, byte]; ctr: uint64): uint64</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">chacha20H
   <li><a class="reference" href="#chacha20H%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D" title="chacha20H(key: array[32, byte]; input: array[16, byte]): array[32, byte]">chacha20H(key: array[32, byte]; input: array[16, byte]): array[32, byte]</a></li>
 <li><a class="reference" href="#chacha20H%2CBytePtr%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D" title="chacha20H(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])">chacha20H(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">chacha20HScalar
+  <li><a class="reference" href="#chacha20HScalar%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D" title="chacha20HScalar(key: array[32, byte]; input: array[16, byte]): array[32, byte]">chacha20HScalar(key: array[32, byte]; input: array[16, byte]): array[32, byte]</a></li>
+<li><a class="reference" href="#chacha20HScalar%2CBytePtr%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D" title="chacha20HScalar(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])">chacha20HScalar(outp: BytePtr; key: array[32, byte]; inp: array[16, byte])</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">chacha20Ietf
@@ -85,6 +96,14 @@
 <li><a class="reference" href="#chacha20Ietf%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint32" title="chacha20Ietf(data: openArray[byte]; key: array[32, byte];
              nonce: array[12, byte]; counter: uint32 = 0): seq[byte]">chacha20Ietf(data: openArray[byte]; key: array[32, byte];
              nonce: array[12, byte]; counter: uint32 = 0): seq[byte]</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">chacha20Rounds
+  <li><a class="reference" href="#chacha20Rounds%2Carray%5B%2Cuint32%5D%2Carray%5B%2Cuint32%5D" title="chacha20Rounds(outp: var array[16, uint32]; inp: array[16, uint32])">chacha20Rounds(outp: var array[16, uint32]; inp: array[16, uint32])</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">chacha20RoundsScalar
+  <li><a class="reference" href="#chacha20RoundsScalar%2Carray%5B%2Cuint32%5D%2Carray%5B%2Cuint32%5D" title="chacha20RoundsScalar(outp: var array[16, uint32]; inp: array[16, uint32])">chacha20RoundsScalar(outp: var array[16, uint32]; inp: array[16, uint32])</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">chacha20X
@@ -144,6 +163,19 @@
 </div>
 
 </div>
+<div id="chacha20DjbScalar-procs-all">
+  <div id="chacha20DjbScalar,BytePtr,BytePtr,int,array[,byte],array[,byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20DjbScalar%2CBytePtr%2CBytePtr%2Cint%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2Cuint64"><span class="Identifier">chacha20DjbScalar</span></a><span class="Other">(</span><span class="Identifier">cipherText</span><span class="Other">:</span> <a href="common.html#BytePtr"><span class="Identifier">BytePtr</span></a><span class="Other">;</span> <span class="Identifier">plainText</span><span class="Other">:</span> <a href="common.html#BytePtr"><span class="Identifier">BytePtr</span></a><span class="Other">;</span> <span class="Identifier">textSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span>
+                       <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">nonce</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">8</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">ctr</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Scalar reference ChaCha20-DJB (never SIMD-accelerated).
+    
+  </dd>
+</div>
+
+</div>
 <div id="chacha20H-procs-all">
   <div id="chacha20H,array[,byte],array[,byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#chacha20H%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D"><span class="Identifier">chacha20H</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">input</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span> {.
@@ -160,6 +192,27 @@
   <dd>
     
     
+    
+  </dd>
+</div>
+
+</div>
+<div id="chacha20HScalar-procs-all">
+  <div id="chacha20HScalar,array[,byte],array[,byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20HScalar%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D"><span class="Identifier">chacha20HScalar</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">input</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span>
+    <span class="Identifier">byte</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Scalar reference HChaCha20 (never SIMD-accelerated).
+    
+  </dd>
+</div>
+<div id="chacha20HScalar,BytePtr,array[,byte],array[,byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20HScalar%2CBytePtr%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D"><span class="Identifier">chacha20HScalar</span></a><span class="Other">(</span><span class="Identifier">outp</span><span class="Other">:</span> <a href="common.html#BytePtr"><span class="Identifier">BytePtr</span></a><span class="Other">;</span> <span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">inp</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Scalar reference HChaCha20 (never SIMD-accelerated).
     
   </dd>
 </div>
@@ -183,6 +236,30 @@
   <dd>
     
     Encrypt/decrypt data with the IETF variant of ChaCha20 (32-bit counter, 96-bit nonce).
+    
+  </dd>
+</div>
+
+</div>
+<div id="chacha20Rounds-procs-all">
+  <div id="chacha20Rounds,array[,uint32],array[,uint32]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20Rounds%2Carray%5B%2Cuint32%5D%2Carray%5B%2Cuint32%5D"><span class="Identifier">chacha20Rounds</span></a><span class="Other">(</span><span class="Identifier">outp</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">inp</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">)</span> {.
+    <span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    20 rounds of ChaCha20. Uses the SIMD kernel when built with <tt class="docutils literal"><span class="pre"><span class="Identifier">features</span><span class="Operator">.</span><span class="Identifier">nimcypher</span><span class="Operator">.</span><span class="Identifier">nimsimd</span></span></tt>, otherwise the scalar kernel.
+    
+  </dd>
+</div>
+
+</div>
+<div id="chacha20RoundsScalar-procs-all">
+  <div id="chacha20RoundsScalar,array[,uint32],array[,uint32]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#chacha20RoundsScalar%2Carray%5B%2Cuint32%5D%2Carray%5B%2Cuint32%5D"><span class="Identifier">chacha20RoundsScalar</span></a><span class="Other">(</span><span class="Identifier">outp</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">inp</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">uint32</span><span class="Other">]</span><span class="Other">)</span> {.
+    <span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Reference scalar ChaCha20 rounds (20 rounds, 2 per loop iteration). The SIMD feature makes <tt class="docutils literal"><span class="pre"><span class="Identifier">chacha20Rounds</span></span></tt> use <tt class="docutils literal"><span class="pre"><span class="Identifier">simdRounds</span></span></tt>; this scalar kernel stays available for verification and benchmarking.
     
   </dd>
 </div>
@@ -221,7 +298,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 10:34:46 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-15 11:32:29 UTC</small>
       </div>
     </div>
   </div>
