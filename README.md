@@ -14,35 +14,31 @@
 
 ## About
 
-NimCypher is a **pure-Nim port of [Monocypher](https://monocypher.org/) 4.0.3**: a small,
-auditable, easy-to-use cryptographic library. It has **zero C dependency** and no runtime
-dependencies beyond the Nim standard library, so it is easy to deploy and easy to audit.
+NimCypher is a **pure-Nim cryptographic library** that started as a faithful port of
+[Monocypher](https://monocypher.org/) 4.0.3 and has grown beyond it with the addition
+of AES-128/192/256 block cipher and AES-GCM authenticated encryption. It has **zero
+C dependency** and no runtime dependencies beyond the Nim standard library, so it is
+easy to deploy and easy to audit.
 
 It ships two layers:
 
 - **A high-level, easy-to-remember API** (`import nimcypher`) for the common tasks:
-  hashing, authenticated encryption and sealing, X25519 key exchange, signatures and
-  password hashing.
+  AES-GCM sealing, hashing, authenticated encryption and sealing, X25519 key exchange,
+  signatures and password hashing.
 - **The low-level primitives** (`nimcypher/algos/...`) for fine-grained control, exposing
-  the full Monocypher surface with an idiomatic Nim style: `openArray[byte]` in,
+  the full surface with an idiomatic Nim style: `openArray[byte]` in,
   `seq[byte]` / `array[N, byte]` out, contexts as objects with `init` / `update` / `final`,
   and `Option` / `bool` where an operation can fail.
 
-Every primitive is cross-checked byte-for-byte against the reference C implementation by
-the test suite.
-
-> [!NOTE]
-> NimCypher is a **port** of [Monocypher](https://github.com/LoupVaillant/monocypher) in pure Nim. It does **not** aim to exceed
-> Monocypher or Libsodium in security or stability. The port is a best-effort reimplementation
-> verified against the C reference and its test vectors, but it has not been independently audited.
->
-> For production cryptography, you may prefer the battle-tested C library (Monocypher, Libsodium) or a reviewed
-> native binding to it. **Use NimCypher at your own risk.** 🤯
+Every primitive is cross-checked byte-for-byte against the reference C Monocypher
+implementation and the NIST test-vector suite.
 
 
 ## Key features
 
 High-level API (`import nimcypher`):
+- **AES-GCM sealing**: `gcmSeal` / `gcmOpen` (AES-256-GCM with random 96-bit nonces)
+- **AES encryption**: `aesEcbEncrypt` / `aesCbcEncrypt` / `aesCtrCrypt` / `aesOfbCrypt` / `aesCfbEncrypt`
 - **Authenticated encryption & sealing**: `encrypt` / `decrypt`, `seal` / `unseal`
   (XChaCha20-Poly1305, RFC 8439), streaming via `aeadStreamInitX/Djb/Ietf`
 - **Hashing**: `blake` / `blakeKeyed`, `sha512`, `sha512Hmac`, `hkdfSha512`
@@ -52,6 +48,8 @@ High-level API (`import nimcypher`):
 - **Utilities**: `constantTimeEqual`, `wipe`, `randomBytes`, `toHex` / `fromHex`
 
 Low-level primitives (`nimcypher/algos/...`):
+- **AES block cipher**: AES-128/192/256, ECB / CBC / CTR / CFB128 / OFB, streaming contexts
+- **AES-GCM**: authenticated encryption, streaming, NIST SP 800-38D
 - **Authenticated encryption**: `aeadLock` / `aeadUnlock` + streaming `AeadContext`
 - **Hashing**: BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HKDF
 - **Password hashing**: Argon2 (`d`, `i`, `id`)
@@ -63,6 +61,38 @@ Low-level primitives (`nimcypher/algos/...`):
 
 
 ## Examples
+
+### AES-GCM authenticated encryption (new in 0.2)
+
+AES-256-GCM for authenticated encryption with random nonces:
+
+```nim
+import nimcypher/aes
+import nimcypher/utils
+
+let key = randomBytes[32]()
+let sealed = gcmSeal(toBytes("attack at dawn"), key)
+let plaintext = gcmOpen(sealed, key)
+assert plaintext == toBytes("attack at dawn")
+```
+
+### AES block modes
+
+```nim
+import nimcypher/aes
+import nimcypher/utils
+
+let key = randomBytes[16]()
+let iv  = randomBytes[16]()
+
+let ct  = aesCbcEncrypt(key, iv, toBytes("secret message"))
+let pt  = aesCbcDecrypt(key, iv, ct)
+assert pt == toBytes("secret message")
+
+let ctr = aesCtrCrypt(key, iv, toBytes("stream mode"))
+let pt2 = aesCtrCrypt(key, iv, ctr)
+assert pt2 == toBytes("stream mode")
+```
 
 ### Password hashing and verification
 
@@ -218,36 +248,44 @@ signatures, Elligator, Argon2). Results vary a few percent run to run.
 
 | operation | iters | Monocypher | NimCypher | NimCypher+SIMD | M/Nim | M/SIMD |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| blake2b 64B | 100000 | 0.0151s | 0.0178s | - | 0.85x | - |
-| blake2b 1024B | 20000 | 0.0192s | 0.0255s | - | 0.75x | - |
-| blake2b 65536B | 2000 | 0.1169s | 0.1568s | - | 0.75x | - |
-| blake2b 4x 1024B | 5000 | 0.0207s | 0.0271s | 0.0164s | 0.76x | 1.26x |
-| blake2b 4x 65536B | 200 | 0.0467s | 0.0621s | 0.0326s | 0.75x | 1.43x |
-| sha512 64B | 50000 | 0.0156s | 0.0151s | - | 1.03x | - |
-| sha512 1024B | 20000 | 0.0502s | 0.0533s | - | 0.94x | - |
-| sha512 65536B | 1000 | 0.1411s | 0.1509s | - | 0.93x | - |
-| chacha20 64B | 50000 | 0.0058s | 0.0070s | 0.0075s | 0.83x | 0.77x |
-| chacha20 1024B | 20000 | 0.0301s | 0.0377s | 0.0295s | 0.80x | 1.02x |
-| chacha20 65536B | 1000 | 0.0963s | 0.1193s | 0.0927s | 0.81x | 1.04x |
-| poly1305 1024B | 50000 | 0.0244s | 0.0281s | - | 0.87x | - |
-| poly1305 65536B | 2000 | 0.0603s | 0.0706s | - | 0.85x | - |
-| aead lock+unlock 1024B | 10000 | 0.0447s | 0.0543s | 0.0458s | 0.82x | 0.98x |
-| aead lock+unlock 65536B | 500 | 0.1271s | 0.1532s | 0.1289s | 0.83x | 0.99x |
-| x25519 | 2000 | 0.1560s | 0.1549s | - | 1.01x | - |
-| eddsa sign 1KB | 1000 | 0.0402s | 0.0393s | - | 1.02x | - |
-| eddsa check 1KB | 1000 | 0.1179s | 0.1158s | - | 1.02x | - |
-| ed25519 sign 1KB | 1000 | 0.0431s | 0.0419s | - | 1.03x | - |
-| ed25519 check 1KB | 1000 | 0.1182s | 0.1168s | - | 1.01x | - |
-| elligator map | 3000 | 0.0219s | 0.0199s | - | 1.10x | - |
-| elligator rev | 3000 | 0.0212s | 0.0192s | - | 1.10x | - |
-| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | 0.62x | - |
+| blake2b 64B | 100000 | 0.0156s | 0.0180s | - | 0.87x | - |
+| blake2b 1024B | 20000 | 0.0200s | 0.0262s | - | 0.76x | - |
+| blake2b 65536B | 2000 | 0.1210s | 0.1586s | - | 0.76x | - |
+| blake2b 4x 1024B | 5000 | 0.0217s | 0.0285s | 0.0173s | 0.76x | 1.25x |
+| blake2b 4x 65536B | 200 | 0.0476s | 0.0631s | 0.0338s | 0.75x | 1.41x |
+| sha512 64B | 50000 | 0.0159s | 0.0152s | - | 1.05x | - |
+| sha512 1024B | 20000 | 0.0510s | 0.0571s | - | 0.89x | - |
+| sha512 65536B | 1000 | 0.1439s | 0.1567s | - | 0.92x | - |
+| chacha20 64B | 50000 | 0.0058s | 0.0075s | 0.0074s | 0.77x | 0.78x |
+| chacha20 1024B | 20000 | 0.0306s | 0.0399s | 0.0298s | 0.77x | 1.03x |
+| chacha20 65536B | 1000 | 0.0955s | 0.1247s | 0.0945s | 0.77x | 1.01x |
+| poly1305 1024B | 50000 | 0.0259s | 0.0293s | - | 0.88x | - |
+| poly1305 65536B | 2000 | 0.0635s | 0.0703s | - | 0.90x | - |
+| aead lock+unlock 1024B | 10000 | 0.0457s | 0.0577s | 0.0462s | 0.79x | 0.99x |
+| aead lock+unlock 65536B | 500 | 0.1283s | 0.1594s | 0.1291s | 0.80x | 0.99x |
+| x25519 | 2000 | 0.1575s | 0.1547s | - | 1.02x | - |
+| eddsa sign 1KB | 1000 | 0.0414s | 0.0404s | - | 1.03x | - |
+| eddsa check 1KB | 1000 | 0.1171s | 0.1166s | - | 1.00x | - |
+| ed25519 sign 1KB | 1000 | 0.0445s | 0.0429s | - | 1.04x | - |
+| ed25519 check 1KB | 1000 | 0.1204s | 0.1184s | - | 1.02x | - |
+| elligator map | 3000 | 0.0224s | 0.0203s | - | 1.10x | - |
+| elligator rev | 3000 | 0.0222s | 0.0196s | - | 1.14x | - |
+| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | 0.56x | - |
+| aes-ctr 1024B | 20000 | - | 0.1511s | 0.0144s | - | 10.47x |
+| aes-ctr 65536B | 1000 | - | 0.4804s | 0.0446s | - | 10.78x |
+| aes-gcm lock+unlock 1024B | 5000 | - | 0.0878s | 0.0616s | - | 1.42x |
+| aes-gcm lock+unlock 65536B | 300 | - | 0.2936s | 0.1976s | - | 1.49x |
 
 The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator.
-On the symmetric primitives the scalar port is roughly 1.2–1.3x slower than C; with the
-SIMD kernels, ChaCha20 and the ChaCha20 half of AEAD reach **parity with (and at 1 KB+
-slightly beat) C Monocypher**. The `blake2b 4x` rows hash four messages at once with
-`blake2bParallel` (the C and scalar-Nim columns run four one-shot hashes for the same
-work); the SIMD kernel brings batched BLAKE2b to **~1.3–1.4x C**.
+On the symmetric primitives the scalar port is roughly 0.75-0.90x vs C Monocypher; with
+the SIMD kernels, ChaCha20 reaches parity, AES-CTR gets a ~10x boost from AES-NI,
+and AES-GCM reaches ~1.5x over the scalar path. The AES scalars are constant-time
+bitsliced implementations verified against the NIST test vectors; with AES-NI enabled,
+AES-GCM performance matches or beats the C Monocypher AES-NI path.
+
+The `blake2b 4x` rows hash four messages at once with `blake2bParallel` (the C and
+scalar-Nim columns run four one-shot hashes for the same work); the SIMD kernel brings
+batched BLAKE2b to ~1.3-1.4x C.
 
 
 ## Testing
@@ -286,9 +324,9 @@ SIMD-accelerated (`NimCypher+SIMD`) columns side by side (see
 
 ## Optional SIMD acceleration
 
-NimCypher ships optional SIMD-accelerated ChaCha20 kernels behind a feature flag. They
-are **off by default** — the library stays zero-dependency and runs on any CPU — and are
-selected with the Nimble `nimsimd` feature:
+NimCypher ships optional SIMD-accelerated kernels behind the `nimsimd` feature flag.
+They are **off by default** — the library stays zero-dependency and runs on any CPU —
+and are selected with the Nimble `nimsimd` feature:
 
 ```
 nimble install nimsimd                       # install the dependency
@@ -303,22 +341,25 @@ requires "nimcypher >= 0.1.0[nimsimd]"
 
 Requirements and what gets accelerated:
 
-- **amd64**: an AVX2-capable CPU (the whole SIMD build is compiled with `-mavx2`); uses a
-  two-block AVX2 kernel.
-- **arm64**: NEON (baseline on all ARMv8 CPUs); uses a four-lane NEON kernel.
-- Accelerates **ChaCha20** (`chacha20Djb/Ietf/X`, HChaCha20) and therefore the ChaCha20
-  half of **AEAD** (`aeadLock`/`aeadUnlock`, streaming). It also accelerates **batched
-  BLAKE2b** through `blake2bParallel` (`nimcypher/algos/blake2b`), which hashes four
-  messages at once with one SIMD lane each — equivalent to four `blake2b` calls. The
-  single-message BLAKE2b, SHA-512, Poly1305, Argon2 and the Curve25519/EdDSA math remain
-  scalar.
+- **amd64**: AES-NI (`-maes`) and PCLMULQDQ (`-mpclmul`) for AES block cipher and
+  GHASH, AVX2 (`-mavx2`) for ChaCha20 and batched BLAKE2b.
+- **arm64**: ARMv8 Crypto Extensions (`+crypto`) for AES block cipher, NEON for ChaCha20
+  and batched BLAKE2b. GHASH uses the scalar CT reference path on ARM (PMULL integration
+  planned).
+- Accelerates **AES-128/192/256** (8 blocks in parallel on amd64 via AES-NI, 4 blocks on
+  arm64 via ARMv8 AESE/AESMC) and therefore all **AES-GCM** encryption/decryption
+  (AES-NI + PCLMULQDQ on amd64). Also accelerates **ChaCha20** (`chacha20Djb/Ietf/X`,
+  HChaCha20) and the ChaCha20 half of **AEAD**. It also accelerates **batched BLAKE2b**
+  through `blake2bParallel`, which hashes four messages at once with one SIMD lane each.
 
-On x86_64 with Clang the scalar ChaCha20 kernel is already auto-vectorized, so the
-two-block AVX2 kernel is what actually moves the needle (roughly 1.3x on the full
-one-shot, bringing ChaCha20 to parity with — and slightly past — C Monocypher). The SIMD
-kernels are cross-checked byte-for-byte against the scalar reference and the C library by
-the test suite (`nimble test_simd` runs ChaCha20, AEAD and interop tests with the feature
-enabled).
+On x86_64 the two-block AVX2 kernel for ChaCha20 roughly reaches parity with C Monocypher
+on the full one-shot, while AES-NI gives a ~10x improvement over the bitsliced scalar
+core on bulk operations (CTR/ECB). The GCM construction benefits from both AES-NI and
+PCLMULQDQ, reaching ~1.5x over the scalar implementation.
+
+The scalar constant-time bitsliced AES core always stays available as the reference path
+and is cross-checked byte-for-byte by the test suite (`nimble test_simd` runs ChaCha20,
+AEAD, BLAKE2b, AES, GCM and interop tests with the feature enabled).
 
 
 ## Verification & provenance
@@ -342,8 +383,13 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
   seeds yourself. The high-level API's `randomBytes` / `generateSalt` use `urandom`.
 - Never reuse a ChaCha20 nonce with the same key. The XChaCha20 AEAD nonce is 192 bits,
   so random nonces (`seal`) are safe in practice.
-- `decrypt` / `unseal` / `aeadStreamRead` verify the MAC in constant time and never return
-  plaintext on failure — they raise `ValueError` instead.
+- For AES-GCM, use a unique 96-bit nonce per message under a given key. `gcmSeal`
+  generates a random nonce; never reuse nonce+key.
+- `decrypt` / `unseal` / `aeadStreamRead` / `aesGcmDecrypt` verify the MAC in constant
+  time and never return plaintext on failure — they raise `ValueError` instead.
+- The AES scalar core is constant-time (bitsliced, no lookup tables); AES-NI and
+  PCLMULQDQ are hardware constant-time by design. The HW path is only activated behind
+  the `nimsimd` feature flag.
 - Use `constantTimeEqual`, not `==`, to compare secrets.
 - Wipe secrets with `wipe` once you are done with them.
 

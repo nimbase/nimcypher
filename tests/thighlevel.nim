@@ -192,3 +192,54 @@ test "secret: RAII wiping on scope exit":
     check sink[][0] == 1
   # the wrapped array is wiped when the Secret goes out of scope
   check sink[] == default(array[16, byte])
+
+test "aes: all six modes round-trip":
+  let k16 = randomBytes[16]()
+  let k24 = randomBytes[24]()
+  let key = randomBytes[32]()
+  let iv = randomBytes[16]()
+  let data = toBytes("the quick brown fox jumps over the lazy dog")
+
+  check aesEcbDecrypt(k16, aesEcbEncrypt(k16, data)) == data
+  check aesCbcDecrypt(k24, iv, aesCbcEncrypt(k24, iv, data)) == data
+  check aesCtrCrypt(key, iv, aesCtrCrypt(key, iv, data)) == data
+  check aesOfbCrypt(key, iv, aesOfbCrypt(key, iv, data)) == data
+  check aesCfbEncrypt(key, iv, data) != data # sanity: actually encrypts
+  check aesCfbDecrypt(key, iv, aesCfbEncrypt(key, iv, data)) == data
+
+  # raw (unpadded) ECB/CBC need aligned input
+  let aligned = newSeq[byte](32)
+  check aesEcbDecrypt(k16, aesEcbEncrypt(k16, aligned, false), false).len == 32
+
+test "aes-gcm: seal/open and tamper rejection":
+  let key = randomBytes[32]()
+  let msg = toBytes("attack at dawn")
+  let sealed = gcmSeal(msg, key)
+  check gcmOpen(sealed, key) == msg
+  check sealed.nonce.len == 12
+  var bad = sealed
+  bad.cipherText[0] = bad.cipherText[0] xor byte(1)
+  expect ValueError:
+    discard gcmOpen(bad, key)
+
+test "aes-gcm: one-shot with AAD and explicit nonce":
+  let key = randomBytes[16]()
+  let nonce = randomBytes[12]()
+  let (ct, tag) = aesGcmEncrypt(key, nonce, toBytes("payload"),
+                                toBytes("header"))
+  check aesGcmDecryptStr(key, nonce, ct, tag, toBytes("header")) == "payload"
+  expect ValueError:
+    discard aesGcmDecrypt(key, nonce, ct, tag, toBytes("wrong"))
+
+test "aes-gcm: streaming equals one-shot":
+  let key = randomBytes[32]()
+  let nonce = randomBytes[12]()
+  let data = toBytes("streaming authenticated encryption of a longer message")
+  var st = gcmStreamInit(key, nonce, [], true)
+  var ct = gcmStreamUpdate(st, data[0 ..< 9])
+  ct.add(gcmStreamUpdate(st, data[9 ..^ 1]))
+  let tag = gcmStreamFinal(st)
+  var ds = gcmStreamInit(key, nonce, [], false)
+  var pt = gcmStreamUpdate(ds, ct)
+  check gcmStreamVerify(ds, @tag)
+  check pt == data

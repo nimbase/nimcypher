@@ -17,6 +17,8 @@ import std/strformat
 import std/options
 
 import nimcypher/algos/common
+import nimcypher/algos/aes
+import nimcypher/algos/gcm
 import nimcypher/algos/blake2b
 import nimcypher/algos/sha512
 import nimcypher/algos/chacha20
@@ -109,13 +111,23 @@ proc aeadUnlockScalar(key: array[32, byte], nonce: array[24, byte],
 
 proc bench(label: string, iterations: int, c, n: proc() {.closure.},
            ns: proc() {.closure.} = nil) =
-  let ct = timeIt(iterations, c)
+  # `c` may be nil for primitives the C Monocypher library does not have.
   let nt = timeIt(iterations, n)
+  var ct = 0.0
+  var haveC = false
+  if not c.isNil:
+    ct = timeIt(iterations, c)
+    haveC = true
+  let cs = if haveC: fmt"{ct:.4f}s" else: "-"
+  let cr = if haveC: fmt"{ct / nt:.2f}x" else: "-"
   if ns.isNil:
-    echo fmt"| {label} | {iterations} | {ct:.4f}s | {nt:.4f}s | - | {ct / nt:.2f}x | - |"
+    echo fmt"| {label} | {iterations} | {cs} | {nt:.4f}s | - | {cr} | - |"
+  elif haveC:
+    let st = timeIt(iterations, ns)
+    echo fmt"| {label} | {iterations} | {cs} | {nt:.4f}s | {st:.4f}s | {cr} | {ct / st:.2f}x |"
   else:
     let st = timeIt(iterations, ns)
-    echo fmt"| {label} | {iterations} | {ct:.4f}s | {nt:.4f}s | {st:.4f}s | {ct / nt:.2f}x | {ct / st:.2f}x |"
+    echo fmt"| {label} | {iterations} | {cs} | {nt:.4f}s | {st:.4f}s | {cr} | {nt / st:.2f}x |"
 
 proc makeMsg(n: int): seq[byte] =
   result = newSeq[byte](n)
@@ -361,6 +373,69 @@ proc benchArgon2() =
       let h = argon2(cfgN, 32, pass, salt)
       sink = sink xor h[0])
 
+proc benchAesCtr() =
+  # scalar column drives the explicit scalar kernel; simd column goes
+  # through the public API (hardware kernels when built with the feature).
+  for size in [1024, 65536]:
+    let iters = if size == 1024: 20_000 else: 1_000
+    let msg = makeMsg(size)
+    var key: array[32, byte]
+    for i in 0 ..< 32: key[i] = byte(i)
+    var counter: array[16, byte]
+    for i in 0 ..< 16: counter[i] = byte(200 + i)
+    let ctx = initAes(key)
+    var ctS = newSeqUninit[byte](size)
+
+    proc ctrScalar() =
+      var ctr = counter
+      var cp = cast[BytePtr](unsafeAddr msg[0])
+      var dp = cast[BytePtr](unsafeAddr ctS[0])
+      var remaining = size
+      while remaining > 0:
+        var ks: array[512, byte]
+        var cbs: array[512, byte]
+        let nbBlocks = min(remaining + 15, 512) shr 4
+        for b in 0 ..< nbBlocks:
+          copyMem(addr cbs[b * 16], addr ctr[0], 16)
+          ctrIncrement(ctr)
+        encryptBlocksScalar(ctx, cast[BytePtr](addr ks[0]),
+                            cast[BytePtr](addr cbs[0]), nbBlocks)
+        let take = min(remaining, nbBlocks shl 4)
+        for i in 0 ..< take:
+          dp[i] = cp[i] xor ks[i]
+        dp = dp + take
+        cp = cp + take
+        remaining -= take
+
+    var outS: seq[byte]
+    bench("aes-ctr " & $size & "B", iters,
+      nil,
+      ctrScalar,
+      proc() =
+        outS = ctrCryptOne(ctx, counter, msg)
+        sink = sink xor outS[0])
+
+proc benchAesGcm() =
+  for size in [1024, 65536]:
+    let iters = if size == 1024: 5_000 else: 300
+    let msg = makeMsg(size)
+    var key: array[32, byte]
+    for i in 0 ..< 32: key[i] = byte(i)
+    var nonce: array[12, byte]
+    for i in 0 ..< 12: nonce[i] = byte(90 + i)
+    var tagS: array[16, byte]
+    var ctS: seq[byte]
+    bench("aes-gcm lock+unlock " & $size & "B", iters,
+      nil,
+      proc() =
+        (ctS, tagS) = gcmLockScalar(key, nonce, msg)
+        discard gcmUnlockScalar(key, nonce, ctS, tagS)
+        sink = sink xor ctS[0],
+      proc() =
+        let (c, t) = gcmLock(key, nonce, msg)
+        discard gcmUnlock(key, nonce, c, t)
+        sink = sink xor c[0])
+
 when isMainModule:
   echo "Benchmark: pure-Nim NimCypher vs C Monocypher"
   echo "Ratio = Monocypher time / NimCypher time (< 1 means NimCypher slower, > 1 means NimCypher faster)"
@@ -379,4 +454,6 @@ when isMainModule:
   benchSignatures()
   benchElligator()
   benchArgon2()
+  benchAesCtr()
+  benchAesGcm()
   echo "checksum (prevents dead-code elimination): ", sink

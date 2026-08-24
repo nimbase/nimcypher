@@ -11,7 +11,8 @@ import nimcypher/utils
 import nimcypher/secret
 import nimcypher/hash
 import nimcypher/encrypt
+import nimcypher/aes
 import nimcypher/sign
 import nimcypher/password
 
-export utils, secret, hash, encrypt, sign, password
+export utils, secret, hash, encrypt, aes, sign, password
