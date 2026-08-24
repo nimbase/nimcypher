@@ -1,0 +1,51 @@
+nimTitle	aes	nimcypher/algos/aes.html	module nimcypher/algos/aes		0
+nim	AesContext	nimcypher/algos/aes.html#AesContext	object AesContext		32
+nim	ortho	nimcypher/algos/aes.html#ortho,array[,uint64]	proc ortho(q: var array[8, uint64])		54
+nim	interleaveIn	nimcypher/algos/aes.html#interleaveIn,array[,uint64],int,uint32,uint32,uint32,uint32	proc interleaveIn(q: var array[8, uint64]; idx: int; w0, w1, w2, w3: uint32)		71
+nim	interleaveOut	nimcypher/algos/aes.html#interleaveOut,array[,uint32],uint64,uint64	proc interleaveOut(w: var array[4, uint32]; q0, q1: uint64)		98
+nim	bitsliceSbox	nimcypher/algos/aes.html#bitsliceSbox,array[,uint64]	proc bitsliceSbox(q: var array[8, uint64])		117
+nim	invBitsliceSbox	nimcypher/algos/aes.html#invBitsliceSbox,array[,uint64]	proc invBitsliceSbox(q: var array[8, uint64])		263
+nim	bitsliceEncryptScalar	nimcypher/algos/aes.html#bitsliceEncryptScalar,int,array[,uint64],array[,uint64]	proc bitsliceEncryptScalar(rounds: int; skey: array[120, uint64];\n                      q: var array[8, uint64])		406
+nim	bitsliceDecryptScalar	nimcypher/algos/aes.html#bitsliceDecryptScalar,int,array[,uint64],array[,uint64]	proc bitsliceDecryptScalar(rounds: int; skey: array[120, uint64];\n                      q: var array[8, uint64])		419
+nim	initAes	nimcypher/algos/aes.html#initAes,AesContext,openArray[byte]	proc initAes(ctx: var AesContext; key: openArray[byte])		559
+nim	initAes	nimcypher/algos/aes.html#initAes,openArray[byte]	proc initAes(key: openArray[byte]): AesContext		592
+nim	encryptGroupScalar	nimcypher/algos/aes.html#encryptGroupScalar,AesContext,BytePtr,BytePtr	proc encryptGroupScalar(ctx: AesContext; dst, src: BytePtr)		601
+nim	decryptGroupScalar	nimcypher/algos/aes.html#decryptGroupScalar,AesContext,BytePtr,BytePtr	proc decryptGroupScalar(ctx: AesContext; dst, src: BytePtr)		623
+nim	encryptBlocksScalar	nimcypher/algos/aes.html#encryptBlocksScalar,AesContext,BytePtr,BytePtr,int	proc encryptBlocksScalar(ctx: AesContext; dst, src: BytePtr; nb: int)		645
+nim	decryptBlocksScalar	nimcypher/algos/aes.html#decryptBlocksScalar,AesContext,BytePtr,BytePtr,int	proc decryptBlocksScalar(ctx: AesContext; dst, src: BytePtr; nb: int)		666
+nim	encryptBlocks	nimcypher/algos/aes.html#encryptBlocks,AesContext,BytePtr,BytePtr,int	proc encryptBlocks(ctx: AesContext; dst, src: BytePtr; nb: int)		697
+nim	decryptBlocks	nimcypher/algos/aes.html#decryptBlocks,AesContext,BytePtr,BytePtr,int	proc decryptBlocks(ctx: AesContext; dst, src: BytePtr; nb: int)		700
+nim	encryptGroup	nimcypher/algos/aes.html#encryptGroup,AesContext,BytePtr,BytePtr	proc encryptGroup(ctx: AesContext; dst, src: BytePtr)		703
+nim	decryptGroup	nimcypher/algos/aes.html#decryptGroup,AesContext,BytePtr,BytePtr	proc decryptGroup(ctx: AesContext; dst, src: BytePtr)		707
+nim	encryptBlock	nimcypher/algos/aes.html#encryptBlock,AesContext,array[,byte],array[,byte]	proc encryptBlock(ctx: AesContext; dst: var array[16, byte]; src: array[16, byte])		715
+nim	decryptBlock	nimcypher/algos/aes.html#decryptBlock,AesContext,array[,byte],array[,byte]	proc decryptBlock(ctx: AesContext; dst: var array[16, byte]; src: array[16, byte])		727
+nim	encryptBlockRaw	nimcypher/algos/aes.html#encryptBlockRaw,AesContext,BytePtr,BytePtr	proc encryptBlockRaw(ctx: AesContext; dst, src: BytePtr)		739
+nim	decryptBlockRaw	nimcypher/algos/aes.html#decryptBlockRaw,AesContext,BytePtr,BytePtr	proc decryptBlockRaw(ctx: AesContext; dst, src: BytePtr)		748
+nim	ecbEncrypt	nimcypher/algos/aes.html#ecbEncrypt,AesContext,openArray[byte]	proc ecbEncrypt(ctx: AesContext; data: openArray[byte]): seq[byte]		768
+nim	ecbDecrypt	nimcypher/algos/aes.html#ecbDecrypt,AesContext,openArray[byte]	proc ecbDecrypt(ctx: AesContext; data: openArray[byte]): seq[byte]		775
+nim	cbcEncryptOne	nimcypher/algos/aes.html#cbcEncryptOne,AesContext,array[,byte],openArray[byte]	proc cbcEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[\n    byte]		782
+nim	cbcDecryptOne	nimcypher/algos/aes.html#cbcDecryptOne,AesContext,array[,byte],openArray[byte]	proc cbcDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[\n    byte]		805
+nim	ctrIncrement	nimcypher/algos/aes.html#ctrIncrement,array[,byte]	proc ctrIncrement(counter: var array[16, byte])		827
+nim	ctrXorInto	nimcypher/algos/aes.html#ctrXorInto,AesContext,array[,byte],BytePtr,BytePtr,int	proc ctrXorInto(ctx: AesContext; counter: var array[16, byte]; dst, src: BytePtr;\n           size: int)		837
+nim	ctrCryptOne	nimcypher/algos/aes.html#ctrCryptOne,AesContext,array[,byte],openArray[byte]	proc ctrCryptOne(ctx: AesContext; counter: array[16, byte]; data: openArray[byte]): seq[\n    byte]		863
+nim	ofbXorInto	nimcypher/algos/aes.html#ofbXorInto,AesContext,array[,byte],BytePtr,BytePtr,int	proc ofbXorInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;\n           size: int)		875
+nim	ofbCryptOne	nimcypher/algos/aes.html#ofbCryptOne,AesContext,array[,byte],openArray[byte]	proc ofbCryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[\n    byte]		894
+nim	cfbEncryptInto	nimcypher/algos/aes.html#cfbEncryptInto,AesContext,array[,byte],BytePtr,BytePtr,int	proc cfbEncryptInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;\n               size: int)		905
+nim	cfbDecryptInto	nimcypher/algos/aes.html#cfbDecryptInto,AesContext,array[,byte],BytePtr,BytePtr,int	proc cfbDecryptInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;\n               size: int)		923
+nim	cfbEncryptOne	nimcypher/algos/aes.html#cfbEncryptOne,AesContext,array[,byte],openArray[byte]	proc cfbEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[\n    byte]		944
+nim	cfbDecryptOne	nimcypher/algos/aes.html#cfbDecryptOne,AesContext,array[,byte],openArray[byte]	proc cfbDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[\n    byte]		955
+nim	pkcs7Pad	nimcypher/algos/aes.html#pkcs7Pad,openArray[byte],int	proc pkcs7Pad(data: openArray[byte]; blockSize: int = 16): seq[byte]		970
+nim	pkcs7Unpad	nimcypher/algos/aes.html#pkcs7Unpad,openArray[byte],int	proc pkcs7Unpad(data: openArray[byte]; blockSize: int = 16): seq[byte]		982
+nim	AesCtrStream	nimcypher/algos/aes.html#AesCtrStream	object AesCtrStream		1015
+nim	AesOfbStream	nimcypher/algos/aes.html#AesOfbStream	object AesOfbStream		1022
+nim	AesCfbEncStream	nimcypher/algos/aes.html#AesCfbEncStream	object AesCfbEncStream		1029
+nim	AesCfbDecStream	nimcypher/algos/aes.html#AesCfbDecStream	object AesCfbDecStream		1037
+nim	initAesCtr	nimcypher/algos/aes.html#initAesCtr,AesCtrStream,openArray[byte],array[,byte]	proc initAesCtr(ctx: var AesCtrStream; key: openArray[byte];\n           counterBlock: array[16, byte])		1045
+nim	initAesOfb	nimcypher/algos/aes.html#initAesOfb,AesOfbStream,openArray[byte],array[,byte]	proc initAesOfb(ctx: var AesOfbStream; key: openArray[byte]; iv: array[16, byte])		1054
+nim	initAesCfbEnc	nimcypher/algos/aes.html#initAesCfbEnc,AesCfbEncStream,openArray[byte],array[,byte]	proc initAesCfbEnc(ctx: var AesCfbEncStream; key: openArray[byte];\n              iv: array[16, byte])		1062
+nim	initAesCfbDec	nimcypher/algos/aes.html#initAesCfbDec,AesCfbDecStream,openArray[byte],array[,byte]	proc initAesCfbDec(ctx: var AesCfbDecStream; key: openArray[byte];\n              iv: array[16, byte])		1071
+nim	aesCtrUpdate	nimcypher/algos/aes.html#aesCtrUpdate,AesCtrStream,openArray[byte]	proc aesCtrUpdate(s: var AesCtrStream; data: openArray[byte]): seq[byte]		1080
+nim	aesOfbUpdate	nimcypher/algos/aes.html#aesOfbUpdate,AesOfbStream,openArray[byte]	proc aesOfbUpdate(s: var AesOfbStream; data: openArray[byte]): seq[byte]		1096
+nim	aesCfbEncryptUpdate	nimcypher/algos/aes.html#aesCfbEncryptUpdate,AesCfbEncStream,openArray[byte]	proc aesCfbEncryptUpdate(s: var AesCfbEncStream; data: openArray[byte]): seq[byte]		1112
+nim	aesCfbDecryptUpdate	nimcypher/algos/aes.html#aesCfbDecryptUpdate,AesCfbDecStream,openArray[byte]	proc aesCfbDecryptUpdate(s: var AesCfbDecStream; data: openArray[byte]): seq[byte]		1132
+nimgrp	initaes	nimcypher/algos/aes.html#initAes-procs-all	proc		559

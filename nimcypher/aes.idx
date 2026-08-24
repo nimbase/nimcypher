@@ -1,0 +1,30 @@
+nimTitle	aes	nimcypher/aes.html	module nimcypher/aes		0
+nim	AesKey128	nimcypher/aes.html#AesKey128	type AesKey128		28
+nim	AesKey192	nimcypher/aes.html#AesKey192	type AesKey192		29
+nim	AesKey256	nimcypher/aes.html#AesKey256	type AesKey256		30
+nim	IvBlock	nimcypher/aes.html#IvBlock	type IvBlock		31
+nim	Nonce12	nimcypher/aes.html#Nonce12	type Nonce12		32
+nim	Tag16	nimcypher/aes.html#Tag16	type Tag16		33
+nim	GcmSealed	nimcypher/aes.html#GcmSealed	object GcmSealed		35
+nim	aesEcbEncrypt	nimcypher/aes.html#aesEcbEncrypt,openArray[byte],openArray[byte]	proc aesEcbEncrypt(key: openArray[byte]; text: openArray[byte]; padded = true): seq[\n    byte]		60
+nim	aesEcbDecrypt	nimcypher/aes.html#aesEcbDecrypt,openArray[byte],openArray[byte]	proc aesEcbDecrypt(key: openArray[byte]; data: openArray[byte]; padded = true): seq[\n    byte]		71
+nim	aesCbcEncrypt	nimcypher/aes.html#aesCbcEncrypt,openArray[byte],openArray[byte],openArray[byte]	proc aesCbcEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte];\n              padded = true): seq[byte]		85
+nim	aesCbcDecrypt	nimcypher/aes.html#aesCbcDecrypt,openArray[byte],openArray[byte],openArray[byte]	proc aesCbcDecrypt(key: openArray[byte]; iv: openArray[byte]; data: openArray[byte];\n              padded = true): seq[byte]		95
+nim	aesCtrCrypt	nimcypher/aes.html#aesCtrCrypt,openArray[byte],openArray[byte],openArray[byte]	proc aesCtrCrypt(key: openArray[byte]; counter: openArray[byte];\n            text: openArray[byte]): seq[byte]		110
+nim	aesOfbCrypt	nimcypher/aes.html#aesOfbCrypt,openArray[byte],openArray[byte],openArray[byte]	proc aesOfbCrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte]): seq[\n    byte]		119
+nim	aesCfbEncrypt	nimcypher/aes.html#aesCfbEncrypt,openArray[byte],openArray[byte],openArray[byte]	proc aesCfbEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte]): seq[\n    byte]		127
+nim	aesCfbDecrypt	nimcypher/aes.html#aesCfbDecrypt,openArray[byte],openArray[byte],openArray[byte]	proc aesCfbDecrypt(key: openArray[byte]; iv: openArray[byte]; data: openArray[byte]): seq[\n    byte]		134
+nim	aesGcmEncrypt	nimcypher/aes.html#aesGcmEncrypt,openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc aesGcmEncrypt(key: openArray[byte]; nonce: openArray[byte];\n              text: openArray[byte]; ad: openArray[byte] = []): (seq[byte],\n    Tag16)		145
+nim	aesGcmDecrypt	nimcypher/aes.html#aesGcmDecrypt,openArray[byte],openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc aesGcmDecrypt(key: openArray[byte]; nonce: openArray[byte];\n              cipherText: openArray[byte]; tag: openArray[byte];\n              ad: openArray[byte] = []): seq[byte]		156
+nim	gcmSeal	nimcypher/aes.html#gcmSeal,openArray[byte],openArray[byte],openArray[byte]	proc gcmSeal(text: openArray[byte]; key: openArray[byte]; ad: openArray[byte] = []): GcmSealed		167
+nim	gcmSeal	nimcypher/aes.html#gcmSeal,string,openArray[byte],openArray[byte]	proc gcmSeal(text: string; key: openArray[byte]; ad: openArray[byte] = []): GcmSealed		174
+nim	gcmOpen	nimcypher/aes.html#gcmOpen,GcmSealed,openArray[byte],openArray[byte]	proc gcmOpen(msg: GcmSealed; key: openArray[byte]; ad: openArray[byte] = []): seq[\n    byte]		178
+nim	aesGcmEncryptStr	nimcypher/aes.html#aesGcmEncryptStr,openArray[byte],openArray[byte],string,openArray[byte]	proc aesGcmEncryptStr(key: openArray[byte]; nonce: openArray[byte]; text: string;\n                 ad: openArray[byte] = []): (seq[byte], Tag16)		185
+nim	aesGcmDecryptStr	nimcypher/aes.html#aesGcmDecryptStr,openArray[byte],openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc aesGcmDecryptStr(key: openArray[byte]; nonce: openArray[byte];\n                 cipherText: openArray[byte]; tag: openArray[byte];\n                 ad: openArray[byte] = []): string		190
+nim	gcmOpenStr	nimcypher/aes.html#gcmOpenStr,GcmSealed,openArray[byte],openArray[byte]	proc gcmOpenStr(msg: GcmSealed; key: openArray[byte]; ad: openArray[byte] = []): string		195
+nim	AesGcmStream	nimcypher/aes.html#AesGcmStream	object AesGcmStream		204
+nim	gcmStreamInit	nimcypher/aes.html#gcmStreamInit,openArray[byte],openArray[byte],openArray[byte],bool	proc gcmStreamInit(key: openArray[byte]; nonce: openArray[byte];\n              ad: openArray[byte] = []; encrypting: bool): AesGcmStream		209
+nim	gcmStreamUpdate	nimcypher/aes.html#gcmStreamUpdate,AesGcmStream,openArray[byte]	proc gcmStreamUpdate(s: var AesGcmStream; chunk: openArray[byte]): seq[byte]		221
+nim	gcmStreamFinal	nimcypher/aes.html#gcmStreamFinal,AesGcmStream	proc gcmStreamFinal(s: var AesGcmStream): Tag16		232
+nim	gcmStreamVerify	nimcypher/aes.html#gcmStreamVerify,AesGcmStream,openArray[byte]	proc gcmStreamVerify(s: var AesGcmStream; tag: openArray[byte]): bool		239
+nimgrp	gcmseal	nimcypher/aes.html#gcmSeal-procs-all	proc		167

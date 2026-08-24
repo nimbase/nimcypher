@@ -28,7 +28,7 @@
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="index.html">nimcypher</a>, <a href="nimcypher/algos/aead.html">nimcypher/algos/aead</a>, <a href="nimcypher/algos/argon2.html">nimcypher/algos/argon2</a>, <a href="nimcypher/algos/blake2b.html">nimcypher/algos/blake2b</a>, <a href="nimcypher/algos/chacha20.html">nimcypher/algos/chacha20</a>, <a href="nimcypher/algos/common.html">nimcypher/algos/common</a>, <a href="nimcypher/algos/eddsa.html">nimcypher/algos/eddsa</a>, <a href="nimcypher/algos/hkdf.html">nimcypher/algos/hkdf</a>, <a href="nimcypher/algos/internal/edl.html">nimcypher/algos/internal/edl</a>, <a href="nimcypher/algos/internal/fe.html">nimcypher/algos/internal/fe</a>, <a href="nimcypher/algos/internal/ge.html">nimcypher/algos/internal/ge</a>, <a href="nimcypher/algos/poly1305.html">nimcypher/algos/poly1305</a>, <a href="nimcypher/algos/sha512.html">nimcypher/algos/sha512</a>, <a href="nimcypher/algos/x25519.html">nimcypher/algos/x25519</a>, <a href="nimcypher/encrypt.html">nimcypher/encrypt</a>, <a href="nimcypher/hash.html">nimcypher/hash</a>, <a href="nimcypher/password.html">nimcypher/password</a>, <a href="nimcypher/secret.html">nimcypher/secret</a>, <a href="nimcypher/sign.html">nimcypher/sign</a>, <a href="nimcypher/utils.html">nimcypher/utils</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="index.html">nimcypher</a>, <a href="nimcypher/aes.html">nimcypher/aes</a>, <a href="nimcypher/algos/aead.html">nimcypher/algos/aead</a>, <a href="nimcypher/algos/aes.html">nimcypher/algos/aes</a>, <a href="nimcypher/algos/argon2.html">nimcypher/algos/argon2</a>, <a href="nimcypher/algos/blake2b.html">nimcypher/algos/blake2b</a>, <a href="nimcypher/algos/chacha20.html">nimcypher/algos/chacha20</a>, <a href="nimcypher/algos/common.html">nimcypher/algos/common</a>, <a href="nimcypher/algos/eddsa.html">nimcypher/algos/eddsa</a>, <a href="nimcypher/algos/gcm.html">nimcypher/algos/gcm</a>, <a href="nimcypher/algos/hkdf.html">nimcypher/algos/hkdf</a>, <a href="nimcypher/algos/internal/edl.html">nimcypher/algos/internal/edl</a>, <a href="nimcypher/algos/internal/fe.html">nimcypher/algos/internal/fe</a>, <a href="nimcypher/algos/internal/ge.html">nimcypher/algos/internal/ge</a>, <a href="nimcypher/algos/poly1305.html">nimcypher/algos/poly1305</a>, <a href="nimcypher/algos/sha512.html">nimcypher/algos/sha512</a>, <a href="nimcypher/algos/x25519.html">nimcypher/algos/x25519</a>, <a href="nimcypher/encrypt.html">nimcypher/encrypt</a>, <a href="nimcypher/hash.html">nimcypher/hash</a>, <a href="nimcypher/password.html">nimcypher/password</a>, <a href="nimcypher/secret.html">nimcypher/secret</a>, <a href="nimcypher/sign.html">nimcypher/sign</a>, <a href="nimcypher/utils.html">nimcypher/utils</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%2B%60" href="#%60%2B%60"><span>`+`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc `+`(p: BytePtr; n: int): BytePtr" href="nimcypher/algos/common.html#%2B%2CBytePtr%2Cint">common: proc `+`(p: BytePtr; n: int): BytePtr</a></li>
@@ -113,6 +113,136 @@
 <li><a class="reference external"
           data-doc-search-tag="encrypt: AeadStreamMode.aeadX" href="nimcypher/encrypt.html#aeadX">encrypt: AeadStreamMode.aeadX</a></li>
           </ul></dd>
+<dt><a name="aesCbcDecrypt" href="#aesCbcDecrypt"><span>aesCbcDecrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCbcDecrypt(key: openArray[byte]; iv: openArray[byte]; data: openArray[byte];
+              padded = true): seq[byte]" href="nimcypher/aes.html#aesCbcDecrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesCbcDecrypt(key: openArray[byte]; iv: openArray[byte]; data: openArray[byte];
+              padded = true): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="aesCbcEncrypt" href="#aesCbcEncrypt"><span>aesCbcEncrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCbcEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte];
+              padded = true): seq[byte]" href="nimcypher/aes.html#aesCbcEncrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesCbcEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte];
+              padded = true): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="aesCfbDecrypt" href="#aesCfbDecrypt"><span>aesCfbDecrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCfbDecrypt(key: openArray[byte]; iv: openArray[byte]; data: openArray[byte]): seq[
+    byte]" href="nimcypher/aes.html#aesCfbDecrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesCfbDecrypt(key: openArray[byte]; iv: openArray[byte]; data: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="aesCfbDecryptUpdate" href="#aesCfbDecryptUpdate"><span>aesCfbDecryptUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCfbDecryptUpdate(s: var AesCfbDecStream; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#aesCfbDecryptUpdate%2CAesCfbDecStream%2CopenArray%5Bbyte%5D">aes: proc aesCfbDecryptUpdate(s: var AesCfbDecStream; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="AesCfbDecStream" href="#AesCfbDecStream"><span>AesCfbDecStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesCfbDecStream" href="nimcypher/algos/aes.html#AesCfbDecStream">aes: object AesCfbDecStream</a></li>
+          </ul></dd>
+<dt><a name="aesCfbEncrypt" href="#aesCfbEncrypt"><span>aesCfbEncrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCfbEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte]): seq[
+    byte]" href="nimcypher/aes.html#aesCfbEncrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesCfbEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="aesCfbEncryptUpdate" href="#aesCfbEncryptUpdate"><span>aesCfbEncryptUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCfbEncryptUpdate(s: var AesCfbEncStream; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#aesCfbEncryptUpdate%2CAesCfbEncStream%2CopenArray%5Bbyte%5D">aes: proc aesCfbEncryptUpdate(s: var AesCfbEncStream; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="AesCfbEncStream" href="#AesCfbEncStream"><span>AesCfbEncStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesCfbEncStream" href="nimcypher/algos/aes.html#AesCfbEncStream">aes: object AesCfbEncStream</a></li>
+          </ul></dd>
+<dt><a name="AesContext" href="#AesContext"><span>AesContext:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesContext" href="nimcypher/algos/aes.html#AesContext">aes: object AesContext</a></li>
+          </ul></dd>
+<dt><a name="aesCtrCrypt" href="#aesCtrCrypt"><span>aesCtrCrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCtrCrypt(key: openArray[byte]; counter: openArray[byte];
+            text: openArray[byte]): seq[byte]" href="nimcypher/aes.html#aesCtrCrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesCtrCrypt(key: openArray[byte]; counter: openArray[byte];
+            text: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="AesCtrStream" href="#AesCtrStream"><span>AesCtrStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesCtrStream" href="nimcypher/algos/aes.html#AesCtrStream">aes: object AesCtrStream</a></li>
+          </ul></dd>
+<dt><a name="aesCtrUpdate" href="#aesCtrUpdate"><span>aesCtrUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCtrUpdate(s: var AesCtrStream; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#aesCtrUpdate%2CAesCtrStream%2CopenArray%5Bbyte%5D">aes: proc aesCtrUpdate(s: var AesCtrStream; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="aesEcbDecrypt" href="#aesEcbDecrypt"><span>aesEcbDecrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesEcbDecrypt(key: openArray[byte]; data: openArray[byte]; padded = true): seq[
+    byte]" href="nimcypher/aes.html#aesEcbDecrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesEcbDecrypt(key: openArray[byte]; data: openArray[byte]; padded = true): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="aesEcbEncrypt" href="#aesEcbEncrypt"><span>aesEcbEncrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesEcbEncrypt(key: openArray[byte]; text: openArray[byte]; padded = true): seq[
+    byte]" href="nimcypher/aes.html#aesEcbEncrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesEcbEncrypt(key: openArray[byte]; text: openArray[byte]; padded = true): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="aesGcmDecrypt" href="#aesGcmDecrypt"><span>aesGcmDecrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesGcmDecrypt(key: openArray[byte]; nonce: openArray[byte];
+              cipherText: openArray[byte]; tag: openArray[byte];
+              ad: openArray[byte] = []): seq[byte]" href="nimcypher/aes.html#aesGcmDecrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesGcmDecrypt(key: openArray[byte]; nonce: openArray[byte];
+              cipherText: openArray[byte]; tag: openArray[byte];
+              ad: openArray[byte] = []): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="aesGcmDecryptStr" href="#aesGcmDecryptStr"><span>aesGcmDecryptStr:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesGcmDecryptStr(key: openArray[byte]; nonce: openArray[byte];
+                 cipherText: openArray[byte]; tag: openArray[byte];
+                 ad: openArray[byte] = []): string" href="nimcypher/aes.html#aesGcmDecryptStr%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesGcmDecryptStr(key: openArray[byte]; nonce: openArray[byte];
+                 cipherText: openArray[byte]; tag: openArray[byte];
+                 ad: openArray[byte] = []): string</a></li>
+          </ul></dd>
+<dt><a name="aesGcmEncrypt" href="#aesGcmEncrypt"><span>aesGcmEncrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesGcmEncrypt(key: openArray[byte]; nonce: openArray[byte];
+              text: openArray[byte]; ad: openArray[byte] = []): (seq[byte],
+    Tag16)" href="nimcypher/aes.html#aesGcmEncrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesGcmEncrypt(key: openArray[byte]; nonce: openArray[byte];
+              text: openArray[byte]; ad: openArray[byte] = []): (seq[byte],
+    Tag16)</a></li>
+          </ul></dd>
+<dt><a name="aesGcmEncryptStr" href="#aesGcmEncryptStr"><span>aesGcmEncryptStr:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesGcmEncryptStr(key: openArray[byte]; nonce: openArray[byte]; text: string;
+                 ad: openArray[byte] = []): (seq[byte], Tag16)" href="nimcypher/aes.html#aesGcmEncryptStr%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cstring%2CopenArray%5Bbyte%5D">aes: proc aesGcmEncryptStr(key: openArray[byte]; nonce: openArray[byte]; text: string;
+                 ad: openArray[byte] = []): (seq[byte], Tag16)</a></li>
+          </ul></dd>
+<dt><a name="AesGcmStream" href="#AesGcmStream"><span>AesGcmStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesGcmStream" href="nimcypher/aes.html#AesGcmStream">aes: object AesGcmStream</a></li>
+          </ul></dd>
+<dt><a name="AesKey128" href="#AesKey128"><span>AesKey128:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: type AesKey128" href="nimcypher/aes.html#AesKey128">aes: type AesKey128</a></li>
+          </ul></dd>
+<dt><a name="AesKey192" href="#AesKey192"><span>AesKey192:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: type AesKey192" href="nimcypher/aes.html#AesKey192">aes: type AesKey192</a></li>
+          </ul></dd>
+<dt><a name="AesKey256" href="#AesKey256"><span>AesKey256:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: type AesKey256" href="nimcypher/aes.html#AesKey256">aes: type AesKey256</a></li>
+          </ul></dd>
+<dt><a name="aesOfbCrypt" href="#aesOfbCrypt"><span>aesOfbCrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesOfbCrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte]): seq[
+    byte]" href="nimcypher/aes.html#aesOfbCrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesOfbCrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="AesOfbStream" href="#AesOfbStream"><span>AesOfbStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesOfbStream" href="nimcypher/algos/aes.html#AesOfbStream">aes: object AesOfbStream</a></li>
+          </ul></dd>
+<dt><a name="aesOfbUpdate" href="#aesOfbUpdate"><span>aesOfbUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesOfbUpdate(s: var AesOfbStream; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#aesOfbUpdate%2CAesOfbStream%2CopenArray%5Bbyte%5D">aes: proc aesOfbUpdate(s: var AesOfbStream; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
 <dt><a name="argon2" href="#argon2"><span>argon2:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="argon2: proc argon2(config: Argon2Config; hashSize: int; password, salt: openArray[byte]): seq[
@@ -130,6 +260,22 @@
 <dt><a name="Argon2Config" href="#Argon2Config"><span>Argon2Config:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="argon2: object Argon2Config" href="nimcypher/algos/argon2.html#Argon2Config">argon2: object Argon2Config</a></li>
+          </ul></dd>
+<dt><a name="bitsliceDecryptScalar" href="#bitsliceDecryptScalar"><span>bitsliceDecryptScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc bitsliceDecryptScalar(rounds: int; skey: array[120, uint64];
+                      q: var array[8, uint64])" href="nimcypher/algos/aes.html#bitsliceDecryptScalar%2Cint%2Carray%5B%2Cuint64%5D%2Carray%5B%2Cuint64%5D">aes: proc bitsliceDecryptScalar(rounds: int; skey: array[120, uint64];
+                      q: var array[8, uint64])</a></li>
+          </ul></dd>
+<dt><a name="bitsliceEncryptScalar" href="#bitsliceEncryptScalar"><span>bitsliceEncryptScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc bitsliceEncryptScalar(rounds: int; skey: array[120, uint64];
+                      q: var array[8, uint64])" href="nimcypher/algos/aes.html#bitsliceEncryptScalar%2Cint%2Carray%5B%2Cuint64%5D%2Carray%5B%2Cuint64%5D">aes: proc bitsliceEncryptScalar(rounds: int; skey: array[120, uint64];
+                      q: var array[8, uint64])</a></li>
+          </ul></dd>
+<dt><a name="bitsliceSbox" href="#bitsliceSbox"><span>bitsliceSbox:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc bitsliceSbox(q: var array[8, uint64])" href="nimcypher/algos/aes.html#bitsliceSbox%2Carray%5B%2Cuint64%5D">aes: proc bitsliceSbox(q: var array[8, uint64])</a></li>
           </ul></dd>
 <dt><a name="blake" href="#blake"><span>blake:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -210,6 +356,42 @@
 <dt><a name="BytePtr" href="#BytePtr"><span>BytePtr:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: type BytePtr" href="nimcypher/algos/common.html#BytePtr">common: type BytePtr</a></li>
+          </ul></dd>
+<dt><a name="cbcDecryptOne" href="#cbcDecryptOne"><span>cbcDecryptOne:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]" href="nimcypher/algos/aes.html#cbcDecryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc cbcDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="cbcEncryptOne" href="#cbcEncryptOne"><span>cbcEncryptOne:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]" href="nimcypher/algos/aes.html#cbcEncryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc cbcEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="cfbDecryptInto" href="#cfbDecryptInto"><span>cfbDecryptInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cfbDecryptInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;
+               size: int)" href="nimcypher/algos/aes.html#cfbDecryptInto%2CAesContext%2Carray%5B%2Cbyte%5D%2CBytePtr%2CBytePtr%2Cint">aes: proc cfbDecryptInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;
+               size: int)</a></li>
+          </ul></dd>
+<dt><a name="cfbDecryptOne" href="#cfbDecryptOne"><span>cfbDecryptOne:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cfbDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]" href="nimcypher/algos/aes.html#cfbDecryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc cfbDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="cfbEncryptInto" href="#cfbEncryptInto"><span>cfbEncryptInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cfbEncryptInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;
+               size: int)" href="nimcypher/algos/aes.html#cfbEncryptInto%2CAesContext%2Carray%5B%2Cbyte%5D%2CBytePtr%2CBytePtr%2Cint">aes: proc cfbEncryptInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;
+               size: int)</a></li>
+          </ul></dd>
+<dt><a name="cfbEncryptOne" href="#cfbEncryptOne"><span>cfbEncryptOne:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cfbEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]" href="nimcypher/algos/aes.html#cfbEncryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc cfbEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]</a></li>
           </ul></dd>
 <dt><a name="chacha20" href="#chacha20"><span>chacha20:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -317,6 +499,22 @@
           <li><a class="reference external"
           data-doc-search-tag="utils: proc constantTimeEqual(a, b: openArray[byte]): bool" href="nimcypher/utils.html#constantTimeEqual%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">utils: proc constantTimeEqual(a, b: openArray[byte]): bool</a></li>
           </ul></dd>
+<dt><a name="ctrCryptOne" href="#ctrCryptOne"><span>ctrCryptOne:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ctrCryptOne(ctx: AesContext; counter: array[16, byte]; data: openArray[byte]): seq[
+    byte]" href="nimcypher/algos/aes.html#ctrCryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc ctrCryptOne(ctx: AesContext; counter: array[16, byte]; data: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="ctrIncrement" href="#ctrIncrement"><span>ctrIncrement:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ctrIncrement(counter: var array[16, byte])" href="nimcypher/algos/aes.html#ctrIncrement%2Carray%5B%2Cbyte%5D">aes: proc ctrIncrement(counter: var array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="ctrXorInto" href="#ctrXorInto"><span>ctrXorInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ctrXorInto(ctx: AesContext; counter: var array[16, byte]; dst, src: BytePtr;
+           size: int)" href="nimcypher/algos/aes.html#ctrXorInto%2CAesContext%2Carray%5B%2Cbyte%5D%2CBytePtr%2CBytePtr%2Cint">aes: proc ctrXorInto(ctx: AesContext; counter: var array[16, byte]; dst, src: BytePtr;
+           size: int)</a></li>
+          </ul></dd>
 <dt><a name="d" href="#d"><span>d:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="argon2: Argon2Algorithm.d" href="nimcypher/algos/argon2.html#d">argon2: Argon2Algorithm.d</a></li>
@@ -335,9 +533,41 @@
           <li><a class="reference external"
           data-doc-search-tag="encrypt: proc decrypt(cipherText: string; mac: Mac16; key: Key32; nonce: Nonce24): string" href="nimcypher/encrypt.html#decrypt%2Cstring%2CMac16%2CKey32%2CNonce24">encrypt: proc decrypt(cipherText: string; mac: Mac16; key: Key32; nonce: Nonce24): string</a></li>
           </ul></dd>
+<dt><a name="decryptBlock" href="#decryptBlock"><span>decryptBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc decryptBlock(ctx: AesContext; dst: var array[16, byte]; src: array[16, byte])" href="nimcypher/algos/aes.html#decryptBlock%2CAesContext%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc decryptBlock(ctx: AesContext; dst: var array[16, byte]; src: array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="decryptBlockRaw" href="#decryptBlockRaw"><span>decryptBlockRaw:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc decryptBlockRaw(ctx: AesContext; dst, src: BytePtr)" href="nimcypher/algos/aes.html#decryptBlockRaw%2CAesContext%2CBytePtr%2CBytePtr">aes: proc decryptBlockRaw(ctx: AesContext; dst, src: BytePtr)</a></li>
+          </ul></dd>
+<dt><a name="decryptBlocks" href="#decryptBlocks"><span>decryptBlocks:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc decryptBlocks(ctx: AesContext; dst, src: BytePtr; nb: int)" href="nimcypher/algos/aes.html#decryptBlocks%2CAesContext%2CBytePtr%2CBytePtr%2Cint">aes: proc decryptBlocks(ctx: AesContext; dst, src: BytePtr; nb: int)</a></li>
+          </ul></dd>
+<dt><a name="decryptBlocksScalar" href="#decryptBlocksScalar"><span>decryptBlocksScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc decryptBlocksScalar(ctx: AesContext; dst, src: BytePtr; nb: int)" href="nimcypher/algos/aes.html#decryptBlocksScalar%2CAesContext%2CBytePtr%2CBytePtr%2Cint">aes: proc decryptBlocksScalar(ctx: AesContext; dst, src: BytePtr; nb: int)</a></li>
+          </ul></dd>
+<dt><a name="decryptGroup" href="#decryptGroup"><span>decryptGroup:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc decryptGroup(ctx: AesContext; dst, src: BytePtr)" href="nimcypher/algos/aes.html#decryptGroup%2CAesContext%2CBytePtr%2CBytePtr">aes: proc decryptGroup(ctx: AesContext; dst, src: BytePtr)</a></li>
+          </ul></dd>
+<dt><a name="decryptGroupScalar" href="#decryptGroupScalar"><span>decryptGroupScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc decryptGroupScalar(ctx: AesContext; dst, src: BytePtr)" href="nimcypher/algos/aes.html#decryptGroupScalar%2CAesContext%2CBytePtr%2CBytePtr">aes: proc decryptGroupScalar(ctx: AesContext; dst, src: BytePtr)</a></li>
+          </ul></dd>
 <dt><a name="deriveKeyFromPassword" href="#deriveKeyFromPassword"><span>deriveKeyFromPassword:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="password: proc deriveKeyFromPassword(password: string; salt: RandomBytes): Secret[Key32]" href="nimcypher/password.html#deriveKeyFromPassword%2Cstring%2CRandomBytes">password: proc deriveKeyFromPassword(password: string; salt: RandomBytes): Secret[Key32]</a></li>
+          </ul></dd>
+<dt><a name="ecbDecrypt" href="#ecbDecrypt"><span>ecbDecrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ecbDecrypt(ctx: AesContext; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#ecbDecrypt%2CAesContext%2CopenArray%5Bbyte%5D">aes: proc ecbDecrypt(ctx: AesContext; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="ecbEncrypt" href="#ecbEncrypt"><span>ecbEncrypt:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ecbEncrypt(ctx: AesContext; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#ecbEncrypt%2CAesContext%2CopenArray%5Bbyte%5D">aes: proc ecbEncrypt(ctx: AesContext; data: openArray[byte]): seq[byte]</a></li>
           </ul></dd>
 <dt><a name="eddsaCheck" href="#eddsaCheck"><span>eddsaCheck:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -378,6 +608,30 @@
           data-doc-search-tag="encrypt: proc encrypt(text: openArray[byte]; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)" href="nimcypher/encrypt.html#encrypt%2CopenArray%5Bbyte%5D%2CKey32%2CNonce24">encrypt: proc encrypt(text: openArray[byte]; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="encrypt: proc encrypt(text: string; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)" href="nimcypher/encrypt.html#encrypt%2Cstring%2CKey32%2CNonce24">encrypt: proc encrypt(text: string; key: Key32; nonce: Nonce24): (seq[uint8], Mac16)</a></li>
+          </ul></dd>
+<dt><a name="encryptBlock" href="#encryptBlock"><span>encryptBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc encryptBlock(ctx: AesContext; dst: var array[16, byte]; src: array[16, byte])" href="nimcypher/algos/aes.html#encryptBlock%2CAesContext%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc encryptBlock(ctx: AesContext; dst: var array[16, byte]; src: array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="encryptBlockRaw" href="#encryptBlockRaw"><span>encryptBlockRaw:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc encryptBlockRaw(ctx: AesContext; dst, src: BytePtr)" href="nimcypher/algos/aes.html#encryptBlockRaw%2CAesContext%2CBytePtr%2CBytePtr">aes: proc encryptBlockRaw(ctx: AesContext; dst, src: BytePtr)</a></li>
+          </ul></dd>
+<dt><a name="encryptBlocks" href="#encryptBlocks"><span>encryptBlocks:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc encryptBlocks(ctx: AesContext; dst, src: BytePtr; nb: int)" href="nimcypher/algos/aes.html#encryptBlocks%2CAesContext%2CBytePtr%2CBytePtr%2Cint">aes: proc encryptBlocks(ctx: AesContext; dst, src: BytePtr; nb: int)</a></li>
+          </ul></dd>
+<dt><a name="encryptBlocksScalar" href="#encryptBlocksScalar"><span>encryptBlocksScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc encryptBlocksScalar(ctx: AesContext; dst, src: BytePtr; nb: int)" href="nimcypher/algos/aes.html#encryptBlocksScalar%2CAesContext%2CBytePtr%2CBytePtr%2Cint">aes: proc encryptBlocksScalar(ctx: AesContext; dst, src: BytePtr; nb: int)</a></li>
+          </ul></dd>
+<dt><a name="encryptGroup" href="#encryptGroup"><span>encryptGroup:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc encryptGroup(ctx: AesContext; dst, src: BytePtr)" href="nimcypher/algos/aes.html#encryptGroup%2CAesContext%2CBytePtr%2CBytePtr">aes: proc encryptGroup(ctx: AesContext; dst, src: BytePtr)</a></li>
+          </ul></dd>
+<dt><a name="encryptGroupScalar" href="#encryptGroupScalar"><span>encryptGroupScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc encryptGroupScalar(ctx: AesContext; dst, src: BytePtr)" href="nimcypher/algos/aes.html#encryptGroupScalar%2CAesContext%2CBytePtr%2CBytePtr">aes: proc encryptGroupScalar(ctx: AesContext; dst, src: BytePtr)</a></li>
           </ul></dd>
 <dt><a name="Fe" href="#Fe"><span>Fe:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -489,6 +743,94 @@
 <li><a class="reference external"
           data-doc-search-tag="common: proc gap(x, pow_2: int): int" href="nimcypher/algos/common.html#gap%2Cint%2Cint">common: proc gap(x, pow_2: int): int</a></li>
           </ul></dd>
+<dt><a name="gcmAddAad" href="#gcmAddAad"><span>gcmAddAad:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmAddAad(ctx: var GcmContext; ad: openArray[byte])" href="nimcypher/algos/gcm.html#gcmAddAad%2CGcmContext%2CopenArray%5Bbyte%5D">gcm: proc gcmAddAad(ctx: var GcmContext; ad: openArray[byte])</a></li>
+          </ul></dd>
+<dt><a name="GcmContext" href="#GcmContext"><span>GcmContext:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: object GcmContext" href="nimcypher/algos/gcm.html#GcmContext">gcm: object GcmContext</a></li>
+          </ul></dd>
+<dt><a name="gcmDecryptUpdate" href="#gcmDecryptUpdate"><span>gcmDecryptUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmDecryptUpdate(ctx: var GcmContext; ciphertext: openArray[byte]): seq[byte]" href="nimcypher/algos/gcm.html#gcmDecryptUpdate%2CGcmContext%2CopenArray%5Bbyte%5D">gcm: proc gcmDecryptUpdate(ctx: var GcmContext; ciphertext: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="gcmEncryptUpdate" href="#gcmEncryptUpdate"><span>gcmEncryptUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmEncryptUpdate(ctx: var GcmContext; plaintext: openArray[byte]): seq[byte]" href="nimcypher/algos/gcm.html#gcmEncryptUpdate%2CGcmContext%2CopenArray%5Bbyte%5D">gcm: proc gcmEncryptUpdate(ctx: var GcmContext; plaintext: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="gcmFinishDec" href="#gcmFinishDec"><span>gcmFinishDec:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmFinishDec(ctx: var GcmContext; tag: openArray[byte]): bool" href="nimcypher/algos/gcm.html#gcmFinishDec%2CGcmContext%2CopenArray%5Bbyte%5D">gcm: proc gcmFinishDec(ctx: var GcmContext; tag: openArray[byte]): bool</a></li>
+          </ul></dd>
+<dt><a name="gcmFinishEnc" href="#gcmFinishEnc"><span>gcmFinishEnc:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmFinishEnc(ctx: var GcmContext): array[16, byte]" href="nimcypher/algos/gcm.html#gcmFinishEnc%2CGcmContext">gcm: proc gcmFinishEnc(ctx: var GcmContext): array[16, byte]</a></li>
+          </ul></dd>
+<dt><a name="gcmLock" href="#gcmLock"><span>gcmLock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmLock(key, iv: openArray[byte]; plaintext: openArray[byte];
+        ad: openArray[byte] = []): (seq[byte], array[16, byte])" href="nimcypher/algos/gcm.html#gcmLock%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">gcm: proc gcmLock(key, iv: openArray[byte]; plaintext: openArray[byte];
+        ad: openArray[byte] = []): (seq[byte], array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="gcmLockScalar" href="#gcmLockScalar"><span>gcmLockScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmLockScalar(key, iv: openArray[byte]; plaintext: openArray[byte];
+              ad: openArray[byte] = []): (seq[byte], array[16, byte])" href="nimcypher/algos/gcm.html#gcmLockScalar%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">gcm: proc gcmLockScalar(key, iv: openArray[byte]; plaintext: openArray[byte];
+              ad: openArray[byte] = []): (seq[byte], array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="gcmOpen" href="#gcmOpen"><span>gcmOpen:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmOpen(msg: GcmSealed; key: openArray[byte]; ad: openArray[byte] = []): seq[
+    byte]" href="nimcypher/aes.html#gcmOpen%2CGcmSealed%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc gcmOpen(msg: GcmSealed; key: openArray[byte]; ad: openArray[byte] = []): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="gcmOpenStr" href="#gcmOpenStr"><span>gcmOpenStr:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmOpenStr(msg: GcmSealed; key: openArray[byte]; ad: openArray[byte] = []): string" href="nimcypher/aes.html#gcmOpenStr%2CGcmSealed%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc gcmOpenStr(msg: GcmSealed; key: openArray[byte]; ad: openArray[byte] = []): string</a></li>
+          </ul></dd>
+<dt><a name="gcmSeal" href="#gcmSeal"><span>gcmSeal:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmSeal(text: openArray[byte]; key: openArray[byte]; ad: openArray[byte] = []): GcmSealed" href="nimcypher/aes.html#gcmSeal%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc gcmSeal(text: openArray[byte]; key: openArray[byte]; ad: openArray[byte] = []): GcmSealed</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmSeal(text: string; key: openArray[byte]; ad: openArray[byte] = []): GcmSealed" href="nimcypher/aes.html#gcmSeal%2Cstring%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc gcmSeal(text: string; key: openArray[byte]; ad: openArray[byte] = []): GcmSealed</a></li>
+          </ul></dd>
+<dt><a name="GcmSealed" href="#GcmSealed"><span>GcmSealed:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object GcmSealed" href="nimcypher/aes.html#GcmSealed">aes: object GcmSealed</a></li>
+          </ul></dd>
+<dt><a name="gcmStreamFinal" href="#gcmStreamFinal"><span>gcmStreamFinal:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmStreamFinal(s: var AesGcmStream): Tag16" href="nimcypher/aes.html#gcmStreamFinal%2CAesGcmStream">aes: proc gcmStreamFinal(s: var AesGcmStream): Tag16</a></li>
+          </ul></dd>
+<dt><a name="gcmStreamInit" href="#gcmStreamInit"><span>gcmStreamInit:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmStreamInit(key: openArray[byte]; nonce: openArray[byte];
+              ad: openArray[byte] = []; encrypting: bool): AesGcmStream" href="nimcypher/aes.html#gcmStreamInit%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cbool">aes: proc gcmStreamInit(key: openArray[byte]; nonce: openArray[byte];
+              ad: openArray[byte] = []; encrypting: bool): AesGcmStream</a></li>
+          </ul></dd>
+<dt><a name="gcmStreamUpdate" href="#gcmStreamUpdate"><span>gcmStreamUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmStreamUpdate(s: var AesGcmStream; chunk: openArray[byte]): seq[byte]" href="nimcypher/aes.html#gcmStreamUpdate%2CAesGcmStream%2CopenArray%5Bbyte%5D">aes: proc gcmStreamUpdate(s: var AesGcmStream; chunk: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="gcmStreamVerify" href="#gcmStreamVerify"><span>gcmStreamVerify:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc gcmStreamVerify(s: var AesGcmStream; tag: openArray[byte]): bool" href="nimcypher/aes.html#gcmStreamVerify%2CAesGcmStream%2CopenArray%5Bbyte%5D">aes: proc gcmStreamVerify(s: var AesGcmStream; tag: openArray[byte]): bool</a></li>
+          </ul></dd>
+<dt><a name="gcmUnlock" href="#gcmUnlock"><span>gcmUnlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmUnlock(key, iv: openArray[byte]; ciphertext: openArray[byte];
+          tag: openArray[byte]; ad: openArray[byte] = []): Option[seq[byte]]" href="nimcypher/algos/gcm.html#gcmUnlock%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">gcm: proc gcmUnlock(key, iv: openArray[byte]; ciphertext: openArray[byte];
+          tag: openArray[byte]; ad: openArray[byte] = []): Option[seq[byte]]</a></li>
+          </ul></dd>
+<dt><a name="gcmUnlockScalar" href="#gcmUnlockScalar"><span>gcmUnlockScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc gcmUnlockScalar(key, iv: openArray[byte]; ciphertext: openArray[byte];
+                tag: openArray[byte]; ad: openArray[byte] = []): Option[
+    seq[byte]]" href="nimcypher/algos/gcm.html#gcmUnlockScalar%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">gcm: proc gcmUnlockScalar(key, iv: openArray[byte]; ciphertext: openArray[byte];
+                tag: openArray[byte]; ad: openArray[byte] = []): Option[
+    seq[byte]]</a></li>
+          </ul></dd>
 <dt><a name="Ge" href="#Ge"><span>Ge:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="ge: object Ge" href="nimcypher/algos/internal/ge.html#Ge">ge: object Ge</a></li>
@@ -553,6 +895,14 @@
 <li><a class="reference external"
           data-doc-search-tag="ge: proc geZero(p: var Ge)" href="nimcypher/algos/internal/ge.html#geZero%2CGe">ge: proc geZero(p: var Ge)</a></li>
           </ul></dd>
+<dt><a name="ghashFold" href="#ghashFold"><span>ghashFold:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc ghashFold(acc: var array[16, byte]; h: array[16, byte]; src: BytePtr)" href="nimcypher/algos/gcm.html#ghashFold%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2CBytePtr">gcm: proc ghashFold(acc: var array[16, byte]; h: array[16, byte]; src: BytePtr)</a></li>
+          </ul></dd>
+<dt><a name="ghashFoldScalar" href="#ghashFoldScalar"><span>ghashFoldScalar:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc ghashFoldScalar(acc: var array[16, byte]; hBlock: array[16, byte]; src: BytePtr)" href="nimcypher/algos/gcm.html#ghashFoldScalar%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D%2CBytePtr">gcm: proc ghashFoldScalar(acc: var array[16, byte]; hBlock: array[16, byte]; src: BytePtr)</a></li>
+          </ul></dd>
 <dt><a name="hashPassword" href="#hashPassword"><span>hashPassword:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="password: proc hashPassword(password: string): string" href="nimcypher/password.html#hashPassword%2Cstring">password: proc hashPassword(password: string): string</a></li>
@@ -591,6 +941,34 @@
           <li><a class="reference external"
           data-doc-search-tag="sha512: proc init(ctx: var Sha512Context)" href="nimcypher/algos/sha512.html#init%2CSha512Context">sha512: proc init(ctx: var Sha512Context)</a></li>
           </ul></dd>
+<dt><a name="initAes" href="#initAes"><span>initAes:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc initAes(ctx: var AesContext; key: openArray[byte])" href="nimcypher/algos/aes.html#initAes%2CAesContext%2CopenArray%5Bbyte%5D">aes: proc initAes(ctx: var AesContext; key: openArray[byte])</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="aes: proc initAes(key: openArray[byte]): AesContext" href="nimcypher/algos/aes.html#initAes%2CopenArray%5Bbyte%5D">aes: proc initAes(key: openArray[byte]): AesContext</a></li>
+          </ul></dd>
+<dt><a name="initAesCfbDec" href="#initAesCfbDec"><span>initAesCfbDec:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc initAesCfbDec(ctx: var AesCfbDecStream; key: openArray[byte];
+              iv: array[16, byte])" href="nimcypher/algos/aes.html#initAesCfbDec%2CAesCfbDecStream%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc initAesCfbDec(ctx: var AesCfbDecStream; key: openArray[byte];
+              iv: array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="initAesCfbEnc" href="#initAesCfbEnc"><span>initAesCfbEnc:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc initAesCfbEnc(ctx: var AesCfbEncStream; key: openArray[byte];
+              iv: array[16, byte])" href="nimcypher/algos/aes.html#initAesCfbEnc%2CAesCfbEncStream%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc initAesCfbEnc(ctx: var AesCfbEncStream; key: openArray[byte];
+              iv: array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="initAesCtr" href="#initAesCtr"><span>initAesCtr:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc initAesCtr(ctx: var AesCtrStream; key: openArray[byte];
+           counterBlock: array[16, byte])" href="nimcypher/algos/aes.html#initAesCtr%2CAesCtrStream%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc initAesCtr(ctx: var AesCtrStream; key: openArray[byte];
+           counterBlock: array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="initAesOfb" href="#initAesOfb"><span>initAesOfb:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc initAesOfb(ctx: var AesOfbStream; key: openArray[byte]; iv: array[16, byte])" href="nimcypher/algos/aes.html#initAesOfb%2CAesOfbStream%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc initAesOfb(ctx: var AesOfbStream; key: openArray[byte]; iv: array[16, byte])</a></li>
+          </ul></dd>
 <dt><a name="initBlake2b" href="#initBlake2b"><span>initBlake2b:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="blake2b: proc initBlake2b(hashSize: int = 64): Blake2bContext" href="nimcypher/algos/blake2b.html#initBlake2b%2Cint">blake2b: proc initBlake2b(hashSize: int = 64): Blake2bContext</a></li>
@@ -627,6 +1005,12 @@
 <li><a class="reference external"
           data-doc-search-tag="aead: proc initDjb(ctx: var AeadContext; key: array[32, byte]; nonce: array[8, byte])" href="nimcypher/algos/aead.html#initDjb%2CAeadContext%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">aead: proc initDjb(ctx: var AeadContext; key: array[32, byte]; nonce: array[8, byte])</a></li>
           </ul></dd>
+<dt><a name="initGcm" href="#initGcm"><span>initGcm:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="gcm: proc initGcm(ctx: var GcmContext; key: openArray[byte]; iv: openArray[byte];
+        forceScalar = false)" href="nimcypher/algos/gcm.html#initGcm%2CGcmContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">gcm: proc initGcm(ctx: var GcmContext; key: openArray[byte]; iv: openArray[byte];
+        forceScalar = false)</a></li>
+          </ul></dd>
 <dt><a name="initHmac" href="#initHmac"><span>initHmac:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="sha512: proc initHmac(ctx: var Sha512HmacContext; key: openArray[byte])" href="nimcypher/algos/sha512.html#initHmac%2CSha512HmacContext%2CopenArray%5Bbyte%5D">sha512: proc initHmac(ctx: var Sha512HmacContext; key: openArray[byte])</a></li>
@@ -653,6 +1037,18 @@
 <li><a class="reference external"
           data-doc-search-tag="aead: proc initX(ctx: var AeadContext; key: array[32, byte]; nonce: array[24, byte])" href="nimcypher/algos/aead.html#initX%2CAeadContext%2Carray%5B%2Cbyte%5D%2Carray%5B%2Cbyte%5D">aead: proc initX(ctx: var AeadContext; key: array[32, byte]; nonce: array[24, byte])</a></li>
           </ul></dd>
+<dt><a name="interleaveIn" href="#interleaveIn"><span>interleaveIn:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc interleaveIn(q: var array[8, uint64]; idx: int; w0, w1, w2, w3: uint32)" href="nimcypher/algos/aes.html#interleaveIn%2Carray%5B%2Cuint64%5D%2Cint%2Cuint32%2Cuint32%2Cuint32%2Cuint32">aes: proc interleaveIn(q: var array[8, uint64]; idx: int; w0, w1, w2, w3: uint32)</a></li>
+          </ul></dd>
+<dt><a name="interleaveOut" href="#interleaveOut"><span>interleaveOut:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc interleaveOut(w: var array[4, uint32]; q0, q1: uint64)" href="nimcypher/algos/aes.html#interleaveOut%2Carray%5B%2Cuint32%5D%2Cuint64%2Cuint64">aes: proc interleaveOut(w: var array[4, uint32]; q0, q1: uint64)</a></li>
+          </ul></dd>
+<dt><a name="invBitsliceSbox" href="#invBitsliceSbox"><span>invBitsliceSbox:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc invBitsliceSbox(q: var array[8, uint64])" href="nimcypher/algos/aes.html#invBitsliceSbox%2Carray%5B%2Cuint64%5D">aes: proc invBitsliceSbox(q: var array[8, uint64])</a></li>
+          </ul></dd>
 <dt><a name="invsqrt" href="#invsqrt"><span>invsqrt:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="fe: proc invsqrt(isr: var Fe; x: Fe): int" href="nimcypher/algos/internal/fe.html#invsqrt%2CFe%2CFe">fe: proc invsqrt(isr: var Fe; x: Fe): int</a></li>
@@ -660,6 +1056,10 @@
 <dt><a name="isAboveL" href="#isAboveL"><span>isAboveL:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="edl: proc isAboveL(x: openArray[uint32]): int" href="nimcypher/algos/internal/edl.html#isAboveL%2CopenArray%5Buint32%5D">edl: proc isAboveL(x: openArray[uint32]): int</a></li>
+          </ul></dd>
+<dt><a name="IvBlock" href="#IvBlock"><span>IvBlock:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: type IvBlock" href="nimcypher/aes.html#IvBlock">aes: type IvBlock</a></li>
           </ul></dd>
 <dt><a name="Key32" href="#Key32"><span>Key32:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -723,9 +1123,37 @@
 <li><a class="reference external"
           data-doc-search-tag="common: proc neq0(diff: uint64): int32" href="nimcypher/algos/common.html#neq0%2Cuint64">common: proc neq0(diff: uint64): int32</a></li>
           </ul></dd>
+<dt><a name="Nonce12" href="#Nonce12"><span>Nonce12:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: type Nonce12" href="nimcypher/aes.html#Nonce12">aes: type Nonce12</a></li>
+          </ul></dd>
 <dt><a name="Nonce24" href="#Nonce24"><span>Nonce24:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="utils: type Nonce24" href="nimcypher/utils.html#Nonce24">utils: type Nonce24</a></li>
+          </ul></dd>
+<dt><a name="ofbCryptOne" href="#ofbCryptOne"><span>ofbCryptOne:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ofbCryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]" href="nimcypher/algos/aes.html#ofbCryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc ofbCryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
+    byte]</a></li>
+          </ul></dd>
+<dt><a name="ofbXorInto" href="#ofbXorInto"><span>ofbXorInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ofbXorInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;
+           size: int)" href="nimcypher/algos/aes.html#ofbXorInto%2CAesContext%2Carray%5B%2Cbyte%5D%2CBytePtr%2CBytePtr%2Cint">aes: proc ofbXorInto(ctx: AesContext; iv: var array[16, byte]; dst, src: BytePtr;
+           size: int)</a></li>
+          </ul></dd>
+<dt><a name="ortho" href="#ortho"><span>ortho:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc ortho(q: var array[8, uint64])" href="nimcypher/algos/aes.html#ortho%2Carray%5B%2Cuint64%5D">aes: proc ortho(q: var array[8, uint64])</a></li>
+          </ul></dd>
+<dt><a name="pkcs7Pad" href="#pkcs7Pad"><span>pkcs7Pad:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc pkcs7Pad(data: openArray[byte]; blockSize: int = 16): seq[byte]" href="nimcypher/algos/aes.html#pkcs7Pad%2CopenArray%5Bbyte%5D%2Cint">aes: proc pkcs7Pad(data: openArray[byte]; blockSize: int = 16): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="pkcs7Unpad" href="#pkcs7Unpad"><span>pkcs7Unpad:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc pkcs7Unpad(data: openArray[byte]; blockSize: int = 16): seq[byte]" href="nimcypher/algos/aes.html#pkcs7Unpad%2CopenArray%5Bbyte%5D%2Cint">aes: proc pkcs7Unpad(data: openArray[byte]; blockSize: int = 16): seq[byte]</a></li>
           </ul></dd>
 <dt><a name="poly1305" href="#poly1305"><span>poly1305:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -973,6 +1401,10 @@
 <li><a class="reference external"
           data-doc-search-tag="common: proc store64LeBuf(dst: BytePtr; src: openArray[uint64]; size: int)" href="nimcypher/algos/common.html#store64LeBuf%2CBytePtr%2CopenArray%5Buint64%5D%2Cint">common: proc store64LeBuf(dst: BytePtr; src: openArray[uint64]; size: int)</a></li>
           </ul></dd>
+<dt><a name="Tag16" href="#Tag16"><span>Tag16:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: type Tag16" href="nimcypher/aes.html#Tag16">aes: type Tag16</a></li>
+          </ul></dd>
 <dt><a name="toArray" href="#toArray"><span>toArray:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="utils: proc toArray[N: static int](b: openArray[byte]): array[N, uint8]" href="nimcypher/utils.html#toArray%2CopenArray%5Bbyte%5D">utils: proc toArray[N: static int](b: openArray[byte]): array[N, uint8]</a></li>
@@ -1111,7 +1543,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-16 14:19:01 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-24 08:46:36 UTC</small>
       </div>
     </div>
   </div>

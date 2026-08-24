@@ -1,0 +1,14 @@
+nimTitle	gcm	nimcypher/algos/gcm.html	module nimcypher/algos/gcm		0
+nim	ghashFoldScalar	nimcypher/algos/gcm.html#ghashFoldScalar,array[,byte],array[,byte],BytePtr	proc ghashFoldScalar(acc: var array[16, byte]; hBlock: array[16, byte]; src: BytePtr)		78
+nim	ghashFold	nimcypher/algos/gcm.html#ghashFold,array[,byte],array[,byte],BytePtr	proc ghashFold(acc: var array[16, byte]; h: array[16, byte]; src: BytePtr)		127
+nim	GcmContext	nimcypher/algos/gcm.html#GcmContext	object GcmContext		136
+nim	initGcm	nimcypher/algos/gcm.html#initGcm,GcmContext,openArray[byte],openArray[byte]	proc initGcm(ctx: var GcmContext; key: openArray[byte]; iv: openArray[byte];\n        forceScalar = false)		221
+nim	gcmAddAad	nimcypher/algos/gcm.html#gcmAddAad,GcmContext,openArray[byte]	proc gcmAddAad(ctx: var GcmContext; ad: openArray[byte])		252
+nim	gcmEncryptUpdate	nimcypher/algos/gcm.html#gcmEncryptUpdate,GcmContext,openArray[byte]	proc gcmEncryptUpdate(ctx: var GcmContext; plaintext: openArray[byte]): seq[byte]		282
+nim	gcmDecryptUpdate	nimcypher/algos/gcm.html#gcmDecryptUpdate,GcmContext,openArray[byte]	proc gcmDecryptUpdate(ctx: var GcmContext; ciphertext: openArray[byte]): seq[byte]		294
+nim	gcmFinishEnc	nimcypher/algos/gcm.html#gcmFinishEnc,GcmContext	proc gcmFinishEnc(ctx: var GcmContext): array[16, byte]		320
+nim	gcmFinishDec	nimcypher/algos/gcm.html#gcmFinishDec,GcmContext,openArray[byte]	proc gcmFinishDec(ctx: var GcmContext; tag: openArray[byte]): bool		332
+nim	gcmLock	nimcypher/algos/gcm.html#gcmLock,openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc gcmLock(key, iv: openArray[byte]; plaintext: openArray[byte];\n        ad: openArray[byte] = []): (seq[byte], array[16, byte])		355
+nim	gcmUnlock	nimcypher/algos/gcm.html#gcmUnlock,openArray[byte],openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc gcmUnlock(key, iv: openArray[byte]; ciphertext: openArray[byte];\n          tag: openArray[byte]; ad: openArray[byte] = []): Option[seq[byte]]		364
+nim	gcmLockScalar	nimcypher/algos/gcm.html#gcmLockScalar,openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc gcmLockScalar(key, iv: openArray[byte]; plaintext: openArray[byte];\n              ad: openArray[byte] = []): (seq[byte], array[16, byte])		386
+nim	gcmUnlockScalar	nimcypher/algos/gcm.html#gcmUnlockScalar,openArray[byte],openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc gcmUnlockScalar(key, iv: openArray[byte]; ciphertext: openArray[byte];\n                tag: openArray[byte]; ad: openArray[byte] = []): Option[\n    seq[byte]]		396
