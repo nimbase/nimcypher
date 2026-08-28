@@ -250,7 +250,7 @@ NimCypher is faster**. The `NimCypher+SIMD` column shows the SIMD-accelerated ke
 where available via SHA-NI/AVX/AES-NI); `Nc/Nim` and `Nc/SIMD` are
 `nimcrypto / NimCypher` and `nimcrypto / SIMD`. Results vary a few percent run to run.
 
-| operation | iters | MCypher | NCypher | NCypher+SIMD | NCrypto | M/Nim | M/SIMD | Nc/Nim | Nc/SIMD |
+| operation | iters | MCypher | NCypher | +SIMD | NCrypto | M/Nim | M/SIMD | Nc/Nim | Nc/SIMD |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | blake2b 64B | 100000 | 0.0155s | 0.0182s | - | 0.0412s | 0.85x | - | 2.26x | - |
 | blake2b 1024B | 20000 | 0.0196s | 0.0256s | - | 0.0602s | 0.77x | - | 2.35x | - |
