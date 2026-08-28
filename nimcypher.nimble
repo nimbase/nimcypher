@@ -29,7 +29,7 @@ task test_simd, "Run the SIMD-accelerated tests":
     exec "nim c -r --hints:off -d:danger -d:e2eeFastTests " &
          "-d:features.nimcypher.nimsimd tests/" & t & ".nim"
 
-task bench, "Benchmark NimCypher (scalar vs SIMD) against C Monocypher":
-  exec "nimble install -y nimsimd"
+task bench, "Benchmark NimCypher (scalar vs SIMD) against C Monocypher and nimcrypto":
+  exec "nimble install -y nimsimd nimcrypto"
   exec "nim c -r --hints:off -d:danger --opt:speed --mm:arc " &
-       "-d:features.nimcypher.nimsimd tests/tbench.nim"
+       "-d:features.nimcypher.nimsimd tests/bench.nim"

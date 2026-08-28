@@ -1,15 +1,16 @@
-# Benchmark suite: pure-Nim nimcypher port vs the real C Monocypher library.
+# Benchmark suite: pure-Nim nimcypher port vs C Monocypher vs nimcrypto.
 #
 # Every primitive is timed on identical inputs, once through the FFI bindings
-# (C) and once through the pure-Nim implementation. When the library is built
+# (C, when available), once through the pure-Nim implementation, and once
+# through nimcrypto (requires nimcrypto installed). When the library is built
 # with SIMD acceleration (see `nimble bench`, which passes
 # -d:features.nimcypher.nimsimd), the "NimCypher+SIMD" column reflects the
 # accelerated kernels while "NimCypher" shows the scalar reference. The
-# reported ratios are C-time / Nim-time: < 1 means NimCypher is faster,
-# > 1 means C is.
+# reported ratios are C-time / Nim-time and nimcrypto-time / Nim-time:
+# < 1 means the baseline is faster, > 1 means NimCypher is faster.
 #
-# Run with: nimble bench   (SIMD comparison)
-#           nim c -r -d:danger --opt:speed tests/tbench.nim   (scalar only)
+# Run with: nimble bench   (SIMD + nimcrypto comparison, installs deps)
+#           nim c -r -d:danger --opt:speed tests/tbench.nim   (scalar only, needs nimcrypto)
 
 import std/monotimes
 import std/times
@@ -31,6 +32,12 @@ import nimcypher/algos/ed25519
 import nimcypher/algos/elligator
 
 import monocypher_ffi
+
+import nimcrypto/blake2
+import nimcrypto/sha2
+import nimcrypto/rijndael
+import nimcrypto/bcmode
+import nimcrypto/hash as nc_hash
 
 # Sink prevents the optimizer from eliminating benchmarked computations.
 var sink: byte
@@ -110,24 +117,36 @@ proc aeadUnlockScalar(key: array[32, byte], nonce: array[24, byte],
     result = some(plain)
 
 proc bench(label: string, iterations: int, c, n: proc() {.closure.},
-           ns: proc() {.closure.} = nil) =
+           ns: proc() {.closure.} = nil,
+           nc: proc() {.closure.} = nil) =
   # `c` may be nil for primitives the C Monocypher library does not have.
+  # `nc` is the nimcrypto baseline (requires nimcrypto installed).
   let nt = timeIt(iterations, n)
   var ct = 0.0
   var haveC = false
   if not c.isNil:
     ct = timeIt(iterations, c)
     haveC = true
+  var st = 0.0
+  var haveS = false
+  if not ns.isNil:
+    st = timeIt(iterations, ns)
+    haveS = true
+  var nct = 0.0
+  var haveNc = false
+  if not nc.isNil:
+    nct = timeIt(iterations, nc)
+    haveNc = true
   let cs = if haveC: fmt"{ct:.4f}s" else: "-"
+  let ss = if haveS: fmt"{st:.4f}s" else: "-"
+  let ncs = if haveNc: fmt"{nct:.4f}s" else: "-"
   let cr = if haveC: fmt"{ct / nt:.2f}x" else: "-"
-  if ns.isNil:
-    echo fmt"| {label} | {iterations} | {cs} | {nt:.4f}s | - | {cr} | - |"
-  elif haveC:
-    let st = timeIt(iterations, ns)
-    echo fmt"| {label} | {iterations} | {cs} | {nt:.4f}s | {st:.4f}s | {cr} | {ct / st:.2f}x |"
-  else:
-    let st = timeIt(iterations, ns)
-    echo fmt"| {label} | {iterations} | {cs} | {nt:.4f}s | {st:.4f}s | {cr} | {nt / st:.2f}x |"
+  let sr = if haveC and haveS: fmt"{ct / st:.2f}x"
+           elif haveS: fmt"{nt / st:.2f}x"
+           else: "-"
+  let ncr = if haveNc: fmt"{nct / nt:.2f}x" else: "-"
+  let ncsr = if haveNc and haveS: fmt"{nct / st:.2f}x" else: "-"
+  echo fmt"| {label} | {iterations} | {cs} | {nt:.4f}s | {ss} | {ncs} | {cr} | {sr} | {ncr} | {ncsr} |"
 
 proc makeMsg(n: int): seq[byte] =
   result = newSeq[byte](n)
@@ -141,13 +160,18 @@ proc benchBlake2b() =
                 else: 2_000
     let msg = makeMsg(size)
     var hashC: array[64, uint8]
+    var ncProc: proc() {.closure.} =
+      proc() =
+        let d = nc_hash.digest(blake2.blake2_512, msg)
+        sink = sink xor d.data[0]
     bench("blake2b " & $size & "B", iters,
       proc() =
         crypto_blake2b(addr hashC[0], 64, toPtr(msg), csize_t(msg.len))
         sink = sink xor hashC[0],
       proc() =
         let h = blake2b(msg)
-        sink = sink xor h[0])
+        sink = sink xor h[0],
+      nil, ncProc)
 
 when defined(features.nimcypher.nimsimd):
   proc benchBlake2bParallel() =
@@ -180,13 +204,18 @@ proc benchSha512() =
                 else: 1_000
     let msg = makeMsg(size)
     var hashC: array[64, uint8]
+    var ncProc: proc() {.closure.} =
+      proc() =
+        let d = nc_hash.digest(sha2.sha512, msg)
+        sink = sink xor d.data[0]
     bench("sha512 " & $size & "B", iters,
       proc() =
         crypto_sha512(addr hashC[0], toPtr(msg), csize_t(msg.len))
         sink = sink xor hashC[0],
       proc() =
         let h = sha512(msg)
-        sink = sink xor h[0])
+        sink = sink xor h[0],
+      nil, ncProc)
 
 proc benchChacha20() =
   for size in [64, 1024, 65536]:
@@ -408,12 +437,21 @@ proc benchAesCtr() =
         remaining -= take
 
     var outS: seq[byte]
+    var ncProc: proc() {.closure.} =
+      proc() =
+        var cctx: bcmode.CTR[rijndael.aes256]
+        cctx.init(key, counter)
+        var outp = newSeq[byte](size)
+        cctx.encrypt(msg, outp)
+        cctx.clear()
+        sink = sink xor outp[0]
     bench("aes-ctr " & $size & "B", iters,
       nil,
       ctrScalar,
       proc() =
         outS = ctrCryptOne(ctx, counter, msg)
-        sink = sink xor outS[0])
+        sink = sink xor outS[0],
+      ncProc)
 
 proc benchAesGcm() =
   for size in [1024, 65536]:
@@ -425,6 +463,23 @@ proc benchAesGcm() =
     for i in 0 ..< 12: nonce[i] = byte(90 + i)
     var tagS: array[16, byte]
     var ctS: seq[byte]
+    var ncProc: proc() {.closure.} =
+      proc() =
+        var ectx: bcmode.GCM[rijndael.aes256]
+        ectx.init(key, nonce, [])
+        var ct = newSeq[byte](size)
+        ectx.encrypt(msg, ct)
+        var tag: array[16, byte]
+        ectx.getTag(tag)
+        ectx.clear()
+        var dctx: bcmode.GCM[rijndael.aes256]
+        dctx.init(key, nonce, [])
+        var pt = newSeq[byte](size)
+        dctx.decrypt(ct, pt)
+        var tag2: array[16, byte]
+        dctx.getTag(tag2)
+        dctx.clear()
+        sink = sink xor ct[0]
     bench("aes-gcm lock+unlock " & $size & "B", iters,
       nil,
       proc() =
@@ -434,15 +489,18 @@ proc benchAesGcm() =
       proc() =
         let (c, t) = gcmLock(key, nonce, msg)
         discard gcmUnlock(key, nonce, c, t)
-        sink = sink xor c[0])
+        sink = sink xor c[0],
+      ncProc)
 
 when isMainModule:
-  echo "Benchmark: pure-Nim NimCypher vs C Monocypher"
+  echo "Benchmark: pure-Nim NimCypher vs C Monocypher vs nimcrypto"
+  echo "nimcrypto column requires nimcrypto installed (nimble install nimcrypto)"
   echo "Ratio = Monocypher time / NimCypher time (< 1 means NimCypher slower, > 1 means NimCypher faster)"
   echo "NimCypher+SIMD uses the SIMD-accelerated kernels ('-' = no SIMD kernel for this primitive)"
+  echo "nimcrypto uses HW acceleration where available (AES-NI, SHA-NI, AVX)"
   echo ""
-  echo "| operation | iters | Monocypher | NimCypher | NimCypher+SIMD | M/Nim | M/SIMD |"
-  echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: |"
+  echo "| operation | iters | Monocypher | NimCypher | NimCypher+SIMD | nimcrypto | M/Nim | M/SIMD | Nc/Nim | Nc/SIMD |"
+  echo "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |"
   benchBlake2b()
   when defined(features.nimcypher.nimsimd):
     benchBlake2bParallel()

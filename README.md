@@ -238,50 +238,57 @@ See the test suite (`tests/`) for a complete walk-through of both layers.
 ## Benchmarks
 
 `nimble bench` compares the pure-Nim port against the **C Monocypher library**
-(installed system-wide and called through the FFI test bindings). Both sides are
-compiled with `-d:danger --opt:speed` (the port with `--mm:arc` and
-`-d:features.nimcypher.nimsimd`). The ratio is
+(installed system-wide and called through the FFI test bindings) and
+[`nimcrypto`](https://github.com/cheatfate/nimcrypto) (`nimcrypto >= 0.7.3`,
+installed via `nimble`). All sides are compiled with `-d:danger --opt:speed`
+(the port with `--mm:arc`, `-d:features.nimcypher.nimsimd` and
+`-d:features.nimcypher.nimcrypto`). The Monocypher ratios are
 `Monocypher time / NimCypher time`: **below 1 means Monocypher is faster, above 1 means
-NimCypher is faster**. The `NimCypher+SIMD` column shows the SIMD-accelerated kernels;
-`-` means the primitive has no SIMD kernel (BLAKE2b, SHA-512, Poly1305, X25519,
-signatures, Elligator, Argon2). Results vary a few percent run to run.
+NimCypher is faster**. The `NimCypher+SIMD` column shows the SIMD-accelerated kernels
+(AES-NI, PCLMULQDQ, AVX2); `-` means the primitive has no SIMD kernel. The
+`nimcrypto` column shows the same workloads through `nimcrypto` (HW-accelerated
+where available via SHA-NI/AVX/AES-NI); `Nc/Nim` and `Nc/SIMD` are
+`nimcrypto / NimCypher` and `nimcrypto / SIMD`. Results vary a few percent run to run.
 
-| operation | iters | Monocypher | NimCypher | NimCypher+SIMD | M/Nim | M/SIMD |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| blake2b 64B | 100000 | 0.0156s | 0.0180s | - | 0.87x | - |
-| blake2b 1024B | 20000 | 0.0200s | 0.0262s | - | 0.76x | - |
-| blake2b 65536B | 2000 | 0.1210s | 0.1586s | - | 0.76x | - |
-| blake2b 4x 1024B | 5000 | 0.0217s | 0.0285s | 0.0173s | 0.76x | 1.25x |
-| blake2b 4x 65536B | 200 | 0.0476s | 0.0631s | 0.0338s | 0.75x | 1.41x |
-| sha512 64B | 50000 | 0.0159s | 0.0152s | - | 1.05x | - |
-| sha512 1024B | 20000 | 0.0510s | 0.0571s | - | 0.89x | - |
-| sha512 65536B | 1000 | 0.1439s | 0.1567s | - | 0.92x | - |
-| chacha20 64B | 50000 | 0.0058s | 0.0075s | 0.0074s | 0.77x | 0.78x |
-| chacha20 1024B | 20000 | 0.0306s | 0.0399s | 0.0298s | 0.77x | 1.03x |
-| chacha20 65536B | 1000 | 0.0955s | 0.1247s | 0.0945s | 0.77x | 1.01x |
-| poly1305 1024B | 50000 | 0.0259s | 0.0293s | - | 0.88x | - |
-| poly1305 65536B | 2000 | 0.0635s | 0.0703s | - | 0.90x | - |
-| aead lock+unlock 1024B | 10000 | 0.0457s | 0.0577s | 0.0462s | 0.79x | 0.99x |
-| aead lock+unlock 65536B | 500 | 0.1283s | 0.1594s | 0.1291s | 0.80x | 0.99x |
-| x25519 | 2000 | 0.1575s | 0.1547s | - | 1.02x | - |
-| eddsa sign 1KB | 1000 | 0.0414s | 0.0404s | - | 1.03x | - |
-| eddsa check 1KB | 1000 | 0.1171s | 0.1166s | - | 1.00x | - |
-| ed25519 sign 1KB | 1000 | 0.0445s | 0.0429s | - | 1.04x | - |
-| ed25519 check 1KB | 1000 | 0.1204s | 0.1184s | - | 1.02x | - |
-| elligator map | 3000 | 0.0224s | 0.0203s | - | 1.10x | - |
-| elligator rev | 3000 | 0.0222s | 0.0196s | - | 1.14x | - |
-| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | 0.56x | - |
-| aes-ctr 1024B | 20000 | - | 0.1511s | 0.0144s | - | 10.47x |
-| aes-ctr 65536B | 1000 | - | 0.4804s | 0.0446s | - | 10.78x |
-| aes-gcm lock+unlock 1024B | 5000 | - | 0.0878s | 0.0616s | - | 1.42x |
-| aes-gcm lock+unlock 65536B | 300 | - | 0.2936s | 0.1976s | - | 1.49x |
+| operation | iters | Monocypher | NimCypher | NimCypher+SIMD | nimcrypto | M/Nim | M/SIMD | Nc/Nim | Nc/SIMD |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| blake2b 64B | 100000 | 0.0155s | 0.0182s | - | 0.0412s | 0.85x | - | 2.26x | - |
+| blake2b 1024B | 20000 | 0.0196s | 0.0256s | - | 0.0602s | 0.77x | - | 2.35x | - |
+| blake2b 65536B | 2000 | 0.1192s | 0.1611s | - | 0.3664s | 0.74x | - | 2.27x | - |
+| blake2b 4x 1024B | 5000 | 0.0207s | 0.0277s | 0.0169s | - | 0.75x | 1.23x | - | - |
+| blake2b 4x 65536B | 200 | 0.0473s | 0.0620s | 0.0345s | - | 0.76x | 1.37x | - | - |
+| sha512 64B | 50000 | 0.0167s | 0.0152s | - | 0.0126s | 1.10x | - | 0.83x | - |
+| sha512 1024B | 20000 | 0.0500s | 0.0549s | - | 0.0378s | 0.91x | - | 0.69x | - |
+| sha512 65536B | 1000 | 0.1444s | 0.1557s | - | 0.1065s | 0.93x | - | 0.68x | - |
+| chacha20 64B | 50000 | 0.0060s | 0.0076s | 0.0077s | - | 0.79x | 0.77x | - | - |
+| chacha20 1024B | 20000 | 0.0308s | 0.0394s | 0.0304s | - | 0.78x | 1.01x | - | - |
+| chacha20 65536B | 1000 | 0.0961s | 0.1223s | 0.0958s | - | 0.79x | 1.00x | - | - |
+| poly1305 1024B | 50000 | 0.0257s | 0.0296s | - | - | 0.87x | - | - | - |
+| poly1305 65536B | 2000 | 0.0627s | 0.0703s | - | - | 0.89x | - | - | - |
+| aead lock+unlock 1024B | 10000 | 0.0457s | 0.0556s | 0.0467s | - | 0.82x | 0.98x | - | - |
+| aead lock+unlock 65536B | 500 | 0.1275s | 0.1571s | 0.1328s | - | 0.81x | 0.96x | - | - |
+| x25519 | 2000 | 0.1580s | 0.1549s | - | - | 1.02x | - | - | - |
+| eddsa sign 1KB | 1000 | 0.0417s | 0.0400s | - | - | 1.04x | - | - | - |
+| eddsa check 1KB | 1000 | 0.1189s | 0.1179s | - | - | 1.01x | - | - | - |
+| ed25519 sign 1KB | 1000 | 0.0439s | 0.0423s | - | - | 1.04x | - | - | - |
+| ed25519 check 1KB | 1000 | 0.1213s | 0.1200s | - | - | 1.01x | - | - | - |
+| elligator map | 3000 | 0.0227s | 0.0203s | - | - | 1.12x | - | - | - |
+| elligator rev | 3000 | 0.0221s | 0.0202s | - | - | 1.09x | - | - | - |
+| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | - | 0.62x | - | - | - |
+| aes-ctr 1024B | 20000 | - | 0.1500s | 0.0141s | 0.5010s | - | 10.61x | 3.34x | 35.44x |
+| aes-ctr 65536B | 1000 | - | 0.4818s | 0.0443s | 1.5668s | - | 10.88x | 3.25x | 35.37x |
+| aes-gcm lock+unlock 1024B | 5000 | - | 0.0876s | 0.0612s | 0.2855s | - | 1.43x | 3.26x | 4.67x |
+| aes-gcm lock+unlock 65536B | 300 | - | 0.2868s | 0.1824s | 1.0398s | - | 1.57x | 3.62x | 5.70x |
 
 The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator.
 On the symmetric primitives the scalar port is roughly 0.75-0.90x vs C Monocypher; with
 the SIMD kernels, ChaCha20 reaches parity, AES-CTR gets a ~10x boost from AES-NI,
-and AES-GCM reaches ~1.5x over the scalar path. The AES scalars are constant-time
-bitsliced implementations verified against the NIST test vectors; with AES-NI enabled,
-AES-GCM performance matches or beats the C Monocypher AES-NI path.
+and AES-GCM reaches ~1.5x over the scalar path. Compared to `nimcrypto` (same machine,
+same compiler flags), NimCypher is **2.3x faster on BLAKE2b**, **~0.7x on SHA-512**
+(`nimcrypto` benefits from SHA-NI), and **3.3x (scalar) / 35x (SIMD) faster on AES-CTR**
+and **3.3x / 4.7x on AES-GCM**. The AES scalars are constant-time bitsliced
+implementations verified against the NIST test vectors; with AES-NI enabled, AES-GCM
+performance matches or beats the C Monocypher AES-NI path.
 
 The `blake2b 4x` rows hash four messages at once with `blake2bParallel` (the C and
 scalar-Nim columns run four one-shot hashes for the same work); the SIMD kernel brings
