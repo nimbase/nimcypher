@@ -240,13 +240,15 @@ See the test suite (`tests/`) for a complete walk-through of both layers.
 `nimble bench` compares the pure-Nim port against the **C Monocypher library**
 (installed system-wide and called through the FFI test bindings) and
 [`nimcrypto`](https://github.com/cheatfate/nimcrypto) (`nimcrypto >= 0.7.3`,
-installed via `nimble`). All sides are compiled with `-d:danger --opt:speed`
-(the port with `--mm:arc`, `-d:features.nimcypher.nimsimd` and
-`-d:features.nimcypher.nimcrypto`). The Monocypher ratios are
+installed via `nimble`).
+
+All sides are compiled with `-d:danger --opt:speed`
+(the port with `--mm:arc`, `-d:features.nimcypher.nimsimd`. The Monocypher ratios are
 `Monocypher time / NimCypher time`: **below 1 means Monocypher is faster, above 1 means
 NimCypher is faster**. The `NimCypher+SIMD` column shows the SIMD-accelerated kernels
-(AES-NI, PCLMULQDQ, AVX2); `-` means the primitive has no SIMD kernel. The
-`nimcrypto` column shows the same workloads through `nimcrypto` (HW-accelerated
+(AES-NI, PCLMULQDQ, AVX2); `-` means the primitive has no SIMD kernel.
+
+The `nimcrypto` column shows the same workloads through `nimcrypto` (HW-accelerated
 where available via SHA-NI/AVX/AES-NI); `Nc/Nim` and `Nc/SIMD` are
 `nimcrypto / NimCypher` and `nimcrypto / SIMD`. Results vary a few percent run to run.
 
@@ -286,9 +288,10 @@ the SIMD kernels, ChaCha20 reaches parity, AES-CTR gets a ~10x boost from AES-NI
 and AES-GCM reaches ~1.5x over the scalar path. Compared to `nimcrypto` (same machine,
 same compiler flags), NimCypher is **2.3x faster on BLAKE2b**, **~0.7x on SHA-512**
 (`nimcrypto` benefits from SHA-NI), and **3.3x (scalar) / 35x (SIMD) faster on AES-CTR**
-and **3.3x / 4.7x on AES-GCM**. The AES scalars are constant-time bitsliced
-implementations verified against the NIST test vectors; with AES-NI enabled, AES-GCM
-performance matches or beats the C Monocypher AES-NI path.
+and **3.3x / 4.7x on AES-GCM**.
+
+The AES scalars are constant-time bitsliced implementations verified against the NIST test vectors;
+with AES-NI enabled, AES-GCM performance matches or beats the C Monocypher AES-NI path.
 
 The `blake2b 4x` rows hash four messages at once with `blake2bParallel` (the C and
 scalar-Nim columns run four one-shot hashes for the same work); the SIMD kernel brings
