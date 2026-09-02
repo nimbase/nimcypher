@@ -28,7 +28,7 @@
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">Index</h1>
-      Modules: <a href="index.html">nimcypher</a>, <a href="nimcypher/aes.html">nimcypher/aes</a>, <a href="nimcypher/algos/aead.html">nimcypher/algos/aead</a>, <a href="nimcypher/algos/aes.html">nimcypher/algos/aes</a>, <a href="nimcypher/algos/argon2.html">nimcypher/algos/argon2</a>, <a href="nimcypher/algos/blake2b.html">nimcypher/algos/blake2b</a>, <a href="nimcypher/algos/chacha20.html">nimcypher/algos/chacha20</a>, <a href="nimcypher/algos/common.html">nimcypher/algos/common</a>, <a href="nimcypher/algos/eddsa.html">nimcypher/algos/eddsa</a>, <a href="nimcypher/algos/gcm.html">nimcypher/algos/gcm</a>, <a href="nimcypher/algos/hkdf.html">nimcypher/algos/hkdf</a>, <a href="nimcypher/algos/internal/edl.html">nimcypher/algos/internal/edl</a>, <a href="nimcypher/algos/internal/fe.html">nimcypher/algos/internal/fe</a>, <a href="nimcypher/algos/internal/ge.html">nimcypher/algos/internal/ge</a>, <a href="nimcypher/algos/poly1305.html">nimcypher/algos/poly1305</a>, <a href="nimcypher/algos/sha512.html">nimcypher/algos/sha512</a>, <a href="nimcypher/algos/x25519.html">nimcypher/algos/x25519</a>, <a href="nimcypher/encrypt.html">nimcypher/encrypt</a>, <a href="nimcypher/hash.html">nimcypher/hash</a>, <a href="nimcypher/password.html">nimcypher/password</a>, <a href="nimcypher/secret.html">nimcypher/secret</a>, <a href="nimcypher/sign.html">nimcypher/sign</a>, <a href="nimcypher/utils.html">nimcypher/utils</a>.<br/><p /><h2>API symbols</h2>
+      Modules: <a href="index.html">nimcypher</a>, <a href="nimcypher/aes.html">nimcypher/aes</a>, <a href="nimcypher/algos/aead.html">nimcypher/algos/aead</a>, <a href="nimcypher/algos/aes.html">nimcypher/algos/aes</a>, <a href="nimcypher/algos/argon2.html">nimcypher/algos/argon2</a>, <a href="nimcypher/algos/blake2b.html">nimcypher/algos/blake2b</a>, <a href="nimcypher/algos/chacha20.html">nimcypher/algos/chacha20</a>, <a href="nimcypher/algos/common.html">nimcypher/algos/common</a>, <a href="nimcypher/algos/eddsa.html">nimcypher/algos/eddsa</a>, <a href="nimcypher/algos/gcm.html">nimcypher/algos/gcm</a>, <a href="nimcypher/algos/hkdf.html">nimcypher/algos/hkdf</a>, <a href="nimcypher/algos/internal/edl.html">nimcypher/algos/internal/edl</a>, <a href="nimcypher/algos/internal/fe.html">nimcypher/algos/internal/fe</a>, <a href="nimcypher/algos/internal/ge.html">nimcypher/algos/internal/ge</a>, <a href="nimcypher/algos/poly1305.html">nimcypher/algos/poly1305</a>, <a href="nimcypher/algos/sha1.html">nimcypher/algos/sha1</a>, <a href="nimcypher/algos/sha512.html">nimcypher/algos/sha512</a>, <a href="nimcypher/algos/x25519.html">nimcypher/algos/x25519</a>, <a href="nimcypher/encrypt.html">nimcypher/encrypt</a>, <a href="nimcypher/hash.html">nimcypher/hash</a>, <a href="nimcypher/password.html">nimcypher/password</a>, <a href="nimcypher/secret.html">nimcypher/secret</a>, <a href="nimcypher/sign.html">nimcypher/sign</a>, <a href="nimcypher/utils.html">nimcypher/utils</a>.<br/><p /><h2>API symbols</h2>
 <dl><dt><a name="%60%2B%60" href="#%60%2B%60"><span>`+`:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="common: proc `+`(p: BytePtr; n: int): BytePtr" href="nimcypher/algos/common.html#%2B%2CBytePtr%2Cint">common: proc `+`(p: BytePtr; n: int): BytePtr</a></li>
@@ -1269,6 +1269,46 @@
 <li><a class="reference external"
           data-doc-search-tag="ge: proc selectLop(outp: var Fe; x, k: Fe; cofactor: byte)" href="nimcypher/algos/internal/ge.html#selectLop%2CFe%2CFe%2CFe%2Cbyte">ge: proc selectLop(outp: var Fe; x, k: Fe; cofactor: byte)</a></li>
           </ul></dd>
+<dt><a name="sha1" href="#sha1"><span>sha1:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="sha1: proc sha1(message: openArray[byte]): Sha1Digest" href="nimcypher/algos/sha1.html#sha1%2CopenArray%5Bbyte%5D">sha1: proc sha1(message: openArray[byte]): Sha1Digest</a></li>
+          </ul></dd>
+<dt><a name="Sha1BlockSize" href="#Sha1BlockSize"><span>Sha1BlockSize:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="sha1: const Sha1BlockSize" href="nimcypher/algos/sha1.html#Sha1BlockSize">sha1: const Sha1BlockSize</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: const Sha1BlockSize" href="nimcypher/hash.html#Sha1BlockSize">hash: const Sha1BlockSize</a></li>
+          </ul></dd>
+<dt><a name="Sha1Digest" href="#Sha1Digest"><span>Sha1Digest:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="sha1: type Sha1Digest" href="nimcypher/algos/sha1.html#Sha1Digest">sha1: type Sha1Digest</a></li>
+          </ul></dd>
+<dt><a name="Sha1DigestSize" href="#Sha1DigestSize"><span>Sha1DigestSize:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="sha1: const Sha1DigestSize" href="nimcypher/algos/sha1.html#Sha1DigestSize">sha1: const Sha1DigestSize</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: const Sha1DigestSize" href="nimcypher/hash.html#Sha1DigestSize">hash: const Sha1DigestSize</a></li>
+          </ul></dd>
+<dt><a name="sha1Hmac" href="#sha1Hmac"><span>sha1Hmac:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="sha1: proc sha1Hmac(key, message: openArray[byte]): Sha1Digest" href="nimcypher/algos/sha1.html#sha1Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">sha1: proc sha1Hmac(key, message: openArray[byte]): Sha1Digest</a></li>
+          </ul></dd>
+<dt><a name="Sha1Hmac" href="#Sha1Hmac"><span>Sha1Hmac:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hash: type Sha1Hmac" href="nimcypher/hash.html#Sha1Hmac">hash: type Sha1Hmac</a></li>
+          </ul></dd>
+<dt><a name="sha1Hmac" href="#sha1Hmac"><span>sha1Hmac:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hash: proc sha1Hmac(key, message: openArray[byte]): Sha1Hmac" href="nimcypher/hash.html#sha1Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">hash: proc sha1Hmac(key, message: openArray[byte]): Sha1Hmac</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: proc sha1Hmac(key, message: string): Sha1Hmac" href="nimcypher/hash.html#sha1Hmac%2Cstring%2Cstring">hash: proc sha1Hmac(key, message: string): Sha1Hmac</a></li>
+          </ul></dd>
+<dt><a name="sha1HmacHex" href="#sha1HmacHex"><span>sha1HmacHex:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hash: proc sha1HmacHex(key, message: openArray[byte]): string" href="nimcypher/hash.html#sha1HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">hash: proc sha1HmacHex(key, message: openArray[byte]): string</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: proc sha1HmacHex(key, message: string): string" href="nimcypher/hash.html#sha1HmacHex%2Cstring%2Cstring">hash: proc sha1HmacHex(key, message: string): string</a></li>
+          </ul></dd>
 <dt><a name="sha512" href="#sha512"><span>sha512:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="sha512: proc sha512(message: openArray[byte]): array[64, byte]" href="nimcypher/algos/sha512.html#sha512%2CopenArray%5Bbyte%5D">sha512: proc sha512(message: openArray[byte]): array[64, byte]</a></li>
@@ -1543,7 +1583,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-31 18:55:32 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-02 11:47:47 UTC</small>
       </div>
     </div>
   </div>

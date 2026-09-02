@@ -5,7 +5,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>nimcypher/algos/hkdf</title>
+<title>nimcypher/algos/sha1</title>
 
 <!-- Google fonts -->
 <link href='https://fonts.googleapis.com/css?family=Lato:400,600,900' rel='stylesheet' type='text/css'/>
@@ -27,7 +27,7 @@
     <label for="nav-toggle" id="nav-burger">&#9776;</label>
     <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
-      <h1 class="title">nimcypher/algos/hkdf</h1>
+      <h1 class="title">nimcypher/algos/sha1</h1>
       <div class="row">
   <div class="three columns">
     <div class="theme-select-wrapper">
@@ -59,14 +59,33 @@
 </li>
 <li>
   <details open>
+    <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
+    <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#Sha1Digest" title="Sha1Digest = array[Sha1DigestSize, byte]">Sha1Digest</a></li>
+
+    </ul>
+  </details>
+</li>
+<li>
+  <details open>
+    <summary><a class="reference reference-toplevel" href="#10" id="60">Consts</a></summary>
+    <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#Sha1BlockSize" title="Sha1BlockSize = 64">Sha1BlockSize</a></li>
+<li><a class="reference" href="#Sha1DigestSize" title="Sha1DigestSize = 20">Sha1DigestSize</a></li>
+
+    </ul>
+  </details>
+</li>
+<li>
+  <details open>
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">sha512Hkdf
-  <li><a class="reference" href="#sha512Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint" title="sha512Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]">sha512Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
+      <ul class="simple nested-toc-section">sha1
+  <li><a class="reference" href="#sha1%2CopenArray%5Bbyte%5D" title="sha1(message: openArray[byte]): Sha1Digest">sha1(message: openArray[byte]): Sha1Digest</a></li>
 
 </ul>
-<ul class="simple nested-toc-section">sha512HkdfExpand
-  <li><a class="reference" href="#sha512HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint" title="sha512HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]">sha512HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
+<ul class="simple nested-toc-section">sha1Hmac
+  <li><a class="reference" href="#sha1Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="sha1Hmac(key, message: openArray[byte]): Sha1Digest">sha1Hmac(key, message: openArray[byte]): Sha1Digest</a></li>
 
 </ul>
 
@@ -85,31 +104,67 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="common.html">common</a>, <a class="reference external" href="sha512.html">sha512</a>
+    <a class="reference external" href="common.html">common</a>
+  </dl>
+</div>
+<div class="section" id="7">
+  <h1><a class="toc-backref" href="#7">Types</a></h1>
+  <dl class="item">
+    <div id="Sha1Digest">
+  <dt><pre><a href="#Sha1Digest"><span class="Identifier">Sha1Digest</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">Sha1DigestSize</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+  </dl>
+</div>
+<div class="section" id="10">
+  <h1><a class="toc-backref" href="#10">Consts</a></h1>
+  <dl class="item">
+    <div id="Sha1BlockSize">
+  <dt><pre><a href="#Sha1BlockSize"><span class="Identifier">Sha1BlockSize</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha1DigestSize">
+  <dt><pre><a href="#Sha1DigestSize"><span class="Identifier">Sha1DigestSize</span></a> <span class="Other">=</span> <span class="DecNumber">20</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
   </dl>
 </div>
 <div class="section" id="12">
   <h1><a class="toc-backref" href="#12">Procs</a></h1>
   <dl class="item">
-    <div id="sha512Hkdf-procs-all">
-  <div id="sha512Hkdf,openArray[byte],openArray[byte],openArray[byte],int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#sha512Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha512Hkdf</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <div id="sha1-procs-all">
+  <div id="sha1,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha1%2CopenArray%5Bbyte%5D"><span class="Identifier">sha1</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha1Digest"><span class="Identifier">Sha1Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    HKDF-SHA-512: derive output keying material from an input key material, a salt and optional info.
+    Internal SHA-1 (FIPS 180-4). Not exported at high level; used by HMAC.
     
   </dd>
 </div>
 
 </div>
-<div id="sha512HkdfExpand-procs-all">
-  <div id="sha512HkdfExpand,openArray[byte],openArray[byte],int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#sha512HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha512HkdfExpand</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+<div id="sha1Hmac-procs-all">
+  <div id="sha1Hmac,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha1Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">sha1Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha1Digest"><span class="Identifier">Sha1Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Expand a pseudo-random key into output keying material. <tt class="docutils literal"><span class="pre"><span class="Identifier">okmSize</span></span></tt> is limited to 255 * 64 = 16320 bytes (RFC 5869); larger requests silently wrap the block counter and yield wrong key material. Callers must enforce the limit (see <tt class="docutils literal"><span class="pre"><span class="Identifier">nimcypher</span><span class="Operator">/</span><span class="Identifier">hash</span></span></tt>).
+    Compute HMAC-SHA-1 of <tt class="docutils literal"><span class="pre"><span class="Identifier">message</span></span></tt> under <tt class="docutils literal"><span class="pre"><span class="Identifier">key</span></span></tt> (RFC 2104). One-shot only; no streaming context.
     
   </dd>
 </div>

@@ -1,0 +1,6 @@
+nimTitle	sha1	nimcypher/algos/sha1.html	module nimcypher/algos/sha1		0
+nim	Sha1BlockSize	nimcypher/algos/sha1.html#Sha1BlockSize	const Sha1BlockSize		15
+nim	Sha1DigestSize	nimcypher/algos/sha1.html#Sha1DigestSize	const Sha1DigestSize		16
+nim	Sha1Digest	nimcypher/algos/sha1.html#Sha1Digest	type Sha1Digest		19
+nim	sha1	nimcypher/algos/sha1.html#sha1,openArray[byte]	proc sha1(message: openArray[byte]): Sha1Digest		75
+nim	sha1Hmac	nimcypher/algos/sha1.html#sha1Hmac,openArray[byte],openArray[byte]	proc sha1Hmac(key, message: openArray[byte]): Sha1Digest		112

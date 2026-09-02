@@ -62,6 +62,7 @@
     <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
     <ul class="simple simple-toc-section">
       <li><a class="reference" href="#Blake2b" title="Blake2b = object">Blake2b</a></li>
+<li><a class="reference" href="#Sha1Hmac" title="Sha1Hmac = array[Sha1DigestSize, uint8]">Sha1Hmac</a></li>
 <li><a class="reference" href="#Sha512Digest" title="Sha512Digest = array[Sha512DigestSize, uint8]">Sha512Digest</a></li>
 <li><a class="reference" href="#Sha512Hmac" title="Sha512Hmac = array[Sha512DigestSize, uint8]">Sha512Hmac</a></li>
 <li><a class="reference" href="#Sha512HmacState" title="Sha512HmacState = object">Sha512HmacState</a></li>
@@ -79,6 +80,8 @@
 <li><a class="reference" href="#Blake2bMaxKeySize" title="Blake2bMaxKeySize = 64">Blake2bMaxKeySize</a></li>
 <li><a class="reference" href="#Blake2bMinDigestSize" title="Blake2bMinDigestSize = 1">Blake2bMinDigestSize</a></li>
 <li><a class="reference" href="#HkdfMaxOkmLen" title="HkdfMaxOkmLen = 16320">HkdfMaxOkmLen</a></li>
+<li><a class="reference" href="#Sha1BlockSize" title="Sha1BlockSize = 64">Sha1BlockSize</a></li>
+<li><a class="reference" href="#Sha1DigestSize" title="Sha1DigestSize = 20">Sha1DigestSize</a></li>
 <li><a class="reference" href="#Sha512BlockSize" title="Sha512BlockSize = 128">Sha512BlockSize</a></li>
 <li><a class="reference" href="#Sha512DigestSize" title="Sha512DigestSize = 64">Sha512DigestSize</a></li>
 
@@ -159,6 +162,16 @@
 <li><a class="reference" href="#initSha512Hmac%2Cstring" title="initSha512Hmac(key: string): Sha512HmacState">initSha512Hmac(key: string): Sha512HmacState</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">sha1Hmac
+  <li><a class="reference" href="#sha1Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="sha1Hmac(key, message: openArray[byte]): Sha1Hmac">sha1Hmac(key, message: openArray[byte]): Sha1Hmac</a></li>
+<li><a class="reference" href="#sha1Hmac%2Cstring%2Cstring" title="sha1Hmac(key, message: string): Sha1Hmac">sha1Hmac(key, message: string): Sha1Hmac</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">sha1HmacHex
+  <li><a class="reference" href="#sha1HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="sha1HmacHex(key, message: openArray[byte]): string">sha1HmacHex(key, message: openArray[byte]): string</a></li>
+<li><a class="reference" href="#sha1HmacHex%2Cstring%2Cstring" title="sha1HmacHex(key, message: string): string">sha1HmacHex(key, message: string): string</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">sha512
   <li><a class="reference" href="#sha512%2CopenArray%5Bbyte%5D" title="sha512(message: openArray[byte]): Sha512Digest">sha512(message: openArray[byte]): Sha512Digest</a></li>
 <li><a class="reference" href="#sha512%2Cstring" title="sha512(message: string): Sha512Digest">sha512(message: string): Sha512Digest</a></li>
@@ -208,7 +221,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="algos/sha512.html">algos/sha512</a>, <a class="reference external" href="algos/hkdf.html">algos/hkdf</a>, <a class="reference external" href="utils.html">utils</a>
+    <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="algos/sha512.html">algos/sha512</a>, <a class="reference external" href="algos/sha1.html">algos/sha1</a>, <a class="reference external" href="algos/hkdf.html">algos/hkdf</a>, <a class="reference external" href="utils.html">utils</a>
   </dl>
 </div>
 <div class="section" id="7">
@@ -219,6 +232,14 @@
   <dd>
     
     Stateful BLAKE2b computation. Update with chunks, then <tt class="docutils literal"><span class="pre"><span class="Identifier">finish</span></span></tt>.
+    
+  </dd>
+</div>
+<div id="Sha1Hmac">
+  <dt><pre><a href="#Sha1Hmac"><span class="Identifier">Sha1Hmac</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">Sha1DigestSize</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
     
   </dd>
 </div>
@@ -294,6 +315,22 @@
 </div>
 <div id="HkdfMaxOkmLen">
   <dt><pre><a href="#HkdfMaxOkmLen"><span class="Identifier">HkdfMaxOkmLen</span></a> <span class="Other">=</span> <span class="DecNumber">16320</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha1BlockSize">
+  <dt><pre><a href="#Sha1BlockSize"><span class="Identifier">Sha1BlockSize</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha1DigestSize">
+  <dt><pre><a href="#Sha1DigestSize"><span class="Identifier">Sha1DigestSize</span></a> <span class="Other">=</span> <span class="DecNumber">20</span></pre></dt>
   <dd>
     
     
@@ -595,6 +632,48 @@
 </div>
 
 </div>
+<div id="sha1Hmac-procs-all">
+  <div id="sha1Hmac,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha1Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">sha1Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha1Hmac"><span class="Identifier">Sha1Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="sha1Hmac,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha1Hmac%2Cstring%2Cstring"><span class="Identifier">sha1Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha1Hmac"><span class="Identifier">Sha1Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="sha1HmacHex-procs-all">
+  <div id="sha1HmacHex,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha1HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">sha1HmacHex</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="sha1HmacHex,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha1HmacHex%2Cstring%2Cstring"><span class="Identifier">sha1HmacHex</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
 <div id="sha512-procs-all">
   <div id="sha512,openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#sha512%2CopenArray%5Bbyte%5D"><span class="Identifier">sha512</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha512Digest"><span class="Identifier">Sha512Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
@@ -756,7 +835,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-08-31 18:55:32 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-02 11:47:47 UTC</small>
       </div>
     </div>
   </div>
