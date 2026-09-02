@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.0"
+version       = "0.2.1"
 author        = "George Lemon"
 description   = "A pure-Nim port of Monocypher 4.0.3: a small, easy to use crypto library."
 license       = "BSD-2-Clause OR CC0-1.0"
@@ -20,7 +20,7 @@ feature "nimsimd":
 task test, "Run the test suite":
   for t in ["tcommon", "tchacha20", "tpoly1305", "tblake2b", "taead",
             "tx25519", "teddsa", "telligator", "targon2", "tsha512",
-            "thkdf", "ted25519", "tinterop", "thighlevel", "taes", "tgcm"]:
+            "tsha1", "thkdf", "ted25519", "tinterop", "thighlevel", "taes", "tgcm"]:
     exec "nim c -r --hints:off -d:danger -d:e2eeFastTests tests/" & t & ".nim"
 
 task test_simd, "Run the SIMD-accelerated tests":

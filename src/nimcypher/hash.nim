@@ -1,10 +1,11 @@
-# High-level hashing API: BLAKE2b, SHA-512, HMAC, HKDF.
+# High-level hashing API: BLAKE2b, SHA-512, HMAC-SHA-1, HMAC, HKDF.
 #
 # (c) 2025 George Lemon | MIT License
 #          Made by Humans from OpenPeeps
 
 import nimcypher/algos/blake2b as blakeAlgo
 import nimcypher/algos/sha512 as shaAlgo
+import nimcypher/algos/sha1 as sha1Algo
 import nimcypher/algos/hkdf as hkdfAlgo
 
 import ./utils
@@ -16,10 +17,13 @@ const
   Blake2bMaxKeySize* = 64
   Sha512DigestSize* = 64
   Sha512BlockSize* = 128
+  Sha1DigestSize* = 20
+  Sha1BlockSize* = 64
 
 type
   Sha512Digest* = array[Sha512DigestSize, uint8]
   Sha512Hmac* = array[Sha512DigestSize, uint8]
+  Sha1Hmac* = array[Sha1DigestSize, uint8]
 
   Blake2b* = object
     ## Stateful BLAKE2b computation. Update with chunks, then `finish`.
@@ -190,6 +194,19 @@ proc finish*(state: var Sha512HmacState): Sha512Hmac =
 
 proc finishHex*(state: var Sha512HmacState): string =
   toHex(finish(state))
+
+# HMAC-SHA-1 (one-shot, no streaming)
+proc sha1Hmac*(key, message: openArray[byte]): Sha1Hmac =
+  sha1Algo.sha1Hmac(key, message)
+
+proc sha1Hmac*(key, message: string): Sha1Hmac =
+  sha1Algo.sha1Hmac(toBytes(key), toBytes(message))
+
+proc sha1HmacHex*(key, message: openArray[byte]): string =
+  toHex(sha1Hmac(key, message))
+
+proc sha1HmacHex*(key, message: string): string =
+  toHex(sha1Hmac(key, message))
 
 # HKDF-SHA-512
 

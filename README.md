@@ -41,7 +41,7 @@ High-level API (`import nimcypher`):
 - **AES encryption**: `aesEcbEncrypt` / `aesCbcEncrypt` / `aesCtrCrypt` / `aesOfbCrypt` / `aesCfbEncrypt`
 - **Authenticated encryption & sealing**: `encrypt` / `decrypt`, `seal` / `unseal`
   (XChaCha20-Poly1305, RFC 8439), streaming via `aeadStreamInitX/Djb/Ietf`
-- **Hashing**: `blake` / `blakeKeyed`, `sha512`, `sha512Hmac`, `hkdfSha512`
+- **Hashing**: `blake` / `blakeKeyed`, `sha512`, `sha512Hmac`, `sha1Hmac` (HMAC-SHA-1, RFC 2202), `hkdfSha512`
 - **Password hashing**: `hashPassword` / `verifyPassword` / `deriveKeyFromPassword` (Argon2id)
 - **Key exchange**: `x25519KeyPair` / `sharedSecret` / `computeChallengeMac`
 - **Signatures**: `generateSigningKeyPair` / `sign` / `verify` (EdDSA with BLAKE2b)
@@ -51,7 +51,7 @@ Low-level primitives (`nimcypher/algos/...`):
 - **AES block cipher**: AES-128/192/256, ECB / CBC / CTR / CFB128 / OFB, streaming contexts
 - **AES-GCM**: authenticated encryption, streaming, NIST SP 800-38D
 - **Authenticated encryption**: `aeadLock` / `aeadUnlock` + streaming `AeadContext`
-- **Hashing**: BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HKDF
+- **Hashing**: BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HMAC-SHA-1, HKDF
 - **Password hashing**: Argon2 (`d`, `i`, `id`)
 - **Key exchange**: X25519 (incl. dirty keys, scalar inverse / OPRF, EdDSA↔X25519 conversion)
 - **Signatures**: EdDSA (BLAKE2b + Curve25519), Ed25519, Ed25519ph (SHA-512)
@@ -159,7 +159,7 @@ let plain2 = aeadStreamRead(decStream, cipher2, mac2)
 assert plain1 & plain2 == toBytes(message)
 ```
 
-### Hashing: BLAKE2b, SHA-512, HMAC, HKDF
+### Hashing: BLAKE2b, SHA-512, HMAC, HMAC-SHA-1, HKDF
 
 ```nim
 import nimcypher/hash
@@ -169,6 +169,7 @@ let digest = blake(toBytes("hello world"))              # 32-byte BLAKE2b digest
 let mac    = blakeKeyed(toBytes("msg"), toBytes("key")) # keyed (MAC)
 let sha    = sha512Hex("hello world")                   # hex string
 let hmac   = sha512Hmac(toBytes("key"), toBytes("msg"))
+let hmac1  = sha1Hmac(toBytes("key"), toBytes("msg"))   # 20-byte HMAC-SHA-1 (RFC 2202)
 let okm    = hkdfSha512(toBytes("ikm"), @[], toBytes("info"), 32)
 assert okm.len == 32
 ```
