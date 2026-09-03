@@ -1,0 +1,16 @@
+nimTitle	sha256	nimcypher/algos/sha256.html	module nimcypher/algos/sha256		0
+nim	Sha256BlockSize	nimcypher/algos/sha256.html#Sha256BlockSize	const Sha256BlockSize		14
+nim	Sha256DigestSize	nimcypher/algos/sha256.html#Sha256DigestSize	const Sha256DigestSize		15
+nim	Sha256Digest	nimcypher/algos/sha256.html#Sha256Digest	type Sha256Digest		18
+nim	Sha256Context	nimcypher/algos/sha256.html#Sha256Context	object Sha256Context		20
+nim	Sha256HmacContext	nimcypher/algos/sha256.html#Sha256HmacContext	object Sha256HmacContext		26
+nim	init	nimcypher/algos/sha256.html#init,Sha256Context	proc init(ctx: var Sha256Context)		87
+nim	update	nimcypher/algos/sha256.html#update,Sha256Context,openArray[byte]	proc update(ctx: var Sha256Context; message: openArray[byte])		100
+nim	final	nimcypher/algos/sha256.html#final,Sha256Context	proc final(ctx: var Sha256Context): array[32, byte]		132
+nim	sha256	nimcypher/algos/sha256.html#sha256,openArray[byte]	proc sha256(message: openArray[byte]): array[32, byte]		156
+nim	initHmac	nimcypher/algos/sha256.html#initHmac,Sha256HmacContext,openArray[byte]	proc initHmac(ctx: var Sha256HmacContext; key: openArray[byte])		165
+nim	update	nimcypher/algos/sha256.html#update,Sha256HmacContext,openArray[byte]	proc update(ctx: var Sha256HmacContext; message: openArray[byte])		184
+nim	final	nimcypher/algos/sha256.html#final,Sha256HmacContext	proc final(ctx: var Sha256HmacContext): array[32, byte]		187
+nim	sha256Hmac	nimcypher/algos/sha256.html#sha256Hmac,openArray[byte],openArray[byte]	proc sha256Hmac(key, message: openArray[byte]): array[32, byte]		199
+nimgrp	final	nimcypher/algos/sha256.html#final-procs-all	proc		132
+nimgrp	update	nimcypher/algos/sha256.html#update-procs-all	proc		100

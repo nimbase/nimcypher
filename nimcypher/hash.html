@@ -63,6 +63,10 @@
     <ul class="simple simple-toc-section">
       <li><a class="reference" href="#Blake2b" title="Blake2b = object">Blake2b</a></li>
 <li><a class="reference" href="#Sha1Hmac" title="Sha1Hmac = array[Sha1DigestSize, uint8]">Sha1Hmac</a></li>
+<li><a class="reference" href="#Sha256Digest" title="Sha256Digest = array[Sha256DigestSize, uint8]">Sha256Digest</a></li>
+<li><a class="reference" href="#Sha256Hmac" title="Sha256Hmac = array[Sha256DigestSize, uint8]">Sha256Hmac</a></li>
+<li><a class="reference" href="#Sha256HmacState" title="Sha256HmacState = object">Sha256HmacState</a></li>
+<li><a class="reference" href="#Sha256State" title="Sha256State = object">Sha256State</a></li>
 <li><a class="reference" href="#Sha512Digest" title="Sha512Digest = array[Sha512DigestSize, uint8]">Sha512Digest</a></li>
 <li><a class="reference" href="#Sha512Hmac" title="Sha512Hmac = array[Sha512DigestSize, uint8]">Sha512Hmac</a></li>
 <li><a class="reference" href="#Sha512HmacState" title="Sha512HmacState = object">Sha512HmacState</a></li>
@@ -80,8 +84,11 @@
 <li><a class="reference" href="#Blake2bMaxKeySize" title="Blake2bMaxKeySize = 64">Blake2bMaxKeySize</a></li>
 <li><a class="reference" href="#Blake2bMinDigestSize" title="Blake2bMinDigestSize = 1">Blake2bMinDigestSize</a></li>
 <li><a class="reference" href="#HkdfMaxOkmLen" title="HkdfMaxOkmLen = 16320">HkdfMaxOkmLen</a></li>
+<li><a class="reference" href="#HkdfSha256MaxOkmLen" title="HkdfSha256MaxOkmLen = 8160">HkdfSha256MaxOkmLen</a></li>
 <li><a class="reference" href="#Sha1BlockSize" title="Sha1BlockSize = 64">Sha1BlockSize</a></li>
 <li><a class="reference" href="#Sha1DigestSize" title="Sha1DigestSize = 20">Sha1DigestSize</a></li>
+<li><a class="reference" href="#Sha256BlockSize" title="Sha256BlockSize = 64">Sha256BlockSize</a></li>
+<li><a class="reference" href="#Sha256DigestSize" title="Sha256DigestSize = 32">Sha256DigestSize</a></li>
 <li><a class="reference" href="#Sha512BlockSize" title="Sha512BlockSize = 128">Sha512BlockSize</a></li>
 <li><a class="reference" href="#Sha512DigestSize" title="Sha512DigestSize = 64">Sha512DigestSize</a></li>
 
@@ -122,20 +129,36 @@
 </ul>
 <ul class="simple nested-toc-section">finish
   <li><a class="reference" href="#finish%2CBlake2b" title="finish(state: var Blake2b): seq[byte]">finish(state: var Blake2b): seq[byte]</a></li>
+<li><a class="reference" href="#finish%2CSha256HmacState" title="finish(state: var Sha256HmacState): Sha256Hmac">finish(state: var Sha256HmacState): Sha256Hmac</a></li>
+<li><a class="reference" href="#finish%2CSha256State" title="finish(state: var Sha256State): Sha256Digest">finish(state: var Sha256State): Sha256Digest</a></li>
 <li><a class="reference" href="#finish%2CSha512HmacState" title="finish(state: var Sha512HmacState): Sha512Hmac">finish(state: var Sha512HmacState): Sha512Hmac</a></li>
 <li><a class="reference" href="#finish%2CSha512State" title="finish(state: var Sha512State): Sha512Digest">finish(state: var Sha512State): Sha512Digest</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">finishHex
   <li><a class="reference" href="#finishHex%2CBlake2b" title="finishHex(state: var Blake2b): string">finishHex(state: var Blake2b): string</a></li>
+<li><a class="reference" href="#finishHex%2CSha256HmacState" title="finishHex(state: var Sha256HmacState): string">finishHex(state: var Sha256HmacState): string</a></li>
+<li><a class="reference" href="#finishHex%2CSha256State" title="finishHex(state: var Sha256State): string">finishHex(state: var Sha256State): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha512HmacState" title="finishHex(state: var Sha512HmacState): string">finishHex(state: var Sha512HmacState): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha512State" title="finishHex(state: var Sha512State): string">finishHex(state: var Sha512State): string</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">hkdfExpandSha256
+  <li><a class="reference" href="#hkdfExpandSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural" title="hkdfExpandSha256(prk, info: openArray[byte]; okmLen: Natural): seq[byte]">hkdfExpandSha256(prk, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfExpandSha256%2Cstring%2Cstring%2CNatural" title="hkdfExpandSha256(prk, info: string; okmLen: Natural): seq[byte]">hkdfExpandSha256(prk, info: string; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfExpandSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="hkdfExpandSha256[N: static[int]](prk, info: openArray[byte]): array[N, uint8]">hkdfExpandSha256[N: static[int]](prk, info: openArray[byte]): array[N, uint8]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">hkdfExpandSha512
   <li><a class="reference" href="#hkdfExpandSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural" title="hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]">hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
 <li><a class="reference" href="#hkdfExpandSha512%2Cstring%2Cstring%2CNatural" title="hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]">hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]</a></li>
 <li><a class="reference" href="#hkdfExpandSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]">hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">hkdfSha256
+  <li><a class="reference" href="#hkdfSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural" title="hkdfSha256(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]">hkdfSha256(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfSha256%2Cstring%2Cstring%2Cstring%2CNatural" title="hkdfSha256(ikm, salt, info: string; okmLen: Natural): seq[byte]">hkdfSha256(ikm, salt, info: string; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="hkdfSha256[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]">hkdfSha256[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">hkdfSha512
@@ -151,6 +174,15 @@
 <ul class="simple nested-toc-section">initBlake2bKeyed
   <li><a class="reference" href="#initBlake2bKeyed%2CopenArray%5Bbyte%5D%2Cint" title="initBlake2bKeyed(key: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): Blake2b">initBlake2bKeyed(key: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): Blake2b</a></li>
 <li><a class="reference" href="#initBlake2bKeyed%2Cstring%2Cint" title="initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b">initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initSha256
+  <li><a class="reference" href="#initSha256" title="initSha256(): Sha256State">initSha256(): Sha256State</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initSha256Hmac
+  <li><a class="reference" href="#initSha256Hmac%2CopenArray%5Bbyte%5D" title="initSha256Hmac(key: openArray[byte]): Sha256HmacState">initSha256Hmac(key: openArray[byte]): Sha256HmacState</a></li>
+<li><a class="reference" href="#initSha256Hmac%2Cstring" title="initSha256Hmac(key: string): Sha256HmacState">initSha256Hmac(key: string): Sha256HmacState</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">initSha512
@@ -170,6 +202,26 @@
 <ul class="simple nested-toc-section">sha1HmacHex
   <li><a class="reference" href="#sha1HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="sha1HmacHex(key, message: openArray[byte]): string">sha1HmacHex(key, message: openArray[byte]): string</a></li>
 <li><a class="reference" href="#sha1HmacHex%2Cstring%2Cstring" title="sha1HmacHex(key, message: string): string">sha1HmacHex(key, message: string): string</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">sha256
+  <li><a class="reference" href="#sha256%2CopenArray%5Bbyte%5D" title="sha256(message: openArray[byte]): Sha256Digest">sha256(message: openArray[byte]): Sha256Digest</a></li>
+<li><a class="reference" href="#sha256%2Cstring" title="sha256(message: string): Sha256Digest">sha256(message: string): Sha256Digest</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">sha256Hex
+  <li><a class="reference" href="#sha256Hex%2CopenArray%5Bbyte%5D" title="sha256Hex(message: openArray[byte]): string">sha256Hex(message: openArray[byte]): string</a></li>
+<li><a class="reference" href="#sha256Hex%2Cstring" title="sha256Hex(message: string): string">sha256Hex(message: string): string</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">sha256Hmac
+  <li><a class="reference" href="#sha256Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="sha256Hmac(key, message: openArray[byte]): Sha256Hmac">sha256Hmac(key, message: openArray[byte]): Sha256Hmac</a></li>
+<li><a class="reference" href="#sha256Hmac%2Cstring%2Cstring" title="sha256Hmac(key, message: string): Sha256Hmac">sha256Hmac(key, message: string): Sha256Hmac</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">sha256HmacHex
+  <li><a class="reference" href="#sha256HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="sha256HmacHex(key, message: openArray[byte]): string">sha256HmacHex(key, message: openArray[byte]): string</a></li>
+<li><a class="reference" href="#sha256HmacHex%2Cstring%2Cstring" title="sha256HmacHex(key, message: string): string">sha256HmacHex(key, message: string): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">sha512
@@ -195,6 +247,10 @@
 <ul class="simple nested-toc-section">update
   <li><a class="reference" href="#update%2CBlake2b%2CopenArray%5Bbyte%5D" title="update(state: var Blake2b; chunk: openArray[byte])">update(state: var Blake2b; chunk: openArray[byte])</a></li>
 <li><a class="reference" href="#update%2CBlake2b%2Cstring" title="update(state: var Blake2b; chunk: string)">update(state: var Blake2b; chunk: string)</a></li>
+<li><a class="reference" href="#update%2CSha256HmacState%2CopenArray%5Bbyte%5D" title="update(state: var Sha256HmacState; message: openArray[byte])">update(state: var Sha256HmacState; message: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CSha256HmacState%2Cstring" title="update(state: var Sha256HmacState; message: string)">update(state: var Sha256HmacState; message: string)</a></li>
+<li><a class="reference" href="#update%2CSha256State%2CopenArray%5Bbyte%5D" title="update(state: var Sha256State; message: openArray[byte])">update(state: var Sha256State; message: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CSha256State%2Cstring" title="update(state: var Sha256State; message: string)">update(state: var Sha256State; message: string)</a></li>
 <li><a class="reference" href="#update%2CSha512HmacState%2CopenArray%5Bbyte%5D" title="update(state: var Sha512HmacState; message: openArray[byte])">update(state: var Sha512HmacState; message: openArray[byte])</a></li>
 <li><a class="reference" href="#update%2CSha512HmacState%2Cstring" title="update(state: var Sha512HmacState; message: string)">update(state: var Sha512HmacState; message: string)</a></li>
 <li><a class="reference" href="#update%2CSha512State%2CopenArray%5Bbyte%5D" title="update(state: var Sha512State; message: openArray[byte])">update(state: var Sha512State; message: openArray[byte])</a></li>
@@ -221,7 +277,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="algos/sha512.html">algos/sha512</a>, <a class="reference external" href="algos/sha1.html">algos/sha1</a>, <a class="reference external" href="algos/hkdf.html">algos/hkdf</a>, <a class="reference external" href="utils.html">utils</a>
+    <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="algos/sha512.html">algos/sha512</a>, <a class="reference external" href="algos/sha256.html">algos/sha256</a>, <a class="reference external" href="algos/sha1.html">algos/sha1</a>, <a class="reference external" href="algos/hkdf.html">algos/hkdf</a>, <a class="reference external" href="utils.html">utils</a>
   </dl>
 </div>
 <div class="section" id="7">
@@ -237,6 +293,38 @@
 </div>
 <div id="Sha1Hmac">
   <dt><pre><a href="#Sha1Hmac"><span class="Identifier">Sha1Hmac</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">Sha1DigestSize</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha256Digest">
+  <dt><pre><a href="#Sha256Digest"><span class="Identifier">Sha256Digest</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">Sha256DigestSize</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha256Hmac">
+  <dt><pre><a href="#Sha256Hmac"><span class="Identifier">Sha256Hmac</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">Sha256DigestSize</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha256HmacState">
+  <dt><pre><a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha256State">
+  <dt><pre><a href="#Sha256State"><span class="Identifier">Sha256State</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
   <dd>
     
     
@@ -321,6 +409,14 @@
     
   </dd>
 </div>
+<div id="HkdfSha256MaxOkmLen">
+  <dt><pre><a href="#HkdfSha256MaxOkmLen"><span class="Identifier">HkdfSha256MaxOkmLen</span></a> <span class="Other">=</span> <span class="DecNumber">8160</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="Sha1BlockSize">
   <dt><pre><a href="#Sha1BlockSize"><span class="Identifier">Sha1BlockSize</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
   <dd>
@@ -331,6 +427,22 @@
 </div>
 <div id="Sha1DigestSize">
   <dt><pre><a href="#Sha1DigestSize"><span class="Identifier">Sha1DigestSize</span></a> <span class="Other">=</span> <span class="DecNumber">20</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha256BlockSize">
+  <dt><pre><a href="#Sha256BlockSize"><span class="Identifier">Sha256BlockSize</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Sha256DigestSize">
+  <dt><pre><a href="#Sha256DigestSize"><span class="Identifier">Sha256DigestSize</span></a> <span class="Other">=</span> <span class="DecNumber">32</span></pre></dt>
   <dd>
     
     
@@ -456,6 +568,24 @@
     
   </dd>
 </div>
+<div id="finish,Sha256HmacState">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CSha256HmacState"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256Hmac"><span class="Identifier">Sha256Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finish,Sha256State">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CSha256State"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256State"><span class="Identifier">Sha256State</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256Digest"><span class="Identifier">Sha256Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="finish,Sha512HmacState">
   <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CSha512HmacState"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha512HmacState"><span class="Identifier">Sha512HmacState</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#Sha512Hmac"><span class="Identifier">Sha512Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -486,6 +616,24 @@
     
   </dd>
 </div>
+<div id="finishHex,Sha256HmacState">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CSha256HmacState"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finishHex,Sha256State">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CSha256State"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256State"><span class="Identifier">Sha256State</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="finishHex,Sha512HmacState">
   <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CSha512HmacState"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha512HmacState"><span class="Identifier">Sha512HmacState</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -498,6 +646,36 @@
 <div id="finishHex,Sha512State">
   <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CSha512State"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha512State"><span class="Identifier">Sha512State</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="hkdfExpandSha256-procs-all">
+  <div id="hkdfExpandSha256,openArray[byte],openArray[byte],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural"><span class="Identifier">hkdfExpandSha256</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="hkdfExpandSha256,string,string,Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha256%2Cstring%2Cstring%2CNatural"><span class="Identifier">hkdfExpandSha256</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="hkdfExpandSha256,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">hkdfExpandSha256</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">:</span> <span class="Identifier">static</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span>
+    <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
@@ -527,6 +705,36 @@
 </div>
 <div id="hkdfExpandSha512,openArray[byte],openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">hkdfExpandSha512</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">:</span> <span class="Identifier">static</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span>
+    <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="hkdfSha256-procs-all">
+  <div id="hkdfSha256,openArray[byte],openArray[byte],openArray[byte],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural"><span class="Identifier">hkdfSha256</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Derive output keying material of <tt class="docutils literal"><span class="pre"><span class="Identifier">okmLen</span></span></tt> bytes with HKDF-SHA-256.
+    
+  </dd>
+</div>
+<div id="hkdfSha256,string,string,string,Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha256%2Cstring%2Cstring%2Cstring%2CNatural"><span class="Identifier">hkdfSha256</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="hkdfSha256,openArray[byte],openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">hkdfSha256</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">:</span> <span class="Identifier">static</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span>
     <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
   <dd>
     
@@ -600,6 +808,38 @@
 </div>
 
 </div>
+<div id="initSha256-procs-all">
+  <div id="initSha256">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initSha256"><span class="Identifier">initSha256</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256State"><span class="Identifier">Sha256State</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="initSha256Hmac-procs-all">
+  <div id="initSha256Hmac,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initSha256Hmac%2CopenArray%5Bbyte%5D"><span class="Identifier">initSha256Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="initSha256Hmac,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initSha256Hmac%2Cstring"><span class="Identifier">initSha256Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
 <div id="initSha512-procs-all">
   <div id="initSha512">
   <dt><pre><span class="Keyword">proc</span> <a href="#initSha512"><span class="Identifier">initSha512</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha512State"><span class="Identifier">Sha512State</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -665,6 +905,88 @@
 </div>
 <div id="sha1HmacHex,string,string">
   <dt><pre><span class="Keyword">proc</span> <a href="#sha1HmacHex%2Cstring%2Cstring"><span class="Identifier">sha1HmacHex</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="sha256-procs-all">
+  <div id="sha256,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256%2CopenArray%5Bbyte%5D"><span class="Identifier">sha256</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256Digest"><span class="Identifier">Sha256Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="sha256,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256%2Cstring"><span class="Identifier">sha256</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256Digest"><span class="Identifier">Sha256Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="sha256Hex-procs-all">
+  <div id="sha256Hex,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256Hex%2CopenArray%5Bbyte%5D"><span class="Identifier">sha256Hex</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="sha256Hex,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256Hex%2Cstring"><span class="Identifier">sha256Hex</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="sha256Hmac-procs-all">
+  <div id="sha256Hmac,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">sha256Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256Hmac"><span class="Identifier">Sha256Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="sha256Hmac,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256Hmac%2Cstring%2Cstring"><span class="Identifier">sha256Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256Hmac"><span class="Identifier">Sha256Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="sha256HmacHex-procs-all">
+  <div id="sha256HmacHex,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">sha256HmacHex</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="sha256HmacHex,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha256HmacHex%2Cstring%2Cstring"><span class="Identifier">sha256HmacHex</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -775,6 +1097,42 @@
     
   </dd>
 </div>
+<div id="update,Sha256HmacState,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CSha256HmacState%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Sha256HmacState,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CSha256HmacState%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Sha256State,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CSha256State%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256State"><span class="Identifier">Sha256State</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Sha256State,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CSha256State%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256State"><span class="Identifier">Sha256State</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="update,Sha512HmacState,openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#update%2CSha512HmacState%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha512HmacState"><span class="Identifier">Sha512HmacState</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -835,7 +1193,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-02 11:50:16 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-03 12:57:57 UTC</small>
       </div>
     </div>
   </div>
