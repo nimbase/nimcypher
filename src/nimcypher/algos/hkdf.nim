@@ -6,6 +6,7 @@
 
 import ./common
 import ./sha512
+import ./sha256
 
 {.push checks: off.}
 
@@ -44,6 +45,37 @@ proc sha512Hkdf*(ikm, salt, info: openArray[byte], okmSize: int): seq[byte] =
   var prk = sha512Hmac(salt, ikm)
   # expand
   result = sha512HkdfExpand(prk, info, okmSize)
+  wipe(prk)
+
+proc sha256HkdfExpand*(prk, info: openArray[byte], okmSize: int): seq[byte] =
+  ## Expand a pseudo-random key with HKDF-SHA-256 (RFC 5869, 32-byte blocks).
+  result = newSeq[byte](okmSize)
+  var notFirst = 0
+  var ctr: byte = 1
+  var blk: array[32, byte]
+  var offset = 0
+  var remaining = okmSize
+  while remaining > 0:
+    let outSize = min(remaining, 32)
+    var ctx: Sha256HmacContext
+    initHmac(ctx, prk)
+    if notFirst != 0:
+      update(ctx, blk)
+    update(ctx, info)
+    update(ctx, [ctr])
+    blk = final(ctx)
+    for i in 0 ..< outSize:
+      result[offset + i] = blk[i]
+    notFirst = 1
+    offset += outSize
+    remaining -= outSize
+    ctr += 1
+  wipe(blk)
+
+proc sha256Hkdf*(ikm, salt, info: openArray[byte], okmSize: int): seq[byte] =
+  ## HKDF-SHA-256: extract with salt then expand.
+  var prk = sha256Hmac(salt, ikm)
+  result = sha256HkdfExpand(prk, info, okmSize)
   wipe(prk)
 
 {.pop.}

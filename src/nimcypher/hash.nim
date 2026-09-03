@@ -1,10 +1,11 @@
-# High-level hashing API: BLAKE2b, SHA-512, HMAC-SHA-1, HMAC, HKDF.
+# High-level hashing API: BLAKE2b, SHA-512, SHA-256, HMAC-SHA-1, HMAC, HKDF.
 #
 # (c) 2025 George Lemon | MIT License
 #          Made by Humans from OpenPeeps
 
 import nimcypher/algos/blake2b as blakeAlgo
 import nimcypher/algos/sha512 as shaAlgo
+import nimcypher/algos/sha256 as sha256Algo
 import nimcypher/algos/sha1 as sha1Algo
 import nimcypher/algos/hkdf as hkdfAlgo
 
@@ -17,12 +18,16 @@ const
   Blake2bMaxKeySize* = 64
   Sha512DigestSize* = 64
   Sha512BlockSize* = 128
+  Sha256DigestSize* = 32
+  Sha256BlockSize* = 64
   Sha1DigestSize* = 20
   Sha1BlockSize* = 64
 
 type
   Sha512Digest* = array[Sha512DigestSize, uint8]
   Sha512Hmac* = array[Sha512DigestSize, uint8]
+  Sha256Digest* = array[Sha256DigestSize, uint8]
+  Sha256Hmac* = array[Sha256DigestSize, uint8]
   Sha1Hmac* = array[Sha1DigestSize, uint8]
 
   Blake2b* = object
@@ -208,10 +213,92 @@ proc sha1HmacHex*(key, message: openArray[byte]): string =
 proc sha1HmacHex*(key, message: string): string =
   toHex(sha1Hmac(key, message))
 
+# SHA-256 (one-shot)
+proc sha256*(message: openArray[byte]): Sha256Digest =
+  sha256Algo.sha256(message)
+
+proc sha256*(message: string): Sha256Digest =
+  sha256Algo.sha256(toBytes(message))
+
+proc sha256Hex*(message: openArray[byte]): string =
+  toHex(sha256(message))
+
+proc sha256Hex*(message: string): string =
+  toHex(sha256(message))
+
+# SHA-256 (streaming)
+type
+  Sha256State* = object
+    ctx: sha256Algo.Sha256Context
+    finalized: bool
+
+  Sha256HmacState* = object
+    ctx: sha256Algo.Sha256HmacContext
+    finalized: bool
+
+proc initSha256*(): Sha256State =
+  result.finalized = false
+  sha256Algo.init(result.ctx)
+
+proc update*(state: var Sha256State, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "SHA-256 state already finalized")
+  sha256Algo.update(state.ctx, message)
+
+proc update*(state: var Sha256State, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha256State): Sha256Digest =
+  if state.finalized:
+    raise newException(ValueError, "SHA-256 state already finalized")
+  result = sha256Algo.final(state.ctx)
+  state.finalized = true
+
+proc finishHex*(state: var Sha256State): string =
+  toHex(finish(state))
+
+# HMAC-SHA-256 (one-shot + streaming)
+proc sha256Hmac*(key, message: openArray[byte]): Sha256Hmac =
+  sha256Algo.sha256Hmac(key, message)
+
+proc sha256Hmac*(key, message: string): Sha256Hmac =
+  sha256Algo.sha256Hmac(toBytes(key), toBytes(message))
+
+proc sha256HmacHex*(key, message: openArray[byte]): string =
+  toHex(sha256Hmac(key, message))
+
+proc sha256HmacHex*(key, message: string): string =
+  toHex(sha256Hmac(key, message))
+
+proc initSha256Hmac*(key: openArray[byte]): Sha256HmacState =
+  result.finalized = false
+  sha256Algo.initHmac(result.ctx, key)
+
+proc initSha256Hmac*(key: string): Sha256HmacState =
+  initSha256Hmac(toBytes(key))
+
+proc update*(state: var Sha256HmacState, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-256 state already finalized")
+  sha256Algo.update(state.ctx, message)
+
+proc update*(state: var Sha256HmacState, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha256HmacState): Sha256Hmac =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-256 state already finalized")
+  result = sha256Algo.final(state.ctx)
+  state.finalized = true
+
+proc finishHex*(state: var Sha256HmacState): string =
+  toHex(finish(state))
+
 # HKDF-SHA-512
 
 const
   HkdfMaxOkmLen* = 255 * Sha512DigestSize # RFC 5869: at most 255 blocks
+  HkdfSha256MaxOkmLen* = 255 * Sha256DigestSize
 
 proc ensureHkdfLength(okmLen: Natural) {.inline.} =
   if okmLen > HkdfMaxOkmLen:
@@ -242,6 +329,36 @@ proc hkdfSha512*[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uin
 
 proc hkdfExpandSha512*[N: static[int]](prk, info: openArray[byte]): array[N, uint8] =
   let okm = hkdfExpandSha512(prk, info, N)
+  for i in 0 ..< N:
+    result[i] = okm[i]
+
+proc ensureHkdfSha256Length(okmLen: Natural) {.inline.} =
+  if okmLen > HkdfSha256MaxOkmLen:
+    raise newException(ValueError,
+      "HKDF-SHA-256 output too large: at most " & $HkdfSha256MaxOkmLen & " bytes")
+
+proc hkdfSha256*(ikm, salt, info: openArray[byte], okmLen: Natural): seq[byte] =
+  ## Derive output keying material of `okmLen` bytes with HKDF-SHA-256.
+  ensureHkdfSha256Length(okmLen)
+  result = hkdfAlgo.sha256Hkdf(ikm, salt, info, okmLen)
+
+proc hkdfSha256*(ikm, salt, info: string, okmLen: Natural): seq[byte] =
+  hkdfSha256(toBytes(ikm), toBytes(salt), toBytes(info), okmLen)
+
+proc hkdfExpandSha256*(prk, info: openArray[byte], okmLen: Natural): seq[byte] =
+  ensureHkdfSha256Length(okmLen)
+  result = hkdfAlgo.sha256HkdfExpand(prk, info, okmLen)
+
+proc hkdfExpandSha256*(prk, info: string, okmLen: Natural): seq[byte] =
+  hkdfExpandSha256(toBytes(prk), toBytes(info), okmLen)
+
+proc hkdfSha256*[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8] =
+  let okm = hkdfSha256(ikm, salt, info, N)
+  for i in 0 ..< N:
+    result[i] = okm[i]
+
+proc hkdfExpandSha256*[N: static[int]](prk, info: openArray[byte]): array[N, uint8] =
+  let okm = hkdfExpandSha256(prk, info, N)
   for i in 0 ..< N:
     result[i] = okm[i]
 
