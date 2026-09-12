@@ -9,7 +9,7 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 2.2.10"
-requires "bigints >= 1.1.0"
+requires "bigints >= 1.0.0"
 
 # Optional SIMD acceleration (ChaCha20, AES-NI, PCLMULQDQ): activate with
 # `nimble --features:nimsimd install` or from a consumer via
