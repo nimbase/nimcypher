@@ -397,12 +397,22 @@ Runs three suites:
 - **Interop tests**: byte-for-byte cross-checks between the pure-Nim port and the real C
   Monocypher library: key exchange, signatures, AEAD encryption/decryption, streaming,
   hashing, Argon2, Elligator, and constant-time verification.
+- **OpenSSL interop tests** (`topenssl.nim`): live two-way cross-checks against the system
+  `openssl` CLI over freshly generated keys: RSA PKCS#1 v1.5 / PSS / OAEP, ECDSA
+  (P-256, P-384, secp256k1), AES-ECB/CBC/CTR, SHA digests, HMAC-SHA-256, IETF ChaCha20,
+  X25519, and Ed25519. AES-GCM is covered by NIST vectors in `tgcm` instead (`openssl
+  enc` rejects AEAD ciphers).
 - **High-level tests**: round trips and error handling for the `import nimcypher` API
   (`thighlevel.nim`), cross-checked against the low-level primitives.
 
 The interop tests require a system-installed C Monocypher discoverable via `pkg-config`
 (headers in the include path, `libmonocypher.a` linkable). They use FFI bindings copied
 from the `openpeeps/e2ee` package (see `tests/monocypher_ffi.nim`).
+
+The OpenSSL suite shells out to the `openssl` binary at test time. If none is found it
+passes trivially with a skip note; set `NIMCYPHER_REQUIRE_OPENSSL=1` (as CI does) to
+fail loudly instead. On macOS, point PATH at the Homebrew OpenSSL 3 first: the system
+LibreSSL lacks some `pkeyutl` options the suite needs.
 
 
 ## Benchmarking

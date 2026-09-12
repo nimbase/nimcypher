@@ -22,7 +22,8 @@ task test, "Run the test suite":
   for t in ["tcommon", "tchacha20", "tpoly1305", "tblake2b", "taead",
             "tx25519", "teddsa", "telligator", "targon2", "tsha512",
             "tsha1", "tsha256", "tsha384", "tbigint_ext", "thkdf", "ted25519",
-            "tmontgomery", "trsa", "tecdsa", "tinterop", "thighlevel", "taes", "tgcm"]:
+            "tmontgomery", "trsa", "tecdsa", "tinterop", "thighlevel", "taes", "tgcm",
+            "topenssl"]:
     exec "nim c -r --hints:off -d:danger tests/" & t & ".nim"
 
 task test_simd, "Run the SIMD-accelerated tests":

@@ -7,6 +7,16 @@ jobs:
       nim-version: stable
       os: '[{"os":"ubuntu-latest"},{"os":"ubuntu-24.04-arm"},{"os":"macos-15-intel"},{"os":"macos-15"}]'
       pre-install-command: |
+        # The live OpenSSL interop suite (tests/topenssl.nim) must never
+        # silently skip in CI: fail loudly if no openssl binary is found.
+        echo "NIMCYPHER_REQUIRE_OPENSSL=1" >> "$GITHUB_ENV"
+        # Prefer the Homebrew OpenSSL 3 over macOS LibreSSL: the interop
+        # suite uses pkeyutl options (PSS saltlen, OAEP mgmt, -rawin) that
+        # LibreSSL does not support. The setup-nim reusable workflow
+        # installs the openssl@3 keg before this command runs.
+        if [ "$RUNNER_OS" = "macOS" ]; then
+          echo "$(brew --prefix)/opt/openssl@3/bin" >> "$GITHUB_PATH"
+        fi
         curl -fsSL -o monocypher-4.0.3.tar.gz https://monocypher.org/download/monocypher-4.0.3.tar.gz
         tar -xzf monocypher-4.0.3.tar.gz
         cd monocypher-4.0.3
