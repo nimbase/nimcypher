@@ -6,6 +6,7 @@
 import nimcypher/algos/blake2b as blakeAlgo
 import nimcypher/algos/sha512 as shaAlgo
 import nimcypher/algos/sha256 as sha256Algo
+import nimcypher/algos/sha384 as sha384Algo
 import nimcypher/algos/sha1 as sha1Algo
 import nimcypher/algos/hkdf as hkdfAlgo
 
@@ -18,6 +19,8 @@ const
   Blake2bMaxKeySize* = 64
   Sha512DigestSize* = 64
   Sha512BlockSize* = 128
+  Sha384DigestSize* = 48
+  Sha384BlockSize* = 128
   Sha256DigestSize* = 32
   Sha256BlockSize* = 64
   Sha1DigestSize* = 20
@@ -26,6 +29,8 @@ const
 type
   Sha512Digest* = array[Sha512DigestSize, uint8]
   Sha512Hmac* = array[Sha512DigestSize, uint8]
+  Sha384Digest* = array[Sha384DigestSize, uint8]
+  Sha384Hmac* = array[Sha384DigestSize, uint8]
   Sha256Digest* = array[Sha256DigestSize, uint8]
   Sha256Hmac* = array[Sha256DigestSize, uint8]
   Sha1Hmac* = array[Sha1DigestSize, uint8]
@@ -292,6 +297,91 @@ proc finish*(state: var Sha256HmacState): Sha256Hmac =
   state.finalized = true
 
 proc finishHex*(state: var Sha256HmacState): string =
+  toHex(finish(state))
+
+# SHA-384 (one-shot)
+proc sha384*(message: openArray[byte]): Sha384Digest =
+  let d = sha384Algo.sha384(message)
+  for i in 0 ..< Sha384DigestSize: result[i] = d[i]
+
+proc sha384*(message: string): Sha384Digest =
+  sha384(toBytes(message))
+
+proc sha384Hex*(message: openArray[byte]): string =
+  toHex(sha384(message))
+
+proc sha384Hex*(message: string): string =
+  toHex(sha384(message))
+
+# SHA-384 (streaming)
+type
+  Sha384State* = object
+    ctx: shaAlgo.Sha512Context
+    finalized: bool
+
+  Sha384HmacState* = object
+    ctx: sha384Algo.Sha384HmacContext
+    finalized: bool
+
+proc initSha384*(): Sha384State =
+  result.finalized = false
+  sha384Algo.init384(result.ctx)
+
+proc update*(state: var Sha384State, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "SHA-384 state already finalized")
+  shaAlgo.update(state.ctx, message)
+
+proc update*(state: var Sha384State, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha384State): Sha384Digest =
+  if state.finalized:
+    raise newException(ValueError, "SHA-384 state already finalized")
+  let full = shaAlgo.final(state.ctx)
+  for i in 0 ..< Sha384DigestSize: result[i] = full[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha384State): string =
+  toHex(finish(state))
+
+# HMAC-SHA-384 (one-shot + streaming)
+proc sha384Hmac*(key, message: openArray[byte]): Sha384Hmac =
+  let m = sha384Algo.sha384Hmac(key, message)
+  for i in 0 ..< Sha384DigestSize: result[i] = m[i]
+
+proc sha384Hmac*(key, message: string): Sha384Hmac =
+  sha384Hmac(toBytes(key), toBytes(message))
+
+proc sha384HmacHex*(key, message: openArray[byte]): string =
+  toHex(sha384Hmac(key, message))
+
+proc sha384HmacHex*(key, message: string): string =
+  toHex(sha384Hmac(key, message))
+
+proc initSha384Hmac*(key: openArray[byte]): Sha384HmacState =
+  result.finalized = false
+  sha384Algo.initHmac384(result.ctx, key)
+
+proc initSha384Hmac*(key: string): Sha384HmacState =
+  initSha384Hmac(toBytes(key))
+
+proc update*(state: var Sha384HmacState, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-384 state already finalized")
+  sha384Algo.update(state.ctx, message)
+
+proc update*(state: var Sha384HmacState, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha384HmacState): Sha384Hmac =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-384 state already finalized")
+  let m = sha384Algo.final(state.ctx)
+  for i in 0 ..< Sha384DigestSize: result[i] = m[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha384HmacState): string =
   toHex(finish(state))
 
 # HKDF-SHA-512

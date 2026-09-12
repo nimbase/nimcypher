@@ -9,6 +9,7 @@ srcDir        = "src"
 # Dependencies
 
 requires "nim >= 2.2.10"
+requires "bigints >= 1.1.0"
 
 # Optional SIMD acceleration (ChaCha20, AES-NI, PCLMULQDQ): activate with
 # `nimble --features:nimsimd install` or from a consumer via
@@ -20,7 +21,8 @@ feature "nimsimd":
 task test, "Run the test suite":
   for t in ["tcommon", "tchacha20", "tpoly1305", "tblake2b", "taead",
             "tx25519", "teddsa", "telligator", "targon2", "tsha512",
-            "tsha1", "tsha256", "thkdf", "ted25519", "tinterop", "thighlevel", "taes", "tgcm"]:
+            "tsha1", "tsha256", "tsha384", "tbigint_ext", "thkdf", "ted25519",
+            "trsa", "tecdsa", "tinterop", "thighlevel", "taes", "tgcm"]:
     exec "nim c -r --hints:off -d:danger -d:e2eeFastTests tests/" & t & ".nim"
 
 task test_simd, "Run the SIMD-accelerated tests":
