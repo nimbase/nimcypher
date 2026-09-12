@@ -14,5 +14,7 @@ import nimcypher/encrypt
 import nimcypher/aes
 import nimcypher/sign
 import nimcypher/password
+import nimcypher/rsa
+import nimcypher/ecdsa
 
-export utils, secret, hash, encrypt, aes, sign, password
+export utils, secret, hash, encrypt, aes, sign, password, rsa, ecdsa

@@ -16,15 +16,18 @@
 
 NimCypher is a **pure-Nim cryptographic library** that started as a faithful port of
 [Monocypher](https://monocypher.org/) 4.0.3 and has grown beyond it with the addition
-of AES-128/192/256 block cipher and AES-GCM authenticated encryption. It has **zero
-C dependency** and no runtime dependencies beyond the Nim standard library, so it is
-easy to deploy and easy to audit.
+of AES-128/192/256 block cipher and AES-GCM authenticated encryption, the SHA-2
+family (SHA-256/384/512) plus HMAC-SHA-1 and HKDF-SHA-256, and asymmetric
+primitives: RSA (PKCS#1 v1.5, PSS, OAEP) and ECDSA/ECDH over P-256/P-384/P-521 and
+secp256k1. It has **zero C dependency** and no runtime dependencies beyond the Nim
+standard library, so it is easy to deploy and easy to audit.
 
 It ships two layers:
 
 - **A high-level, easy-to-remember API** (`import nimcypher`) for the common tasks:
-  AES-GCM sealing, hashing, authenticated encryption and sealing, X25519 key exchange,
-  signatures and password hashing.
+  AES-GCM sealing, hashing, authenticated encryption and sealing, X25519 and ECDH
+  key exchange, EdDSA and ECDSA signatures, RSA signing and encryption, and
+  password hashing.
 - **The low-level primitives** (`nimcypher/algos/...`) for fine-grained control, exposing
   the full surface with an idiomatic Nim style: `openArray[byte]` in,
   `seq[byte]` / `array[N, byte]` out, contexts as objects with `init` / `update` / `final`,
@@ -41,20 +44,39 @@ High-level API (`import nimcypher`):
 - **AES encryption**: `aesEcbEncrypt` / `aesCbcEncrypt` / `aesCtrCrypt` / `aesOfbCrypt` / `aesCfbEncrypt`
 - **Authenticated encryption & sealing**: `encrypt` / `decrypt`, `seal` / `unseal`
   (XChaCha20-Poly1305, RFC 8439), streaming via `aeadStreamInitX/Djb/Ietf`
-- **Hashing**: `blake` / `blakeKeyed`, `sha512`, `sha512Hmac`, `sha1Hmac` (HMAC-SHA-1, RFC 2202), `hkdfSha512`
+- **Hashing**: `blake` / `blakeKeyed`, `sha512` / `sha256` / `sha384` (+ streaming
+  `initSha512` / `initSha256` / `initSha384`), `sha512Hmac` / `sha256Hmac` /
+  `sha384Hmac` (+ streaming HMAC), `sha1Hmac` (HMAC-SHA-1, RFC 2202, one-shot),
+  `hkdfSha512` / `hkdfSha256` (+ expand variants)
 - **Password hashing**: `hashPassword` / `verifyPassword` / `deriveKeyFromPassword` (Argon2id)
-- **Key exchange**: `x25519KeyPair` / `sharedSecret` / `computeChallengeMac`
-- **Signatures**: `generateSigningKeyPair` / `sign` / `verify` (EdDSA with BLAKE2b)
+- **Key exchange**: `x25519KeyPair` / `sharedSecret` / `computeChallengeMac`,
+  `generateEcKeyPair` / `ecdhSharedSecret` (ECDH over P-256/P-384/P-521, secp256k1)
+- **Signatures**: `generateSigningKeyPair` / `sign` / `verify` (EdDSA with BLAKE2b),
+  `ecdsaSign` / `ecdsaVerify` (RFC 6979, JWS `R || S`: ES256/384/512/256K),
+  `rsaPkcs1v15Sign` / `rsaPkcs1v15Verify` (RS256/384/512),
+  `rsaPssSign` / `rsaPssVerify` (PS256/384/512)
+- **Asymmetric encryption**: `rsaOaepEncrypt` / `rsaOaepDecrypt` (RSA-OAEP, RSA-OAEP-256),
+  `rsaPkcs1v15Encrypt` / `rsaPkcs1v15Decrypt` (RSA1_5, legacy),
+  `generateRsaKeyPair` / `rsaPublicKey` / `wipeRsaKey`
 - **Utilities**: `constantTimeEqual`, `wipe`, `randomBytes`, `toHex` / `fromHex`
 
 Low-level primitives (`nimcypher/algos/...`):
 - **AES block cipher**: AES-128/192/256, ECB / CBC / CTR / CFB128 / OFB, streaming contexts
 - **AES-GCM**: authenticated encryption, streaming, NIST SP 800-38D
 - **Authenticated encryption**: `aeadLock` / `aeadUnlock` + streaming `AeadContext`
-- **Hashing**: BLAKE2b (keyed & unkeyed), SHA-512, HMAC, HMAC-SHA-1, HKDF
+- **Hashing**: BLAKE2b (keyed & unkeyed), SHA-512/256/384 (+ streaming contexts),
+  HMAC-SHA-512/256/384 (+ streaming), HMAC-SHA-1 (one-shot, RFC 2202),
+  HKDF-SHA-512/256 (+ expand)
 - **Password hashing**: Argon2 (`d`, `i`, `id`)
-- **Key exchange**: X25519 (incl. dirty keys, scalar inverse / OPRF, EdDSA↔X25519 conversion)
-- **Signatures**: EdDSA (BLAKE2b + Curve25519), Ed25519, Ed25519ph (SHA-512)
+- **Key exchange**: X25519 (incl. dirty keys, scalar inverse / OPRF, EdDSA↔X25519 conversion),
+  ECDH over P-256/P-384/P-521 and secp256k1 (`ecdh`, x-coordinate secret)
+- **Signatures**: EdDSA (BLAKE2b + Curve25519), Ed25519, Ed25519ph (SHA-512),
+  ECDSA (RFC 6979, JWS `R || S`: ES256/384/512/256K),
+  RSA PKCS#1 v1.5 (RS256/384/512) and PSS (PS256/384/512, salt = hash len)
+- **Asymmetric encryption**: RSAES-OAEP (SHA-1/SHA-256: RSA-OAEP, RSA-OAEP-256),
+  RSAES-PKCS1-v1_5 (RSA1_5, legacy), RSA key generation (`generateRsaKeyPair`)
+- **BigInt helpers**: `bigint_ext` byte conversions (OS2IP/I2OSP), Miller-Rabin
+  primality, OS-random primes (RSA/ECDSA building blocks)
 - **Steganography & PAKE**: Elligator 2 (map / reverse map / key pair)
 - **Stream ciphers**: ChaCha20 (DJB, IETF, XChaCha20, HChaCha20), Poly1305
 - **EdDSA building blocks**: `trimScalar`, `reduce`, `mulAdd`, `scalarbase`, `checkEquation`
@@ -159,7 +181,7 @@ let plain2 = aeadStreamRead(decStream, cipher2, mac2)
 assert plain1 & plain2 == toBytes(message)
 ```
 
-### Hashing: BLAKE2b, SHA-512, HMAC, HMAC-SHA-1, HKDF
+### Hashing: BLAKE2b, SHA-512/256/384, HMAC, HMAC-SHA-1, HKDF
 
 ```nim
 import nimcypher/hash
@@ -168,10 +190,19 @@ import nimcypher/utils
 let digest = blake(toBytes("hello world"))              # 32-byte BLAKE2b digest
 let mac    = blakeKeyed(toBytes("msg"), toBytes("key")) # keyed (MAC)
 let sha    = sha512Hex("hello world")                   # hex string
+let sha2   = sha256Hex("hello world")                   # 32-byte SHA-256
+let sha4   = sha384Hex("hello world")                   # 48-byte SHA-384
 let hmac   = sha512Hmac(toBytes("key"), toBytes("msg"))
+let hmac2  = sha256Hmac(toBytes("key"), toBytes("msg")) # 32-byte HMAC-SHA-256
 let hmac1  = sha1Hmac(toBytes("key"), toBytes("msg"))   # 20-byte HMAC-SHA-1 (RFC 2202)
 let okm    = hkdfSha512(toBytes("ikm"), @[], toBytes("info"), 32)
-assert okm.len == 32
+let okm2   = hkdfSha256(toBytes("ikm"), @[], toBytes("info"), 32)
+assert okm.len == 32 and okm2.len == 32
+
+var st = initSha256()               # streaming SHA-256 (also initSha512/initSha384)
+st.update(toBytes("hello "))
+st.update(toBytes("world"))
+assert st.finish() == sha256(toBytes("hello world"))
 ```
 
 ### X25519 key exchange
@@ -197,6 +228,51 @@ let sig = sign(kp.secretKey, toBytes("message"))
 assert verify(kp.publicKey, toBytes("message"), sig)
 ```
 
+### ECDSA signatures and ECDH (P-256/P-384/P-521, secp256k1)
+
+Deterministic RFC 6979 signatures in JWS `R || S` format; ECDH yields the
+x-coordinate as `coordLen` bytes:
+
+```nim
+import nimcypher/ecdsa
+import nimcypher/utils
+
+var (alicePriv, alicePub) = generateEcKeyPair(P256)
+var (bobPriv, bobPub) = generateEcKeyPair(P256)
+assert ecValidatePublicKey(alicePub) and ecValidatePublicKey(bobPub)
+
+let sig = ecdsaSign(alicePriv, toBytes("message"))   # deterministic
+assert ecdsaVerify(alicePub, toBytes("message"), sig)
+assert ecdhSharedSecret(alicePriv, bobPub) == ecdhSharedSecret(bobPriv, alicePub)
+
+wipeEcKey(alicePriv)
+wipeEcKey(bobPriv)
+```
+
+### RSA signatures and encryption (RS/PS/OAEP)
+
+PKCS#1 v1.5 (RS256/384/512), PSS with salt = hash len (PS256/384/512),
+OAEP-SHA-1/SHA-256 and legacy PKCS1-v1_5 encryption. Keys `>= 2048` bits
+for production; smaller sizes exist for tests only and are slow to generate
+in pure Nim:
+
+```nim
+import nimcypher/rsa
+import nimcypher/utils
+
+var priv = generateRsaKeyPair(2048)
+let pub = rsaPublicKey(priv)
+let msg = toBytes("hello JOSE")
+
+let sig = rsaPkcs1v15Sign(priv, rhSha256, msg)   # RS256; also rsaPssSign
+assert rsaPkcs1v15Verify(pub, rhSha256, msg, sig)
+
+let ct = rsaOaepEncrypt(pub, rhSha256, msg)     # RSA-OAEP-256
+assert rsaOaepDecrypt(priv, rhSha256, ct) == msg
+
+wipeRsaKey(priv)
+```
+
 ### Utilities
 
 ```nim
@@ -214,14 +290,16 @@ assert secret == @[byte 0, 0, 0]
 ### Low-level API
 
 For full control over every primitive — different Argon2 variants, Ed25519, Elligator,
-raw ChaCha20, Poly1305, the EdDSA building blocks, or the streaming ChaCha20 extension —
-import the low-level modules:
+raw ChaCha20, Poly1305, RSA/ECDSA parameters, the EdDSA building blocks, or the
+streaming ChaCha20 extension — import the low-level modules:
 
 ```nim
 import nimcypher/algos/x25519
 import nimcypher/algos/ed25519
 import nimcypher/algos/elligator
 import nimcypher/algos/chacha20
+import nimcypher/algos/rsa
+import nimcypher/algos/ecdsa
 
 let pk = x25519PublicKey(sk)
 let (sk25519, pk25519) = ed25519KeyPair(seed)
@@ -401,8 +479,52 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
 - The AES scalar core is constant-time (bitsliced, no lookup tables); AES-NI and
   PCLMULQDQ are hardware constant-time by design. The HW path is only activated behind
   the `nimsimd` feature flag.
+- RSA private operations use CRT + RSA blinding to mitigate the variable-time
+  `powmod` (`pkg/bigints`); OAEP/PKCS1-v1_5 decoders use a single `decryption error`
+  message. Prefer OAEP over PKCS1-v1_5 for new uses. Use keys `>= 2048` bits.
+- ECDSA scalar multiplication is a variable-time double-and-add (affine/Jacobian
+  coordinates with `invmod`); signatures use deterministic RFC 6979 nonces (no
+  RNG failure mode), but do not rely on timing side-channel resistance for
+  ECDSA/RSA private ops in hostile shared-CPU environments.
+- Pure-Nim RSA key generation is slow (tens of seconds for 1024-bit moduli):
+  generate rarely and normally import keys instead. `wipeRsaKey` / `wipeEcKey`
+  drop BigInt references (GC frees the limbs); ephemeral `seq[byte]` buffers
+  are scrubbed via `wipe`.
 - Use `constantTimeEqual`, not `==`, to compare secrets.
 - Wipe secrets with `wipe` once you are done with them.
+
+
+## Roadmap
+
+Direction, not a commitment. Items land as pure-Nim, tested against
+reference vectors and OpenSSL interop before they are documented here.
+
+**Next (asymmetric usability):**
+- RSA/EC key import and export: PKCS#1 / PKCS#8 / SEC1 DER + PEM, JWK
+  (`n`, `e`, `d`, `x`, `y`, `crv`) for the supported RSA and EC curves.
+- JWS signing/verification and JWE decryption using the existing
+  RS/PS/ES and RSA-OAEP primitives (no new crypto, mostly encoding).
+- HKDF-SHA-384 in the high-level `hash` API (low-level HMAC-SHA-384 in
+  `algos/sha384` already exists; only the HKDF expand/extract glue is missing).
+
+**Later (further algos):**
+- SHA-3 / Keccak and HMAC-SHA3 (FIPS 202) alongside the SHA-2 family.
+- AES Key Wrap (KW/KWP, NIST SP 800-38F) for JOSE key management.
+- PBKDF2-HMAC-SHA-2 for legacy password-based key derivation
+  (Argon2id stays the default).
+- TLS 1.3 `HKDF-Expand-Label` and a minimal HPKE (DHKEM + AEAD) built
+  from the existing ECDH/HKDF/AEAD pieces.
+
+**Hardening (no new algos):**
+- Constant-time EC field arithmetic to replace the current variable-time
+  double-and-add (ECDSA) and blinded `powmod` (RSA) paths.
+- SHA-256/SHA-512 hardware kernels (SHA-NI) behind the existing
+  `nimsimd` feature flag, mirroring the AES-NI/ChaCha20-AVX2 approach.
+- Expanded `nimble bench` rows for SHA-256/384, RSA and ECDSA vs
+  OpenSSL/nimcrypto.
+
+Out of scope: X.509 path validation / TLS stacks — import/export helpers
+only; bring your own ASN.1 profile or use a dedicated TLS library.
 
 
 ### ❤ Contributions & Support
