@@ -23,13 +23,13 @@ task test, "Run the test suite":
             "tx25519", "teddsa", "telligator", "targon2", "tsha512",
             "tsha1", "tsha256", "tsha384", "tbigint_ext", "thkdf", "ted25519",
             "tmontgomery", "trsa", "tecdsa", "tinterop", "thighlevel", "taes", "tgcm"]:
-    exec "nim c -r --hints:off -d:danger -d:e2eeFastTests tests/" & t & ".nim"
+    exec "nim c -r --hints:off -d:danger tests/" & t & ".nim"
 
 task test_simd, "Run the SIMD-accelerated tests":
   exec "nimble install -y nimsimd"
   for t in ["tchacha20", "taead", "tblake2b", "tinterop", "taes", "tgcm",
             "tmontgomery", "trsa"]:
-    exec "nim c -r --hints:off -d:danger -d:e2eeFastTests " &
+    exec "nim c -r --hints:off -d:danger " &
          "-d:features.nimcypher.nimsimd tests/" & t & ".nim"
 
 task bench, "Benchmark NimCypher (scalar vs SIMD) against C Monocypher and nimcrypto":
