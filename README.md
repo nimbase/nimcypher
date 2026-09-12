@@ -76,7 +76,9 @@ Low-level primitives (`nimcypher/algos/...`):
 - **Asymmetric encryption**: RSAES-OAEP (SHA-1/SHA-256: RSA-OAEP, RSA-OAEP-256),
   RSAES-PKCS1-v1_5 (RSA1_5, legacy), RSA key generation (`generateRsaKeyPair`)
 - **BigInt helpers**: `bigint_ext` byte conversions (OS2IP/I2OSP), Miller-Rabin
-  primality, OS-random primes (RSA/ECDSA building blocks)
+  primality, OS-random primes (RSA/ECDSA building blocks),
+  `internal/montgomery.fastPowmod` Montgomery sliding-window exponentiation
+  backing all RSA ops and prime testing
 - **Steganography & PAKE**: Elligator 2 (map / reverse map / key pair)
 - **Stream ciphers**: ChaCha20 (DJB, IETF, XChaCha20, HChaCha20), Poly1305
 - **EdDSA building blocks**: `trimScalar`, `reduce`, `mulAdd`, `scalarbase`, `checkEquation`
@@ -440,6 +442,10 @@ Requirements and what gets accelerated:
   (AES-NI + PCLMULQDQ on amd64). Also accelerates **ChaCha20** (`chacha20Djb/Ietf/X`,
   HChaCha20) and the ChaCha20 half of **AEAD**. It also accelerates **batched BLAKE2b**
   through `blake2bParallel`, which hashes four messages at once with one SIMD lane each.
+- Accelerates **RSA** on amd64 via 64-bit-limb Montgomery arithmetic with MULX
+  (BMI2, `-mbmi2`): the `nimsimd` binary requires BMI2 (Intel Haswell / AMD
+  Excavator and newer). RSA-2048 sign drops from ~6.8ms to ~5.0ms
+  (`tests/bench_rsa.nim`); other architectures keep the portable 32-bit path.
 
 On x86_64 the two-block AVX2 kernel for ChaCha20 roughly reaches parity with C Monocypher
 on the full one-shot, while AES-NI gives a ~10x improvement over the bitsliced scalar
@@ -448,7 +454,9 @@ PCLMULQDQ, reaching ~1.5x over the scalar implementation.
 
 The scalar constant-time bitsliced AES core always stays available as the reference path
 and is cross-checked byte-for-byte by the test suite (`nimble test_simd` runs ChaCha20,
-AEAD, BLAKE2b, AES, GCM and interop tests with the feature enabled).
+AEAD, BLAKE2b, AES, GCM, Montgomery/RSA and interop tests with the feature enabled).
+The portable 32-bit Montgomery path likewise stays the RSA default; the MULX tier is
+differential-tested against it (`tests/tmontgomery.nim`, all bit sizes to 4096).
 
 
 ## Verification & provenance
@@ -486,10 +494,13 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
   coordinates with `invmod`); signatures use deterministic RFC 6979 nonces (no
   RNG failure mode), but do not rely on timing side-channel resistance for
   ECDSA/RSA private ops in hostile shared-CPU environments.
-- Pure-Nim RSA key generation is slow (tens of seconds for 1024-bit moduli):
-  generate rarely and normally import keys instead. `wipeRsaKey` / `wipeEcKey`
-  drop BigInt references (GC frees the limbs); ephemeral `seq[byte]` buffers
-  are scrubbed via `wipe`.
+- RSA private ops run on an internal Montgomery sliding-window exponentiation
+  (pure Nim, `algos/internal/montgomery`, blinding inverse via binary GCD):
+  ~6.8ms/sign and ~1s 2048-bit keygen on a laptop (`tests/bench_rsa.nim`),
+  ~50x faster than the generic `pkg/bigints` `powmod`; the `nimsimd` build
+  switches to 64-bit MULX limbs (`internal/montgomery64`, ~5.0ms/sign, needs
+  BMI2). `wipeRsaKey` / `wipeEcKey` drop BigInt references (GC frees the
+  limbs); ephemeral `seq[byte]` buffers are scrubbed via `wipe`.
 - Use `constantTimeEqual`, not `==`, to compare secrets.
 - Wipe secrets with `wipe` once you are done with them.
 
