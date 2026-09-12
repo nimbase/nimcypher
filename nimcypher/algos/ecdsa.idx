@@ -1,0 +1,28 @@
+nimTitle	ecdsa	nimcypher/algos/ecdsa.html	module nimcypher/algos/ecdsa		0
+nim	P256	nimcypher/algos/ecdsa.html#P256	EcCurve.P256		30
+nim	P384	nimcypher/algos/ecdsa.html#P384	EcCurve.P384		30
+nim	P521	nimcypher/algos/ecdsa.html#P521	EcCurve.P521		30
+nim	Secp256k1	nimcypher/algos/ecdsa.html#Secp256k1	EcCurve.Secp256k1		30
+nim	EcCurve	nimcypher/algos/ecdsa.html#EcCurve	enum EcCurve		30
+nim	ehSha256	nimcypher/algos/ecdsa.html#ehSha256	EcHash.ehSha256		34
+nim	ehSha384	nimcypher/algos/ecdsa.html#ehSha384	EcHash.ehSha384		34
+nim	ehSha512	nimcypher/algos/ecdsa.html#ehSha512	EcHash.ehSha512		34
+nim	EcHash	nimcypher/algos/ecdsa.html#EcHash	enum EcHash		34
+nim	CurveParams	nimcypher/algos/ecdsa.html#CurveParams	object CurveParams		37
+nim	EcPoint	nimcypher/algos/ecdsa.html#EcPoint	object EcPoint		46
+nim	EcPrivateKey	nimcypher/algos/ecdsa.html#EcPrivateKey	object EcPrivateKey		50
+nim	EcPublicKey	nimcypher/algos/ecdsa.html#EcPublicKey	object EcPublicKey		54
+nim	curveParams	nimcypher/algos/ecdsa.html#curveParams,EcCurve	proc curveParams(c: EcCurve): CurveParams		76
+nim	pointAtInfinity	nimcypher/algos/ecdsa.html#pointAtInfinity	proc pointAtInfinity(): EcPoint		135
+nim	isOnCurve	nimcypher/algos/ecdsa.html#isOnCurve,CurveParams,EcPoint	proc isOnCurve(cp: CurveParams; pt: EcPoint): bool		138
+nim	pointAdd	nimcypher/algos/ecdsa.html#pointAdd,CurveParams,EcPoint,EcPoint	proc pointAdd(cp: CurveParams; p1, p2: EcPoint): EcPoint		157
+nim	pointMul	nimcypher/algos/ecdsa.html#pointMul,CurveParams,BigInt,EcPoint	proc pointMul(cp: CurveParams; scalar: BigInt; pt: EcPoint): EcPoint		236
+nim	generator	nimcypher/algos/ecdsa.html#generator,CurveParams	proc generator(cp: CurveParams): EcPoint		251
+nim	generateKeyPair	nimcypher/algos/ecdsa.html#generateKeyPair,EcCurve	proc generateKeyPair(curve: EcCurve): (EcPrivateKey, EcPublicKey)		258
+nim	publicKeyFromPrivate	nimcypher/algos/ecdsa.html#publicKeyFromPrivate,EcPrivateKey	proc publicKeyFromPrivate(priv: EcPrivateKey): EcPublicKey		269
+nim	validatePublicKey	nimcypher/algos/ecdsa.html#validatePublicKey,EcPublicKey	proc validatePublicKey(pub: EcPublicKey): bool		276
+nim	pointMulJoint	nimcypher/algos/ecdsa.html#pointMulJoint,CurveParams,BigInt,EcPoint,BigInt,EcPoint	proc pointMulJoint(cp: CurveParams; k1: BigInt; p1: EcPoint; k2: BigInt; p2: EcPoint): EcPoint		295
+nim	sign	nimcypher/algos/ecdsa.html#sign,EcPrivateKey,openArray[byte]	proc sign(priv: EcPrivateKey; msg: openArray[byte]): seq[byte]		411
+nim	verify	nimcypher/algos/ecdsa.html#verify,EcPublicKey,openArray[byte],openArray[byte]	proc verify(pub: EcPublicKey; msg: openArray[byte]; sig: openArray[byte]): bool		439
+nim	ecdh	nimcypher/algos/ecdsa.html#ecdh,EcPrivateKey,EcPublicKey	proc ecdh(priv: EcPrivateKey; peer: EcPublicKey): seq[byte]		475
+nim	wipe	nimcypher/algos/ecdsa.html#wipe,EcPrivateKey	proc wipe(key: var EcPrivateKey)		491

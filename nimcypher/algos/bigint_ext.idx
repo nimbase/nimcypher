@@ -1,0 +1,11 @@
+nimTitle	bigint_ext	nimcypher/algos/bigint_ext.html	module nimcypher/algos/bigint_ext		0
+nim	fromBytesBE	nimcypher/algos/bigint_ext.html#fromBytesBE,openArray[byte]	proc fromBytesBE(bytes: openArray[byte]): BigInt		26
+nim	byteLen	nimcypher/algos/bigint_ext.html#byteLen,BigInt	proc byteLen(x: BigInt): int		33
+nim	bitLen	nimcypher/algos/bigint_ext.html#bitLen,BigInt	proc bitLen(x: BigInt): int		39
+nim	toBytesBE	nimcypher/algos/bigint_ext.html#toBytesBE,BigInt,int	proc toBytesBE(x: BigInt; outLen: int): seq[byte]		51
+nim	toBytesBETrimmed	nimcypher/algos/bigint_ext.html#toBytesBETrimmed,BigInt	proc toBytesBETrimmed(x: BigInt): seq[byte]		72
+nim	randomBytesSeq	nimcypher/algos/bigint_ext.html#randomBytesSeq,int	proc randomBytesSeq(n: int): seq[byte]		83
+nim	randomBigIntBits	nimcypher/algos/bigint_ext.html#randomBigIntBits,int	proc randomBigIntBits(bits: int; setTopBit = true; odd = false): BigInt		93
+nim	randomBigIntBelow	nimcypher/algos/bigint_ext.html#randomBigIntBelow,BigInt	proc randomBigIntBelow(n: BigInt): BigInt		111
+nim	isProbablePrime	nimcypher/algos/bigint_ext.html#isProbablePrime,BigInt,int	proc isProbablePrime(n: BigInt; rounds = 12): bool		157
+nim	randomPrime	nimcypher/algos/bigint_ext.html#randomPrime,int,int	proc randomPrime(bits: int; rounds = 12): BigInt		213

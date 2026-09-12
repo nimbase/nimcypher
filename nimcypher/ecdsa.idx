@@ -1,0 +1,12 @@
+nimTitle	ecdsa	nimcypher/ecdsa.html	module nimcypher/ecdsa		0
+nim	generateEcKeyPair	nimcypher/ecdsa.html#generateEcKeyPair	proc generateEcKeyPair(curve: ecdsaAlgo.EcCurve): (ecdsaAlgo.EcPrivateKey,\n    ecdsaAlgo.EcPublicKey)		21
+nim	ecPublicKeyFromPrivate	nimcypher/ecdsa.html#ecPublicKeyFromPrivate	proc ecPublicKeyFromPrivate(priv: ecdsaAlgo.EcPrivateKey): ecdsaAlgo.EcPublicKey		26
+nim	ecValidatePublicKey	nimcypher/ecdsa.html#ecValidatePublicKey	proc ecValidatePublicKey(pub: ecdsaAlgo.EcPublicKey): bool		31
+nim	wipeEcKey	nimcypher/ecdsa.html#wipeEcKey	proc wipeEcKey(key: var ecdsaAlgo.EcPrivateKey)		35
+nim	ecdsaSign	nimcypher/ecdsa.html#ecdsaSign,,openArray[byte]	proc ecdsaSign(priv: ecdsaAlgo.EcPrivateKey; msg: openArray[byte]): seq[byte]		39
+nim	ecdsaSign	nimcypher/ecdsa.html#ecdsaSign,,string	proc ecdsaSign(priv: ecdsaAlgo.EcPrivateKey; msg: string): seq[byte]		44
+nim	ecdsaVerify	nimcypher/ecdsa.html#ecdsaVerify,,openArray[byte],openArray[byte]	proc ecdsaVerify(pub: ecdsaAlgo.EcPublicKey; msg: openArray[byte];\n            sig: openArray[byte]): bool		47
+nim	ecdsaVerify	nimcypher/ecdsa.html#ecdsaVerify,,string,openArray[byte]	proc ecdsaVerify(pub: ecdsaAlgo.EcPublicKey; msg: string; sig: openArray[byte]): bool		52
+nim	ecdhSharedSecret	nimcypher/ecdsa.html#ecdhSharedSecret,,	proc ecdhSharedSecret(priv: ecdsaAlgo.EcPrivateKey; peer: ecdsaAlgo.EcPublicKey): seq[\n    byte]		56
+nimgrp	ecdsaverify	nimcypher/ecdsa.html#ecdsaVerify-procs-all	proc		47
+nimgrp	ecdsasign	nimcypher/ecdsa.html#ecdsaSign-procs-all	proc		39

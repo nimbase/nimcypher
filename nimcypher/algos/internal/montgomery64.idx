@@ -1,0 +1,13 @@
+nimTitle	montgomery64	nimcypher/algos/internal/montgomery64.html	module nimcypher/algos/internal/montgomery64		0
+nim	mont64Window	nimcypher/algos/internal/montgomery64.html#mont64Window	const mont64Window		31
+nim	trimLimbs64	nimcypher/algos/internal/montgomery64.html#trimLimbs64,seq[uint64]	proc trimLimbs64(a: var seq[uint64])		68
+nim	cmpLimbs64	nimcypher/algos/internal/montgomery64.html#cmpLimbs64,openArray[uint64],openArray[uint64]	proc cmpLimbs64(a, b: openArray[uint64]): int		75
+nim	subLimbs64InPlace	nimcypher/algos/internal/montgomery64.html#subLimbs64InPlace,seq[uint64],openArray[uint64]	proc subLimbs64InPlace(a: var seq[uint64]; b: openArray[uint64])		89
+nim	testBitLimbs64	nimcypher/algos/internal/montgomery64.html#testBitLimbs64,openArray[uint64],int	proc testBitLimbs64(limbs: openArray[uint64]; idx: int): bool		102
+nim	bitLenLimbs64	nimcypher/algos/internal/montgomery64.html#bitLenLimbs64,openArray[uint64]	proc bitLenLimbs64(limbs: openArray[uint64]): int		108
+nim	montN0_64	nimcypher/algos/internal/montgomery64.html#montN0_64,openArray[uint64]	proc montN0_64(n: openArray[uint64]): uint64		158
+nim	bigToLimbs64	nimcypher/algos/internal/montgomery64.html#bigToLimbs64,BigInt	proc bigToLimbs64(x: BigInt): seq[uint64]		229
+nim	limbsToBig64	nimcypher/algos/internal/montgomery64.html#limbsToBig64,openArray[uint64]	proc limbsToBig64(a: openArray[uint64]): BigInt		245
+nim	padTo64	nimcypher/algos/internal/montgomery64.html#padTo64,seq[uint64],int	proc padTo64(limbs: seq[uint64]; k: int): seq[uint64]		252
+nim	fastInvmod	nimcypher/algos/internal/montgomery64.html#fastInvmod,BigInt,BigInt	proc fastInvmod(a, modulus: BigInt): BigInt		315
+nim	fastPowmod64	nimcypher/algos/internal/montgomery64.html#fastPowmod64,BigInt,BigInt,BigInt	proc fastPowmod64(base, exp, modulus: BigInt): BigInt		406

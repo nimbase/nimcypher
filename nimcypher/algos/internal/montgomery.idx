@@ -1,0 +1,3 @@
+nimTitle	montgomery	nimcypher/algos/internal/montgomery.html	module nimcypher/algos/internal/montgomery		0
+nim	fastPowmod32	nimcypher/algos/internal/montgomery.html#fastPowmod32,BigInt,BigInt,BigInt	proc fastPowmod32(base, exp, modulus: BigInt): BigInt		275
+nim	fastPowmod	nimcypher/algos/internal/montgomery.html#fastPowmod,BigInt,BigInt,BigInt	proc fastPowmod(base, exp, modulus: BigInt): BigInt		302
