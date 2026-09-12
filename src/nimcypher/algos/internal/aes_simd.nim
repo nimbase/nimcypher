@@ -65,12 +65,20 @@ when defined(amd64):
 elif defined(arm64):
   import nimsimd/neon
 
-  # nimsimd/neon does not vendor the cryptographic extensions.
+  when defined(linux):
+    # GCC on aarch64 Linux defaults to baseline armv8-a without the crypto
+    # extensions; enable them explicitly. Apple Clang turns them on by
+    # default for Apple Silicon, so macOS needs no flag.
+    {.passC: "-march=armv8-a+crypto".}
+
+  # nimsimd/neon does not vendor the cryptographic extensions. ACLE names
+  # are fixed to uint8x16_t: vaeseq_u8 / vaesdq_u8 (+ vaesmcq_u8 /
+  # vaesimcq_u8 for MixColumns); there are no _u32 variants.
   {.push header: "arm_neon.h".}
-  func vaeseq_u32(a, k: uint8x16): uint8x16 {.importc: "vaeseq_u32".}
-  func vaesmcq_u32(a: uint8x16): uint8x16 {.importc: "vaesmcq_u32".}
-  func vaesdq_u32(a, k: uint8x16): uint8x16 {.importc: "vaesdq_u32".}
-  func vaesimcq_u32(a: uint8x16): uint8x16 {.importc: "vaesimcq_u32".}
+  func vaeseq_u8(a, k: uint8x16): uint8x16 {.importc: "vaeseq_u8".}
+  func vaesmcq_u8(a: uint8x16): uint8x16 {.importc: "vaesmcq_u8".}
+  func vaesdq_u8(a, k: uint8x16): uint8x16 {.importc: "vaesdq_u8".}
+  func vaesimcq_u8(a: uint8x16): uint8x16 {.importc: "vaesimcq_u8".}
   {.pop.}
 
   proc encBatch4(rounds: int, nrk: pointer, dst, src: BytePtr) {.inline.} =
@@ -82,12 +90,12 @@ elif defined(arm64):
     for r in 0 ..< rounds - 1:
       let k = vld1q_u8(cast[pointer](cast[uint](nrk) + uint(r * 16)))
       for i in 0 ..< 4:
-        s[i] = vaesmcq_u32(vaeseq_u32(s[i], k))
+        s[i] = vaesmcq_u8(vaeseq_u8(s[i], k))
     let k1 = vld1q_u8(cast[pointer](cast[uint](nrk) +
                                       uint((rounds - 1) * 16)))
     let k2 = vld1q_u8(cast[pointer](cast[uint](nrk) + uint(rounds * 16)))
     for i in 0 ..< 4:
-      s[i] = veorq_u8(vaeseq_u32(s[i], k1), k2)
+      s[i] = veorq_u8(vaeseq_u8(s[i], k1), k2)
       vst1q_u8(dst + i * 16, s[i])
 
   proc decBatch4(rounds: int, nrk: pointer, nrkInv: pointer,
@@ -99,11 +107,11 @@ elif defined(arm64):
     for r in countdown(rounds - 1, 1):
       let k = vld1q_u8(cast[pointer](cast[uint](nrkInv) + uint(r * 16)))
       for i in 0 ..< 4:
-        s[i] = vaesimcq_u32(vaesdq_u32(s[i], k))
+        s[i] = vaesimcq_u8(vaesdq_u8(s[i], k))
     let k1 = vld1q_u8(nrkInv)
     let k2 = vld1q_u8(nrk)
     for i in 0 ..< 4:
-      s[i] = veorq_u8(vaesdq_u32(s[i], k1), k2)
+      s[i] = veorq_u8(vaesdq_u8(s[i], k1), k2)
       vst1q_u8(dst + i * 16, s[i])
 
 else:

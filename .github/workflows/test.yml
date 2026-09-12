@@ -5,7 +5,7 @@ jobs:
     uses: nimbase/setup-nim-action/.github/workflows/test.yml@main
     with:
       nim-version: stable
-      os: '[{"os":"ubuntu-latest"},{"os":"macos-15"}]'
+      os: '[{"os":"ubuntu-latest"},{"os":"ubuntu-24.04-arm"},{"os":"macos-15-intel"},{"os":"macos-15"}]'
       pre-install-command: |
         curl -fsSL -o monocypher-4.0.3.tar.gz https://monocypher.org/download/monocypher-4.0.3.tar.gz
         tar -xzf monocypher-4.0.3.tar.gz
@@ -15,10 +15,9 @@ jobs:
           # macOS linker does not support. Install only the static library,
           # plus the pkg-config file so pkg-config can find it.
           #
-          # GitHub's macOS-15 runners are Apple Silicon, but the Nim toolchain
-          # installed by setup-nim-action targets x86_64 (Rosetta). Build a
-          # universal static library covering both architectures so linking
-          # works for whichever architecture Nim emits.
+          # GitHub's macos-15 runners are Apple Silicon (arm64) while
+          # macos-15-intel is x86_64. Build a universal static library
+          # covering both architectures so linking works on either.
           make static-library CC="clang -arch arm64 -std=c99" CFLAGS="-O3"
           mv lib/libmonocypher.a /tmp/libmonocypher-arm64.a
           make clean
