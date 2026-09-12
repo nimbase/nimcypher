@@ -100,18 +100,27 @@ elif defined(arm64):
 
   proc decBatch4(rounds: int, nrk: pointer, nrkInv: pointer,
                  dst, src: BytePtr) {.inline.} =
-    ## Decrypt exactly 4 blocks via the equivalent inverse cipher.
+    ## Decrypt exactly 4 blocks via the equivalent inverse cipher, mirroring
+    ## the canonical OpenSSL aesv8 sequence. AESD folds AddRoundKey with the
+    ## *next* round's inverse transform (`vaesdq_u8(x, k)` computes
+    ## `InvShiftRows(InvSubBytes(x xor k))`, so the keying is shifted by one
+    ## just like the encrypt side): the first AESD takes the raw last round
+    ## key, middle rounds InvMixColumns the state before AESD with the
+    ## pre-transformed keys in `nrkInv`, and the first round key is XORed at
+    ## the end. (The previous version missed the initial AESD and applied
+    ## InvMixColumns on the wrong side of AESD, so every decrypt failed
+    ## while encrypt passed.)
     var s: array[4, uint8x16]
+    let kLast = vld1q_u8(cast[pointer](cast[uint](nrk) + uint(rounds * 16)))
     for i in 0 ..< 4:
-      s[i] = vld1q_u8(src + i * 16)
+      s[i] = vaesdq_u8(vld1q_u8(src + i * 16), kLast)
     for r in countdown(rounds - 1, 1):
       let k = vld1q_u8(cast[pointer](cast[uint](nrkInv) + uint(r * 16)))
       for i in 0 ..< 4:
-        s[i] = vaesimcq_u8(vaesdq_u8(s[i], k))
-    let k1 = vld1q_u8(nrkInv)
-    let k2 = vld1q_u8(nrk)
+        s[i] = vaesdq_u8(vaesimcq_u8(s[i]), k)
+    let k0 = vld1q_u8(nrk)
     for i in 0 ..< 4:
-      s[i] = veorq_u8(vaesdq_u8(s[i], k1), k2)
+      s[i] = veorq_u8(s[i], k0)
       vst1q_u8(dst + i * 16, s[i])
 
 else:
