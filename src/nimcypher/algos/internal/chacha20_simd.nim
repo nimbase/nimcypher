@@ -115,25 +115,26 @@ proc simdRounds*(outp: var array[16, uint32], inp: array[16, uint32]) {.inline.}
   vstore(cast[pointer](unsafeAddr outp[8]), c)
   vstore(cast[pointer](unsafeAddr outp[12]), d)
 
-proc simdRounds2*(outp: var array[32, uint32], inp: array[32, uint32]) {.inline.} =
-  ## Apply 20 rounds of ChaCha20 to two blocks at once (AVX2, amd64 only).
-  ## `inp`/`outp` hold two interleaved blocks: word `w` of block 0 lives at
-  ## index `(w shr 2) shl 3 + (w and 3)`, word `w` of block 1 at index
-  ## `(w shr 2) shl 3 + (w and 3) + 4`.
-  var a = wload(cast[pointer](unsafeAddr inp[0]))
-  var b = wload(cast[pointer](unsafeAddr inp[8]))
-  var c = wload(cast[pointer](unsafeAddr inp[16]))
-  var d = wload(cast[pointer](unsafeAddr inp[24]))
-  for _ in 0 ..< 10:
-    wQuarterRound(a, b, c, d)
-    b = wshuf(b, 1)
-    c = wshuf(c, 2)
-    d = wshuf(d, 3)
-    wQuarterRound(a, b, c, d)
-    b = wshuf(b, 3)
-    c = wshuf(c, 2)
-    d = wshuf(d, 1)
-  wstore(cast[pointer](unsafeAddr outp[0]), a)
-  wstore(cast[pointer](unsafeAddr outp[8]), b)
-  wstore(cast[pointer](unsafeAddr outp[16]), c)
-  wstore(cast[pointer](unsafeAddr outp[24]), d)
+when defined(amd64):
+  proc simdRounds2*(outp: var array[32, uint32], inp: array[32, uint32]) {.inline.} =
+    ## Apply 20 rounds of ChaCha20 to two blocks at once (AVX2, amd64 only).
+    ## `inp`/`outp` hold two interleaved blocks: word `w` of block 0 lives at
+    ## index `(w shr 2) shl 3 + (w and 3)`, word `w` of block 1 at index
+    ## `(w shr 2) shl 3 + (w and 3) + 4`.
+    var a = wload(cast[pointer](unsafeAddr inp[0]))
+    var b = wload(cast[pointer](unsafeAddr inp[8]))
+    var c = wload(cast[pointer](unsafeAddr inp[16]))
+    var d = wload(cast[pointer](unsafeAddr inp[24]))
+    for _ in 0 ..< 10:
+      wQuarterRound(a, b, c, d)
+      b = wshuf(b, 1)
+      c = wshuf(c, 2)
+      d = wshuf(d, 3)
+      wQuarterRound(a, b, c, d)
+      b = wshuf(b, 3)
+      c = wshuf(c, 2)
+      d = wshuf(d, 1)
+    wstore(cast[pointer](unsafeAddr outp[0]), a)
+    wstore(cast[pointer](unsafeAddr outp[8]), b)
+    wstore(cast[pointer](unsafeAddr outp[16]), c)
+    wstore(cast[pointer](unsafeAddr outp[24]), d)
