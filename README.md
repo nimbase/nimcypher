@@ -16,8 +16,8 @@
 
 NimCypher is a **pure-Nim cryptographic library** that started as a faithful port of
 [Monocypher](https://monocypher.org/) 4.0.3 and has grown beyond it with the addition
-of AES-128/192/256 block cipher and AES-GCM authenticated encryption, the SHA-2
-family (SHA-256/384/512) plus HMAC-SHA-1 and HKDF-SHA-256, and asymmetric
+of `AES-128`/`192`/`256` block cipher and `AES-GCM` authenticated encryption, the `SHA-2`
+family (`SHA-256`/`384`/`512`) plus `HMAC-SHA-1` and `HKDF-SHA-256`, and asymmetric
 primitives: RSA (PKCS#1 v1.5, PSS, OAEP) and ECDSA/ECDH over P-256/P-384/P-521 and
 secp256k1. It has **zero C dependency** and no runtime dependencies beyond the Nim
 standard library, so it is easy to deploy and easy to audit.
@@ -36,52 +36,34 @@ It ships two layers:
 Every primitive is cross-checked byte-for-byte against the reference C Monocypher
 implementation and the NIST test-vector suite.
 
+> [!NOTE]
+> This is an ambitious, experimental community project written in pure Nim with
+> heavy LLM assistance. APIs may still change, and security-critical uses deserve
+> independent review. Contributions are welcome: bug reports, test vectors,
+> benchmarks, and ports.
+
 
 ## Key features
 
 High-level API (`import nimcypher`):
-- **AES-GCM sealing**: `gcmSeal` / `gcmOpen` (AES-256-GCM with random 96-bit nonces)
-- **AES encryption**: `aesEcbEncrypt` / `aesCbcEncrypt` / `aesCtrCrypt` / `aesOfbCrypt` / `aesCfbEncrypt`
-- **Authenticated encryption & sealing**: `encrypt` / `decrypt`, `seal` / `unseal`
-  (XChaCha20-Poly1305, RFC 8439), streaming via `aeadStreamInitX/Djb/Ietf`
-- **Hashing**: `blake` / `blakeKeyed`, `sha512` / `sha256` / `sha384` (+ streaming
-  `initSha512` / `initSha256` / `initSha384`), `sha512Hmac` / `sha256Hmac` /
-  `sha384Hmac` (+ streaming HMAC), `sha1Hmac` (HMAC-SHA-1, RFC 2202, one-shot),
-  `hkdfSha512` / `hkdfSha256` (+ expand variants)
-- **Password hashing**: `hashPassword` / `verifyPassword` / `deriveKeyFromPassword` (Argon2id)
-- **Key exchange**: `x25519KeyPair` / `sharedSecret` / `computeChallengeMac`,
-  `generateEcKeyPair` / `ecdhSharedSecret` (ECDH over P-256/P-384/P-521, secp256k1)
-- **Signatures**: `generateSigningKeyPair` / `sign` / `verify` (EdDSA with BLAKE2b),
-  `ecdsaSign` / `ecdsaVerify` (RFC 6979, JWS `R || S`: ES256/384/512/256K),
-  `rsaPkcs1v15Sign` / `rsaPkcs1v15Verify` (RS256/384/512),
-  `rsaPssSign` / `rsaPssVerify` (PS256/384/512)
-- **Asymmetric encryption**: `rsaOaepEncrypt` / `rsaOaepDecrypt` (RSA-OAEP, RSA-OAEP-256),
-  `rsaPkcs1v15Encrypt` / `rsaPkcs1v15Decrypt` (RSA1_5, legacy),
-  `generateRsaKeyPair` / `rsaPublicKey` / `wipeRsaKey`
-- **Utilities**: `constantTimeEqual`, `wipe`, `randomBytes`, `toHex` / `fromHex`
+- AES-GCM sealing with random nonces, plus AES block encryption in common modes
+- Authenticated encryption and sealing with XChaCha20-Poly1305, including streaming
+- Hashing with BLAKE2b and the SHA-2 family, HMAC variants, and HKDF key derivation
+- Argon2id password hashing, verification, and key derivation
+- Key exchange with X25519 and ECDH over standard curves
+- Signatures: EdDSA, deterministic ECDSA, and RSA PKCS#1 v1.5 plus PSS
+- Asymmetric encryption with RSA-OAEP (legacy PKCS#1 v1.5 padding also available)
+- RSA and elliptic-curve key generation, secret wiping, constant-time comparison,
+  hex helpers
 
 Low-level primitives (`nimcypher/algos/...`):
-- **AES block cipher**: AES-128/192/256, ECB / CBC / CTR / CFB128 / OFB, streaming contexts
-- **AES-GCM**: authenticated encryption, streaming, NIST SP 800-38D
-- **Authenticated encryption**: `aeadLock` / `aeadUnlock` + streaming `AeadContext`
-- **Hashing**: BLAKE2b (keyed & unkeyed), SHA-512/256/384 (+ streaming contexts),
-  HMAC-SHA-512/256/384 (+ streaming), HMAC-SHA-1 (one-shot, RFC 2202),
-  HKDF-SHA-512/256 (+ expand)
-- **Password hashing**: Argon2 (`d`, `i`, `id`)
-- **Key exchange**: X25519 (incl. dirty keys, scalar inverse / OPRF, EdDSA↔X25519 conversion),
-  ECDH over P-256/P-384/P-521 and secp256k1 (`ecdh`, x-coordinate secret)
-- **Signatures**: EdDSA (BLAKE2b + Curve25519), Ed25519, Ed25519ph (SHA-512),
-  ECDSA (RFC 6979, JWS `R || S`: ES256/384/512/256K),
-  RSA PKCS#1 v1.5 (RS256/384/512) and PSS (PS256/384/512, salt = hash len)
-- **Asymmetric encryption**: RSAES-OAEP (SHA-1/SHA-256: RSA-OAEP, RSA-OAEP-256),
-  RSAES-PKCS1-v1_5 (RSA1_5, legacy), RSA key generation (`generateRsaKeyPair`)
-- **BigInt helpers**: `bigint_ext` byte conversions (OS2IP/I2OSP), Miller-Rabin
-  primality, OS-random primes (RSA/ECDSA building blocks),
-  `internal/montgomery.fastPowmod` Montgomery sliding-window exponentiation
-  backing all RSA ops and prime testing
-- **Steganography & PAKE**: Elligator 2 (map / reverse map / key pair)
-- **Stream ciphers**: ChaCha20 (DJB, IETF, XChaCha20, HChaCha20), Poly1305
-- **EdDSA building blocks**: `trimScalar`, `reduce`, `mulAdd`, `scalarbase`, `checkEquation`
+- AES block cipher and AES-GCM with streaming support, checked against NIST vectors
+- BLAKE2b, SHA-2, HMAC, and HKDF building blocks
+- Argon2 password hashing in all three variants
+- X25519 and ECDH key exchange, EdDSA and ECDSA signatures
+- RSA signing, encryption, and key generation on an internal Montgomery engine
+- BigInt helpers: byte conversion, primality testing, and random prime generation
+- ChaCha20 stream ciphers, Poly1305, and Elligator 2 mappings
 
 
 ## Examples
@@ -275,6 +257,29 @@ assert rsaOaepDecrypt(priv, rhSha256, ct) == msg
 wipeRsaKey(priv)
 ```
 
+### RSA performance
+
+Indicative figures from `tests/bench_rsa.nim` on an x86_64 laptop
+(`-d:danger`; results vary a few percent run to run). The default build is pure
+Nim; the `nimsimd` build switches the Montgomery engine to 64-bit limbs with
+MULX (needs BMI2, see
+[Optional SIMD acceleration](#optional-simd-acceleration)):
+
+| operation | pure Nim | with `nimsimd` |
+| --- | ---: | ---: |
+| RSA-1024 sign | ~1.5ms | ~1.3ms |
+| RSA-1024 verify (e = 65537) | ~0.2ms | ~0.2ms |
+| RSA-2048 sign | ~6.3ms | ~4.9ms |
+| RSA-2048 verify (e = 65537) | ~0.7ms | ~0.7ms |
+| RSA-1024 keygen | ~30ms | ~30ms |
+| RSA-2048 keygen | ~1s | ~1s |
+
+For reference, RSA-2048 signing took about 333ms with the generic big-integer
+power before the internal Montgomery sliding-window engine landed (roughly 50x
+faster in pure Nim, roughly 65x with the MULX tier). One RSA-2048 sign splits
+into about 3.9ms for the two CRT exponentiations plus 1.4ms for blinding
+(2.5ms plus 1.3ms with `nimsimd`).
+
 ### Utilities
 
 ```nim
@@ -291,9 +296,9 @@ assert secret == @[byte 0, 0, 0]
 
 ### Low-level API
 
-For full control over every primitive — different Argon2 variants, Ed25519, Elligator,
+For full control over every primitive (different Argon2 variants, Ed25519, Elligator,
 raw ChaCha20, Poly1305, RSA/ECDSA parameters, the EdDSA building blocks, or the
-streaming ChaCha20 extension — import the low-level modules:
+streaming ChaCha20 extension), import the low-level modules:
 
 ```nim
 import nimcypher/algos/x25519
@@ -416,7 +421,7 @@ SIMD-accelerated (`NimCypher+SIMD`) columns side by side (see
 ## Optional SIMD acceleration
 
 NimCypher ships optional SIMD-accelerated kernels behind the `nimsimd` feature flag.
-They are **off by default** — the library stays zero-dependency and runs on any CPU —
+They are **off by default** (the library stays zero-dependency and runs on any CPU)
 and are selected with the Nimble `nimsimd` feature:
 
 ```
@@ -444,7 +449,7 @@ Requirements and what gets accelerated:
   through `blake2bParallel`, which hashes four messages at once with one SIMD lane each.
 - Accelerates **RSA** on amd64 via 64-bit-limb Montgomery arithmetic with MULX
   (BMI2, `-mbmi2`): the `nimsimd` binary requires BMI2 (Intel Haswell / AMD
-  Excavator and newer). RSA-2048 sign drops from ~6.8ms to ~5.0ms
+  Excavator and newer). RSA-2048 sign drops from ~6.3ms to ~4.9ms
   (`tests/bench_rsa.nim`); other architectures keep the portable 32-bit path.
 
 On x86_64 the two-block AVX2 kernel for ChaCha20 roughly reaches parity with C Monocypher
@@ -483,7 +488,7 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
 - For AES-GCM, use a unique 96-bit nonce per message under a given key. `gcmSeal`
   generates a random nonce; never reuse nonce+key.
 - `decrypt` / `unseal` / `aeadStreamRead` / `aesGcmDecrypt` verify the MAC in constant
-  time and never return plaintext on failure — they raise `ValueError` instead.
+  time and never return plaintext on failure; they raise `ValueError` instead.
 - The AES scalar core is constant-time (bitsliced, no lookup tables); AES-NI and
   PCLMULQDQ are hardware constant-time by design. The HW path is only activated behind
   the `nimsimd` feature flag.
@@ -496,9 +501,9 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
   ECDSA/RSA private ops in hostile shared-CPU environments.
 - RSA private ops run on an internal Montgomery sliding-window exponentiation
   (pure Nim, `algos/internal/montgomery`, blinding inverse via binary GCD):
-  ~6.8ms/sign and ~1s 2048-bit keygen on a laptop (`tests/bench_rsa.nim`),
-  ~50x faster than the generic `pkg/bigints` `powmod`; the `nimsimd` build
-  switches to 64-bit MULX limbs (`internal/montgomery64`, ~5.0ms/sign, needs
+   ~6.3ms/sign and ~1s 2048-bit keygen on a laptop (`tests/bench_rsa.nim`),
+   ~50x faster than the generic `pkg/bigints` `powmod`; the `nimsimd` build
+   switches to 64-bit MULX limbs (`internal/montgomery64`, ~4.9ms/sign, needs
   BMI2). `wipeRsaKey` / `wipeEcKey` drop BigInt references (GC frees the
   limbs); ephemeral `seq[byte]` buffers are scrubbed via `wipe`.
 - Use `constantTimeEqual`, not `==`, to compare secrets.
@@ -534,7 +539,7 @@ reference vectors and OpenSSL interop before they are documented here.
 - Expanded `nimble bench` rows for SHA-256/384, RSA and ECDSA vs
   OpenSSL/nimcrypto.
 
-Out of scope: X.509 path validation / TLS stacks — import/export helpers
+Out of scope: X.509 path validation / TLS stacks; import/export helpers
 only; bring your own ASN.1 profile or use a dedicated TLS library.
 
 
