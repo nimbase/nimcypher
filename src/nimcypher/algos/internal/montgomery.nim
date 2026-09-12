@@ -101,6 +101,43 @@ proc mulLimbs(a, b: openArray[uint32], t: var seq[uint32]) =
       c = c shr 32
       inc p
 
+proc sqrLimbs(a: openArray[uint32], t: var seq[uint32]) =
+  ## `t = a * a`, `a.len = n`, `t` needs `2n + 1` limbs. Split into three
+  ## carry-safe passes: single cross products `a[i]*a[j]` (same accumulator
+  ## bound as `mulLimbs`), an in-place doubling, then the diagonal
+  ## `a[i]^2` adds. ~n(n+1)/2 multiplies vs n^2 for `mulLimbs`.
+  let n = a.len
+  for i in 0 ..< 2 * n + 1:
+    t[i] = 0'u32
+  for i in 0 ..< n: # cross terms (each product added once)
+    var c: uint64 = 0
+    for j in i + 1 ..< n:
+      c += uint64(t[i + j]) + uint64(a[i]) * uint64(a[j])
+      t[i + j] = uint32(c and 0xFFFF_FFFF'u64)
+      c = c shr 32
+    var p = i + n # one past the last written cell (i + n - 1)
+    while c != 0:
+      c += uint64(t[p])
+      t[p] = uint32(c and 0xFFFF_FFFF'u64)
+      c = c shr 32
+      inc p
+  var carry = 0'u32 # doubling pass: t *= 2
+  for w in 0 ..< 2 * n:
+    let bit = t[w] shr 31
+    t[w] = (t[w] shl 1) or carry
+    carry = bit
+  t[2 * n] = carry
+  for i in 0 ..< n: # diagonal a[i]^2
+    var c = uint64(t[2 * i]) + uint64(a[i]) * uint64(a[i])
+    t[2 * i] = uint32(c and 0xFFFF_FFFF'u64)
+    c = c shr 32
+    var p = 2 * i + 1
+    while c != 0:
+      c += uint64(t[p])
+      t[p] = uint32(c and 0xFFFF_FFFF'u64)
+      c = c shr 32
+      inc p
+
 proc montN0(n: openArray[uint32]): uint32 =
   ## `n0 = -n^(-1) mod 2^32`. Requires odd `n` (`n[0]` odd).
   let n0 = uint64(n[0])
@@ -146,6 +183,26 @@ proc montMul(a, b, n: openArray[uint32], n0: uint32,
     subLimbsInPlace(result, n)
     trimLimbs(result)
 
+proc montSqr(a, n: openArray[uint32], n0: uint32,
+             s: var seq[uint32]): seq[uint32] =
+  ## Montgomery square: dedicated square then shared REDC. `s` is scratch
+  ## with `2k + 2` limbs (`k = n.len`), disjoint from `montMul`'s `t`.
+  ## `a` may be shorter than `k` (trimmed `acc`): `sqrLimbs` zeroes its
+  ## own `2 * a.len + 1` window, the tail above is zeroed here (empty in
+  ## the common full-length case, so no double zeroing).
+  let k = n.len
+  for i in 2 * a.len + 1 ..< 2 * k + 1:
+    s[i] = 0'u32
+  sqrLimbs(a, s)
+  montReduce(s, k, n, n0)
+  result = newSeq[uint32](k + 1)
+  for i in 0 ..< k + 1:
+    result[i] = s[k + i]
+  trimLimbs(result)
+  if cmpLimbs(result, n) >= 0:
+    subLimbsInPlace(result, n)
+    trimLimbs(result)
+
 # ---------------------------------------------------------------------------
 # BigInt boundary conversion
 # ---------------------------------------------------------------------------
@@ -178,9 +235,12 @@ proc padTo(limbs: seq[uint32], k: int): seq[uint32] =
 # ---------------------------------------------------------------------------
 
 proc montPowWindowed(baseL, expL, n: seq[uint32], n0: uint32,
-                     r2mod: seq[uint32], t: var seq[uint32]): seq[uint32] =
+                     r2mod: seq[uint32], t: var seq[uint32],
+                     s: var seq[uint32]): seq[uint32] =
   ## `baseL^expL mod n`, all values `< n`, `n` odd with `n.len = k`.
-  ## `r2mod = R^2 mod n`, `t` is scratch with `2k + 2` limbs.
+  ## `r2mod = R^2 mod n`; `t` and `s` are scratch with `2k + 2` limbs
+  ## each (`t` for `montMul`, `s` for `montSqr`). Squarings (~5 of every
+  ## 6 ops at w = 5) use the dedicated square, ~2x fewer multiplies.
   let k = n.len
   let tableSize = 1 shl (montWindow - 1) # odd powers 1,3,..,2^w - 1
   let baseR = montMul(baseL, r2mod, n, n0, t)
@@ -194,7 +254,7 @@ proc montPowWindowed(baseL, expL, n: seq[uint32], n0: uint32,
   var i = bitLenLimbs(expL) - 1
   while i >= 0:
     if not testBitLimbs(expL, i):
-      acc = montMul(acc, acc, n, n0, t)
+      acc = montSqr(acc, n, n0, s)
       dec i
     else:
       var l = min(montWindow, i + 1)
@@ -206,7 +266,7 @@ proc montPowWindowed(baseL, expL, n: seq[uint32], n0: uint32,
         dec l
         win = win shr 1
       for _ in 0 ..< l:
-        acc = montMul(acc, acc, n, n0, t)
+        acc = montSqr(acc, n, n0, s)
       acc = montMul(acc, tab[(win - 1) shr 1], n, n0, t)
       i -= l
   # out of Montgomery domain: acc * 1
@@ -236,7 +296,8 @@ proc fastPowmod32*(base, exp, modulus: BigInt): BigInt =
   # negligible next to the ~1000 multiplies of the exponentiation itself.
   let r2mod = padTo(bigToLimbs((initBigInt(1) shl (64 * k)) mod modulus), k)
   var t = newSeq[uint32](2 * k + 2)
-  limbsToBig(montPowWindowed(baseL, expL, n, n0, r2mod, t))
+  var s = newSeq[uint32](2 * k + 2)
+  limbsToBig(montPowWindowed(baseL, expL, n, n0, r2mod, t, s))
 
 proc fastPowmod*(base, exp, modulus: BigInt): BigInt =
   ## Tier dispatch, all differential-tested against `bigints.powmod`:
@@ -248,8 +309,15 @@ proc fastPowmod*(base, exp, modulus: BigInt): BigInt =
   ## merge (or any folded 3-addend form, which needs 2-bit carries --
   ## concrete counterexample A=lo=H=B-1,CF=1: true carry 2, chains yield
   ## 1) eats the parallel gain (measured 1.53ms vs 0.98ms Tier 2 on a
-  ## 1024-bit exp). Instruction-level parallelism here is spent; the next
-  ## lever is algorithmic (dedicated squaring), not narrower carries.
+  ## 1024-bit exp). Instruction-level parallelism here is spent.
+  ## Dedicated squaring (`montSqr`: cross products once + doubling +
+  ## diagonal, ~n^2/2 muls) is wired into the window loop. Measured
+  ## 15-20% per-op isolated (k = 64+), but only ~3% in-loop at k = 32:
+  ## chained operands make the 64 data-dependent carry tails
+  ## mispredict (+~220ns, verified chained-vs-fixed). u64
+  ## delayed-reduction cells would fix the tails but overflow (cells
+  ## reach n*B^2/2 = 2^68 at n = 32). No 64-bit batched square for the
+  ## MULX tier either (n = 16: the 128-MULX saving is below overhead).
   when defined(features.nimcypher.nimsimd) and defined(amd64):
     fastPowmod64(base, exp, modulus)
   else:
