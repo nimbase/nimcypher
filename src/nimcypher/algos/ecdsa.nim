@@ -1,8 +1,10 @@
 # ECDSA + ECDH over NIST P-256/P-384/P-521 and secp256k1.
 #
-# Pure Nim on `pkg/bigints`. Affine coordinates with `invmod`; simple
-# double-and-add scalar multiplication (variable-time). Signatures use
-# deterministic nonces per RFC 6979 (HMAC-SHA of the curve hash).
+# Pure Nim on `pkg/bigints`. Affine coordinates with `invmod`; scalar
+# multiplication is a blinded double-and-always-add chain (ladder
+# structure, uniform double+add per bit, branch-free select). Signatures
+# use deterministic nonces per RFC 6979 (HMAC-SHA of the curve hash).
+# Randomness (keygen, scalar blinding) from `std/sysrand`.
 # Randomness (keygen) from `std/sysrand`.
 #
 # JOSE mapping (RFC 7518): ES256 = P-256/SHA-256, ES384 = P-384/SHA-384,
@@ -174,7 +176,7 @@ proc pointAdd*(cp: CurveParams, p1, p2: EcPoint): EcPoint =
 #
 # Affine formulas need one `invmod` per add/double; Jacobian defers the
 # single inversion to the final affine conversion, which is ~50x faster
-# with `pkg/bigints`. Variable-time (like the rest of this module).
+# with `pkg/bigints`.
 # ---------------------------------------------------------------------------
 
 type
@@ -233,19 +235,39 @@ proc jacToAffine(cp: CurveParams, p: JacPoint): EcPoint =
   let z3 = fmod(cp, z2 * zi)
   EcPoint(x: fmod(cp, p.x * z2), y: fmod(cp, p.y * z3), inf: false)
 
+proc bitAt(x: BigInt, i, nbits: int): bool =
+  ## Bit `i` of `x` (0 when `i` is past the cached bit length).
+  if i < 0 or i >= nbits: return false
+  ((x shr Natural(i)) mod initBigInt(2)) != initBigInt(0)
+
 proc pointMul*(cp: CurveParams, scalar: BigInt, pt: EcPoint): EcPoint =
-  ## Double-and-add over a Jacobian accumulator, MSB first.
-  ## `scalar` should already be reduced. Variable-time.
+  ## Scalar multiplication over a Jacobian accumulator, MSB first, with
+  ## a uniform double-and-always-add chain (ladder structure).
+  ##
+  ## Side-channel design (secret scalars: private keys, nonces, ECDH
+  ## secrets):
+  ## - Scalar blinding: the chain runs on `scalar + r*n` with a fresh
+  ##   64-bit random `r`. Since `n*Q` is infinity for every on-curve
+  ##   point on our (prime-order) curves, the result is unchanged while
+  ##   single-trace operation patterns track only the blinded scalar.
+  ## - Every bit performs exactly one doubling and one addition; the
+  ##   per-bit choice is an indexed select (`pair[ord(bit)]`, no heavy
+  ##   operation inside either arm), so there is no add/skip pattern.
+  ## Residual: `pkg/bigints` arithmetic itself is data-dependent, so
+  ## this removes the operation pattern, not all timing signal. For
+  ## strict timing resistance prefer X25519/Ed25519.
   if pt.inf: return pt
   if scalar == initBigInt(0): return pointAtInfinity()
-  let nbits = bitLen(scalar)
-  let two = initBigInt(2)
+  let blinded = scalar + randomBigIntBits(64) * cp.n
+  let top = bitLen(blinded)
   let zero = initBigInt(0)
   var acc = JacPoint(x: zero, y: zero, z: zero)
-  for i in countdown(nbits - 1, 0):
+  for i in countdown(top - 1, 0):
     acc = jacDouble(cp, acc)
-    if ((scalar shr Natural(i)) mod two) != zero:
-      acc = jacAddMixed(cp, acc, pt)
+    let t = jacAddMixed(cp, acc, pt)
+    let bit = bitAt(blinded, i, top)
+    let pair = [acc, t]
+    acc = pair[ord(bit)]
   jacToAffine(cp, acc)
 
 proc generator*(cp: CurveParams): EcPoint =
@@ -287,15 +309,14 @@ proc validatePublicKey*(pub: EcPublicKey): bool =
     if not chk.inf: return false
   result = true
 
-proc bitAt(x: BigInt, i, nbits: int): bool =
-  ## Bit `i` of `x` (0 when `i` is past the cached bit length).
-  if i < 0 or i >= nbits: return false
-  ((x shr Natural(i)) mod initBigInt(2)) != initBigInt(0)
-
 proc pointMulJoint*(cp: CurveParams, k1: BigInt, p1: EcPoint,
                     k2: BigInt, p2: EcPoint): EcPoint =
   ## Shamir's trick: k1*P1 + k2*P2 in a single double-and-add chain.
   ## Used by verify (u1*G + u2*Q); ~40% cheaper than two `pointMul`s.
+  ## Timing: both scalars here are PUBLIC (derived from the signature
+  ## and message hash), so no blinding or uniform chain is needed; the
+  ## secret-key paths all go through blinded `pointMul`. Do NOT reuse
+  ## this proc with secret scalars.
   if p1.inf and p2.inf: return pointAtInfinity()
   if k1 == initBigInt(0): return pointMul(cp, k2, p2)
   if k2 == initBigInt(0): return pointMul(cp, k1, p1)
@@ -425,11 +446,14 @@ proc sign*(priv: EcPrivateKey, msg: openArray[byte]): seq[byte] =
     raise newException(ValueError, "nonce produced point at infinity")
   let r = kp.x mod cp.n
   if r == initBigInt(0):
-    raise newException(ValueError, "nonce produced r = 0, retry")
+    # Deterministic nonce: retrying would reproduce this exact failure
+    # (probability ~2^-256 per key/message pair). Callers must treat it
+    # as fatal, not transient.
+    raise newException(ValueError, "nonce produced r = 0")
   let kInv = invmod(kk, cp.n)
   let s = (kInv * (e + r * priv.d)) mod cp.n
   if s == initBigInt(0):
-    raise newException(ValueError, "signature s = 0, retry")
+    raise newException(ValueError, "signature s = 0")
   result = newSeq[byte](2 * cp.coordLen)
   let rb = toBytesBE(r, cp.coordLen)
   let sb = toBytesBE(s, cp.coordLen)

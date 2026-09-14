@@ -362,6 +362,8 @@ type
   Chacha20Context* = object
     ## A streaming ChaCha20 state. All three variants collapse to the DJB
     ## form once initialized, so the state always holds an 8-byte nonce.
+    ## Holds the key: call `wipeChacha20Context` when done (the one-shot
+    ## procs keep no state and already scrub their stack temporaries).
     mode*: Chacha20Mode
     key*: array[32, byte]
     nonce*: array[8, byte]
@@ -402,6 +404,14 @@ proc initChacha20X*(ctx: var Chacha20Context, key: array[32, byte],
   for i in 0 ..< 8:
     ctx.nonce[i] = nonce[16 + i]
   ctx.counter = counter
+  ctx.pendingLen = 0
+
+proc wipeChacha20Context*(ctx: var Chacha20Context) =
+  ## Scrub a streaming context (key, nonce, buffered keystream tail).
+  wipe(ctx.key)
+  wipe(ctx.nonce)
+  wipe(ctx.pending)
+  ctx.counter = 0
   ctx.pendingLen = 0
 
 proc chacha20Encrypt*(ctx: var Chacha20Context, dst, src: BytePtr, size: int): int =

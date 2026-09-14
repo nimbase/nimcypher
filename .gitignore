@@ -17,3 +17,4 @@ nimcache/
 /tests/tinterop
 /tests/thighlevel
 /tests/tbench
+/audit/

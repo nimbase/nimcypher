@@ -3,10 +3,15 @@
 # Alleged RC4 per RFC 6229 (KSA + PRGA). Provided for interop with legacy
 # formats (notably PDF V=1/V=2/V=4 encryption); do not use in new designs.
 # Key length 1..256 bytes; encryption and decryption are the same operation.
+# Never reuse a key across messages (keystream reuse leaks plaintext XOR).
+# No initial-keystream drop is performed: this matches the RFC reference
+# and PDF usage; protocols requiring drop-N must discard N bytes themselves.
 #
 # Dual-licensed under BSD-2-Clause OR CC0-1.0.
 
 {.push checks: off.}
+
+import ./common
 
 proc rc4Keystream(key: openArray[byte], n: int): seq[byte] =
   if key.len < 1 or key.len > 256:
@@ -38,13 +43,15 @@ proc rc4Crypt*(key: openArray[byte], data: openArray[byte]): seq[byte] =
   ## Encrypt or decrypt `data` with RC4 under `key` (1..256 bytes).
   ## RC4 is symmetric: applying it twice returns the original input.
   ## Raises ValueError on an empty or over-long key.
-  let ks = rc4Keystream(key, data.len)
+  var ks = rc4Keystream(key, data.len)
   result = newSeq[byte](data.len)
   for i in 0 ..< data.len:
     result[i] = data[i] xor ks[i]
+  wipe(ks)
 
 proc rc4CryptInPlace*(key: openArray[byte], data: var openArray[byte]) =
   ## In-place variant of rc4Crypt. Raises ValueError on a bad key.
-  let ks = rc4Keystream(key, data.len)
+  var ks = rc4Keystream(key, data.len)
   for i in 0 ..< data.len:
     data[i] = data[i] xor ks[i]
+  wipe(ks)

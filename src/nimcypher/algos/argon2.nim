@@ -302,9 +302,28 @@ proc argon2Impl(hash: BytePtr, hashSize: uint32, workArea: BytePtr,
   extendedHash(hash, hashSize, cast[BytePtr](unsafeAddr finalBlock[0]), 1024)
   wipe(finalBlock)
 
+proc validateConfig*(config: Argon2Config, hashSize: int) =
+  ## Validate an Argon2 configuration. Raises ValueError on parameters
+  ## that would divide by zero or index empty memory (`nbLanes == 0`,
+  ## `nbPasses == 0`, `nbBlocks div nbLanes < 4` which yields a zero
+  ## segment size, `hashSize <= 0`).
+  ## Note: like Monocypher, smaller-than-recommended memory is rounded
+  ## down, not rejected (RFC 9106 suggests `nbBlocks >= 8 * nbLanes`
+  ## for security; only the memory-safety floor is enforced here).
+  if config.nbLanes == 0:
+    raise newException(ValueError, "argon2: nbLanes must be >= 1")
+  if config.nbPasses == 0:
+    raise newException(ValueError, "argon2: nbPasses must be >= 1")
+  if int(config.nbBlocks) div int(config.nbLanes) < 4:
+    raise newException(ValueError,
+      "argon2: nbBlocks div nbLanes must be >= 4 (zero segment size)")
+  if hashSize <= 0:
+    raise newException(ValueError, "argon2: hash size must be >= 1")
+
 proc argon2Impl(config: Argon2Config, hashSize: int, password, salt,
                 key, ad: openArray[byte]): seq[byte] =
   ## Password key derivation with Argon2 (d, i or id).
+  validateConfig(config, hashSize)
   let nbBlocks = int(config.nbBlocks)
   var workArea = newSeq[byte](nbBlocks * 1024)
   var pass = if password.len > 0: cast[BytePtr](unsafeAddr password[0]) else: nil

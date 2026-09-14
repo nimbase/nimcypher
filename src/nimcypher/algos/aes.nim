@@ -592,6 +592,19 @@ proc initAes*(ctx: var AesContext, key: openArray[byte]) =
 proc initAes*(key: openArray[byte]): AesContext =
   initAes(result, key)
 
+proc wipeAesContext*(ctx: var AesContext) =
+  ## Scrub the expanded key schedule. Call when done with the context;
+  ## the high-level one-shots do this before return. Long-lived
+  ## contexts (e.g. streaming GCM via `gcmFinishEnc`/`gcmFinishDec`)
+  ## are wiped by their finish procs.
+  for i in 0 ..< ctx.skey.len:
+    ctx.skey[i] = 0
+  when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+    wipe(ctx.nrk)
+    wipe(ctx.nrkInv)
+  ctx.rounds = 0
+  {.emit: """asm volatile("" ::: "memory");""".}
+
 # ---------------------------------------------------------------------------
 # Group (four-block) kernels. These are the units dispatched to the SIMD
 # path when the feature is enabled; the scalar versions always stay compiled

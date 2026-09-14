@@ -68,11 +68,18 @@ suite "rsa pkcs1v15":
     wipe(k)
 
   test "tampered signature fails":
+    var k2 = fixedKey()
+    let msg2 = toBytes("hello JOSE")
+    var sig2 = pkcs1v15Sign(k2, rhSha256, msg2)
+    sig2[10] = sig2[10] xor 0x01
+    check not pkcs1v15Verify(publicKey(k2), rhSha256, msg2, sig2)
+    wipe(k2)
+
+  test "sha-1 verify returns false instead of raising":
     var k = fixedKey()
     let msg = toBytes("hello JOSE")
-    var sig = pkcs1v15Sign(k, rhSha256, msg)
-    sig[10] = sig[10] xor 0x01
-    check not pkcs1v15Verify(publicKey(k), rhSha256, msg, sig)
+    let sig = pkcs1v15Sign(k, rhSha256, msg)
+    check not pkcs1v15Verify(publicKey(k), rhSha1, msg, sig)
     wipe(k)
 
   test "wrong hash fails":
@@ -224,8 +231,8 @@ suite "rsa pkcs1v15 encryption":
       discard pkcs1v15Encrypt(publicKey(k), newSeq[byte](128 - 10))
 
 suite "rsa keygen":
-  test "512-bit key generates and roundtrips":
-    var k = generateRsaKeyPair(512)
+  test "512-bit key generates and roundtrips (explicit test opt-in)":
+    var k = generateRsaKeyPair(512, allowSmallKeys = true)
     check k.k == 64
     let msg = toBytes("keygen smoke")
     let sig = pkcs1v15Sign(k, rhSha256, msg)
@@ -234,3 +241,9 @@ suite "rsa keygen":
     let c = oaepEncrypt(publicKey(k), rhSha1, msg)
     check oaepDecrypt(k, rhSha1, c) == msg
     wipe(k)
+
+  test "sub-2048 keygen refused without explicit opt-in":
+    expect ValueError:
+      discard generateRsaKeyPair(1024)
+    expect ValueError:
+      discard generateRsaKeyPair(512)

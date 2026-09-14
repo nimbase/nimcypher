@@ -113,6 +113,11 @@ test "encrypt: key exchange":
   let aliceShared = sharedSecret(alice[0], bob[1])
   let bobShared = sharedSecret(bob[0], alice[1])
   check aliceShared == bobShared
+  # hashed variant agrees both ways and yields 32 bytes
+  let aliceH = sharedSecretHashed(alice[0], bob[1])
+  let bobH = sharedSecretHashed(bob[0], alice[1])
+  check aliceH == bobH
+  check aliceH.data.len == 32
   # no-arg key pair uses a random secret; public key matches low-level
   let (sk, pk) = x25519KeyPair()
   check pk == xAlgo.x25519PublicKey(sk)

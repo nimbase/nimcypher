@@ -234,9 +234,10 @@ proc initHmac*(ctx: var Sha512HmacContext, key: openArray[byte]) =
   var keySize = key.len
   # hash the key if it is too long
   if keySize > 128:
-    let hashed = sha512(key)
+    var hashed = sha512(key)
     for i in 0 ..< 64:
       ctx.key[i] = hashed[i]
+    wipe(hashed)
     keyPtr = cast[BytePtr](unsafeAddr ctx.key[0])
     keySize = 64
   elif keySize > 0:

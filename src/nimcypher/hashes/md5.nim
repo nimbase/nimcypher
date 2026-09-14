@@ -182,9 +182,10 @@ proc initHmac*(ctx: var Md5HmacContext, key: openArray[byte]) =
   var keyPtr: BytePtr = nil
   var keySize = key.len
   if keySize > 64:
-    let hashed = md5(key)
+    var hashed = md5(key)
     for i in 0 ..< 16:
       ctx.key[i] = hashed[i]
+    wipe(hashed)
     keyPtr = cast[BytePtr](addr ctx.key[0])
     keySize = 16
   elif keySize > 0:

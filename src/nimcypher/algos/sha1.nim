@@ -1,6 +1,9 @@
 # HMAC-SHA-1 (and internal SHA-1) — pure Nim, no C dependency.
 #
 # SHA-1 per FIPS 180-4 §6.1, HMAC per RFC 2104. Reference: RFC 3174.
+# SHA-1 is collision-broken: do not use it for collision-dependent
+# purposes (signatures, certificates, content addressing). HMAC-SHA-1
+# is retained for legacy interop (notably RSA-OAEP-SHA1 / JWA RSA-OAEP).
 # This file exposes HMAC-SHA-1 as the public primitive; SHA-1 itself is
 # internal (used to compress long HMAC keys and as the HMAC hash). No
 # streaming API — one-shot only.
@@ -115,9 +118,10 @@ proc sha1Hmac*(key, message: openArray[byte]): Sha1Digest =
   var blockKey: array[Sha1BlockSize, byte]
   var keyLen = key.len
   if keyLen > Sha1BlockSize:
-    let hashed = sha1(key)
+    var hashed = sha1(key)
     for i in 0 ..< Sha1DigestSize:
       blockKey[i] = hashed[i]
+    wipe(hashed)
     keyLen = Sha1DigestSize
   elif keyLen > 0:
     copyMem(addr blockKey[0], unsafeAddr key[0], keyLen)
@@ -136,7 +140,7 @@ proc sha1Hmac*(key, message: openArray[byte]): Sha1Digest =
   copyMem(addr innerInput[0], addr ipad[0], Sha1BlockSize)
   if message.len > 0:
     copyMem(addr innerInput[Sha1BlockSize], unsafeAddr message[0], message.len)
-  let inner = sha1(innerInput)
+  var inner = sha1(innerInput)
   wipe(innerInput)
   wipe(ipad)
 
@@ -147,8 +151,7 @@ proc sha1Hmac*(key, message: openArray[byte]): Sha1Digest =
   result = sha1(outerInput)
   wipe(outerInput)
   wipe(opad)
-  var innerMut = inner
-  wipe(innerMut)
+  wipe(inner)
   wipe(blockKey)
 
 {.pop.}

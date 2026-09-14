@@ -186,10 +186,14 @@ proc rsaPrivateKey*(n, e, d, p, q: BigInt): RsaPrivateKey =
 proc publicKey*(key: RsaPrivateKey): RsaPublicKey =
   RsaPublicKey(n: key.n, e: key.e, k: key.k)
 
-proc generateRsaKeyPair*(bits = 2048, e = 65537): RsaPrivateKey =
+proc generateRsaKeyPair*(bits = 2048, e = 65537,
+                        allowSmallKeys = false): RsaPrivateKey =
   ## Generate an RSA key pair. `bits` is the modulus size (default 2048).
-  ## `e` defaults to 65537. Sizes below 2048 are insecure and exist for
-  ## tests only; JOSE callers must enforce >= 2048.
+  ## `e` defaults to 65537. Sizes below 2048 are insecure and rejected
+  ## unless `allowSmallKeys` is set (tests only, never production keys).
+  if not allowSmallKeys and bits < 2048:
+    raise newException(ValueError,
+      "refusing to generate RSA keys below 2048 bits without allowSmallKeys")
   if bits < 512 or (bits mod 8) != 0:
     raise newException(ValueError, "bits must be a multiple of 8 >= 512")
   if e <= 1 or (e mod 2) == 0:
@@ -260,15 +264,25 @@ proc emsaPkcs1v15Encode(h: RsaHash, msg: openArray[byte], emLen: int): seq[byte]
 
 proc pkcs1v15Sign*(key: RsaPrivateKey, h: RsaHash,
                    msg: openArray[byte]): seq[byte] =
-  ## RSASSA-PKCS1-v1_5 sign (JWA RS256/384/512).
+  ## RSASSA-PKCS1-v1_5 sign (JWA RS256/384/512). The signature is
+  ## verified with the public operation before return (fault-attack
+  ## mitigation: a faulted CRT computation raises instead of leaking
+  ## a Bellcore-oracle signature).
   var em = emsaPkcs1v15Encode(h, msg, key.k)
   let m = fromBytesBE(em)
   wipe(em)
   result = toBytesBE(privateOpBlinded(key, m), key.k)
+  if publicOp(publicKey(key), fromBytesBE(result)) != m:
+    wipe(result)
+    raise newException(ValueError, "fault detected during signing")
 
 proc pkcs1v15Verify*(key: RsaPublicKey, h: RsaHash,
                      msg: openArray[byte], sig: openArray[byte]): bool =
   ## RSASSA-PKCS1-v1_5 verify. Returns false (no exception) on bad signature.
+  ## SHA-1 is not a valid signature hash here: it returns false rather
+  ## than raising, so verifiers never throw on attacker-controlled inputs.
+  if h == rhSha1:
+    return false
   if sig.len != key.k:
     return false
   let expected = emsaPkcs1v15Encode(h, msg, key.k)
@@ -315,7 +329,9 @@ proc emsaPssEncode(h: RsaHash, msg: openArray[byte], emBits: int,
 
 proc pssSign*(key: RsaPrivateKey, h: RsaHash,
               msg: openArray[byte]): seq[byte] =
-  ## RSASSA-PSS sign with saltLen = hashLen (JWA PS256/384/512).
+  ## RSASSA-PSS sign with saltLen = hashLen (JWA PS256/384/512). The
+  ## signature is verified with the public operation before return
+  ## (fault-attack mitigation, see `pkcs1v15Sign`).
   let hlen = hashLen(h)
   if h notin {rhSha256, rhSha384, rhSha512}:
     raise newException(ValueError, "PSS requires SHA-256/384/512")
@@ -324,6 +340,9 @@ proc pssSign*(key: RsaPrivateKey, h: RsaHash,
   let m = fromBytesBE(em)
   wipe(em)
   result = toBytesBE(privateOpBlinded(key, m), key.k)
+  if publicOp(publicKey(key), fromBytesBE(result)) != m:
+    wipe(result)
+    raise newException(ValueError, "fault detected during signing")
 
 proc pssVerify*(key: RsaPublicKey, h: RsaHash, msg: openArray[byte],
                 sig: openArray[byte]): bool =
@@ -359,20 +378,21 @@ proc pssVerify*(key: RsaPublicKey, h: RsaHash, msg: openArray[byte],
   # (the unmasked top bits equal the mask's, i.e. random).
   if excess > 0:
     maskedDb[0] = maskedDb[0] and byte(0xFF shr excess)
-  # DB = PS || 0x01 || salt, salt length must be hlen
+  # DB = PS || 0x01 || salt, salt length must be hlen.
+  # The PS/0x01 scan folds into an accumulator (no early exit) so the
+  # loop timing does not reveal where a forgery fails.
   if dbLen < hlen + 1:
     return false
   let psLen = dbLen - hlen - 1
+  var bad = 0
   for i in 0 ..< psLen:
-    if maskedDb[i] != 0x00:
-      return false
-  if maskedDb[psLen] != 0x01:
-    return false
+    bad = bad or int(maskedDb[i] != 0x00)
+  bad = bad or int(maskedDb[psLen] != 0x01)
   var salt = newSeq[byte](hlen)
   for i in 0 ..< hlen: salt[i] = maskedDb[psLen + 1 + i]
   var expect = emsaPssEncode(h, msg, emBits, salt)
   # compare H parts in constant time
-  var ok = constantTimeEqual(expect, em)
+  var ok = constantTimeEqual(expect, em) and (bad == 0)
   wipe(salt); wipe(maskedDb); wipe(hDigest); wipe(expect)
   result = ok
 
@@ -461,6 +481,10 @@ proc oaepEncrypt*(key: RsaPublicKey, h: RsaHash, msg: openArray[byte],
 proc oaepDecrypt*(key: RsaPrivateKey, h: RsaHash, cipher: openArray[byte],
                   label: openArray[byte] = []): seq[byte] =
   ## RSAES-OAEP decrypt. Raises ValueError("decryption error") on failure.
+  ## Failure messages are uniform, but the decode still branches on
+  ## padding validity (non-uniform timing): callers must not let
+  ## attackers measure decrypt timing (known limitation, full
+  ## constant-time decode is follow-up work).
   if h notin {rhSha1, rhSha256}:
     raise newException(ValueError, "OAEP allows SHA-1 or SHA-256 only")
   if cipher.len != key.k:
@@ -527,6 +551,9 @@ proc pkcs1v15Encrypt*(key: RsaPublicKey, msg: openArray[byte]): seq[byte] =
 proc pkcs1v15Decrypt*(key: RsaPrivateKey,
                       cipher: openArray[byte]): seq[byte] =
   ## RSAES-PKCS1-v1_5 decrypt. Raises ValueError("decryption error").
+  ## Same timing caveat as `oaepDecrypt`: uniform messages, but
+  ## padding-validity branching is not constant-time, so decrypt
+  ## timing must stay hidden from attackers.
   if cipher.len != key.k:
     raise newException(ValueError, "decryption error")
   let c = fromBytesBE(cipher)

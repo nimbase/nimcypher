@@ -40,6 +40,29 @@ test "blake2b keyed incremental == one-shot":
   let chunked = final(ctx)
   check chunked == whole
 
+test "blake2b rejects over-long keys and bad digest sizes":
+  var ctx: Blake2bContext
+  for badKeyLen in [65, 129, 256]:
+    var badKey = newSeq[byte](badKeyLen)
+    var raised = false
+    try:
+      init(ctx, 64, badKey)
+    except ValueError:
+      raised = true
+    check raised
+  for badSize in [0, -1, 65, 128]:
+    var raised = false
+    try:
+      init(ctx, badSize)
+    except ValueError:
+      raised = true
+    check raised
+  # boundary values still work
+  var maxKey = newSeq[byte](64)
+  init(ctx, 64, maxKey)
+  init(ctx, 1)
+  init(ctx, 64)
+
 when defined(features.nimcypher.nimsimd):
   test "blake2b parallel == scalar per message":
     var msgs: array[4, seq[byte]]

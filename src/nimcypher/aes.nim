@@ -62,7 +62,8 @@ proc aesEcbEncrypt*(key: openArray[byte], text: openArray[byte],
   ## AES-ECB encryption. PKCS#7-pads by default; set `padded = false` for
   ## raw block-for-block encryption (length must be a multiple of 16).
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   if padded:
     result = aesAlgo.ecbEncrypt(ctx, pkcs7Pad(text))
   else:
@@ -72,7 +73,8 @@ proc aesEcbDecrypt*(key: openArray[byte], data: openArray[byte],
                     padded = true): seq[byte] =
   ## AES-ECB decryption (strips PKCS#7 padding by default).
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   if padded:
     result = aesAlgo.pkcs7Unpad(aesAlgo.ecbDecrypt(ctx, data))
   else:
@@ -86,7 +88,8 @@ proc aesCbcEncrypt*(key: openArray[byte], iv: openArray[byte],
                     text: openArray[byte], padded = true): seq[byte] =
   ## AES-CBC encryption with a 16-byte IV. PKCS#7-pads by default.
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   if padded:
     result = aesAlgo.cbcEncryptOne(ctx, toArray16(iv), pkcs7Pad(text))
   else:
@@ -97,7 +100,8 @@ proc aesCbcDecrypt*(key: openArray[byte], iv: openArray[byte],
   ## AES-CBC decryption (strips PKCS#7 padding by default). CBC provides no
   ## authentication; pair it with a MAC or prefer `aesGcmEncrypt`.
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   if padded:
     result = aesAlgo.pkcs7Unpad(aesAlgo.cbcDecryptOne(ctx, toArray16(iv), data))
   else:
@@ -113,7 +117,8 @@ proc aesCtrCrypt*(key: openArray[byte], counter: openArray[byte],
   ## counter block increments big-endian per block. Never reuse a counter
   ## block with the same key.
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   result = aesAlgo.ctrCryptOne(ctx, toArray16(counter), text)
 
 proc aesOfbCrypt*(key: openArray[byte], iv: openArray[byte],
@@ -121,21 +126,24 @@ proc aesOfbCrypt*(key: openArray[byte], iv: openArray[byte],
   ## AES-OFB encryption/decryption (identical operation). Never reuse an
   ## IV with the same key.
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   result = aesAlgo.ofbCryptOne(ctx, toArray16(iv), text)
 
 proc aesCfbEncrypt*(key: openArray[byte], iv: openArray[byte],
                     text: openArray[byte]): seq[byte] =
   ## AES-CFB (CFB128) encryption. Never reuse an IV with the same key.
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   result = aesAlgo.cfbEncryptOne(ctx, toArray16(iv), text)
 
 proc aesCfbDecrypt*(key: openArray[byte], iv: openArray[byte],
                     data: openArray[byte]): seq[byte] =
   ## AES-CFB (CFB128) decryption.
   checkKey(key)
-  let ctx = aesAlgo.initAes(key)
+  var ctx = aesAlgo.initAes(key)
+  defer: aesAlgo.wipeAesContext(ctx)
   result = aesAlgo.cfbDecryptOne(ctx, toArray16(iv), data)
 
 # ---------------------------------------------------------------------------
@@ -146,7 +154,9 @@ proc aesGcmEncrypt*(key: openArray[byte], nonce: openArray[byte],
                     text: openArray[byte],
                     ad: openArray[byte] = []): (seq[byte], Tag16) =
   ## AES-GCM authenticated encryption. Returns (ciphertext, 16-byte tag).
-  ## Use a unique nonce per message under a given key.
+  ## Use a unique nonce per message under a given key: GCM nonce reuse
+  ## leaks the authentication key (forgeries) and the plaintext XOR.
+  ## Use `gcmSeal` for a fresh random nonce per message.
   checkKey(key)
   let (ct, tag) = gcmAlgo.gcmLock(key, nonce, text, ad)
   var t: Tag16

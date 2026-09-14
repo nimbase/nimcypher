@@ -23,13 +23,18 @@ proc trimScalar(a: var array[64, byte]) =
 
 proc reduce*(expanded: openArray[byte]): array[32, byte] =
   ## Reduce a 64-byte scalar modulo L.
+  if expanded.len != 64:
+    raise newException(ValueError,
+      "reduce needs a 64-byte scalar, got " & $expanded.len)
   var x: array[16, uint32]
   load32LeBuf(x.toOpenArray(0, 15), cast[BytePtr](unsafeAddr expanded[0]), 16)
   modL(cast[BytePtr](unsafeAddr result[0]), x)
   wipe(x)
 
 proc mulAdd*(a, b, c: openArray[byte]): array[32, byte] =
-  ## Compute (a * b + c) modulo L.
+  ## Compute (a * b + c) modulo L. All inputs must be 32 bytes.
+  if a.len != 32 or b.len != 32 or c.len != 32:
+    raise newException(ValueError, "mulAdd needs 32-byte inputs")
   mulAdd(cast[BytePtr](unsafeAddr result[0]),
          cast[BytePtr](unsafeAddr a[0]),
          cast[BytePtr](unsafeAddr b[0]),
@@ -37,6 +42,10 @@ proc mulAdd*(a, b, c: openArray[byte]): array[32, byte] =
 
 proc scalarbase*(scalar: openArray[byte]): array[32, byte] =
   ## Compute [scalar]B, the scalar multiple of the base point.
+  ## `scalar` must be 32 bytes.
+  if scalar.len != 32:
+    raise newException(ValueError,
+      "scalarbase needs a 32-byte scalar, got " & $scalar.len)
   var P: Ge
   geScalarmultBase(P, cast[BytePtr](unsafeAddr scalar[0]))
   geTobytes(cast[BytePtr](unsafeAddr result[0]), P)

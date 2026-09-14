@@ -17,10 +17,15 @@ const
 
 when defined(e2eeFastTests):
   const
-    Argon2Blocks = 32'u32 # fast test mode
+    Argon2Blocks = 32'u32 # fast test mode: NOT for production use.
+    # DANGER: this flag silently weakens password hashing to test values.
+    # Never define `e2eeFastTests` in production builds.
     Argon2Passes = 1'u32
 else:
   const
+    # Production profile: 1 MiB, 3 passes, 1 lane. Suitable for
+    # interactive login; server-side or high-value use should raise
+    # memory/passes via `argon2Algo.argon2` directly (e.g. 64 MiB+).
     Argon2Blocks = 1024'u32 # production defaults
     Argon2Passes = 3'u32
 

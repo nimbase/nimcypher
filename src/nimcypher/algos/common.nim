@@ -77,9 +77,13 @@ proc store64LeBuf*(dst: BytePtr, src: openArray[uint64], size: int) {.inline.} =
     store64Le(dst + i * 8, src[i])
 
 proc rotr64*(x: uint64, n: uint64): uint64 {.inline.} =
+  ## Rotate right. `n` must be in 1..63 (a zero/full-width shift is
+  ## backend-defined); all in-repo callers pass nonzero counts.
   result = (x shr n) or (x shl (64 - n))
 
 proc rotl32*(x: uint32, n: uint32): uint32 {.inline.} =
+  ## Rotate left. `n` must be in 1..31; all in-repo callers pass
+  ## nonzero counts.
   result = (x shl n) or (x shr (32 - n))
 
 # Returns the smallest positive integer y such that

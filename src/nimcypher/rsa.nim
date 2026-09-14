@@ -16,10 +16,11 @@ export rsaAlgo.RsaHash
 export rsaAlgo.RsaPublicKey
 export rsaAlgo.RsaPrivateKey
 
-proc generateRsaKeyPair*(bits = 2048, e = 65537): rsaAlgo.RsaPrivateKey =
+proc generateRsaKeyPair*(bits = 2048, e = 65537,
+                         allowSmallKeys = false): rsaAlgo.RsaPrivateKey =
   ## Generate an RSA key pair. `bits` defaults to 2048; sizes below 2048
-  ## are insecure and exist for tests only.
-  rsaAlgo.generateRsaKeyPair(bits, e)
+  ## are insecure and rejected unless `allowSmallKeys` is set (tests only).
+  rsaAlgo.generateRsaKeyPair(bits, e, allowSmallKeys)
 
 proc rsaPublicKey*(key: rsaAlgo.RsaPrivateKey): rsaAlgo.RsaPublicKey =
   ## Derive the public key from a private key.

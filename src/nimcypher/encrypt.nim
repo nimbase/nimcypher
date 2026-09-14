@@ -10,6 +10,7 @@ import std/sysrand
 import nimcypher/algos/aead as aeadAlgo
 import nimcypher/algos/x25519 as xAlgo
 import nimcypher/algos/blake2b as blakeAlgo
+import nimcypher/algos/hkdf as hkdfAlgo
 
 import ./utils
 import ./secret
@@ -33,6 +34,9 @@ type
 proc encrypt*(text: openArray[byte], key: Key32,
               nonce: Nonce24): (seq[uint8], Mac16) =
   ## Encrypt and authenticate `text`. Returns (cipherText, mac).
+  ## Never reuse a `nonce` with the same `key`: nonce reuse destroys
+  ## confidentiality (recoverable plaintext XOR) and forgeries become
+  ## possible. Use `seal` for a fresh random nonce per message.
   aeadAlgo.aeadLock(key, nonce, text)
 
 proc encrypt*(text: string, key: Key32,
@@ -128,9 +132,21 @@ proc x25519KeyPair*(): (Key32, Key32) =
   result = x25519KeyPair(secret)
 
 proc sharedSecret*(mySecret: Key32, theirPublic: Key32): Secret[Key32] =
-  ## Compute the X25519 shared secret. Hash it to derive a symmetric key.
+  ## Compute the X25519 shared secret. Raw key material: never use it
+  ## directly as a symmetric key; pass it through `sharedSecretHashed`
+  ## (or another KDF) first.
   ## The shared secret is wiped automatically when it goes out of scope.
   secret(xAlgo.x25519(mySecret, theirPublic))
+
+proc sharedSecretHashed*(mySecret: Key32, theirPublic: Key32,
+                         info: openArray[byte] = []): Secret[Key32] =
+  ## X25519 shared secret run through HKDF-SHA-256 (empty salt, `info`
+  ## as context). Use this instead of `sharedSecret` whenever the
+  ## output keys symmetric encryption.
+  let raw = xAlgo.x25519(mySecret, theirPublic)
+  var okm = hkdfAlgo.sha256Hkdf(raw, [], info, 32)
+  result = secret(toArray[32](okm))
+  wipe(okm)
 
 # Challenge-response MAC for mutual authentication
 proc computeChallengeMac*(secret: Key32, challenge: Mac16): Mac16 =

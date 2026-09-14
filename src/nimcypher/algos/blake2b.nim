@@ -84,6 +84,14 @@ proc compress(ctx: var Blake2bContext, isLastBlock: int) =
 
 proc init*(ctx: var Blake2bContext, hashSize: int, key: openArray[byte] = []) =
   ## Initialize a BLAKE2b context. Optionally keyed for MAC usage.
+  ## Raises ValueError when `hashSize` is outside 1..64 (RFC 7693 §2.1)
+  ## or the key exceeds 64 bytes (RFC 7693 caps `kk` at 64).
+  if hashSize < 1 or hashSize > 64:
+    raise newException(ValueError,
+      "BLAKE2b hash size must be in 1..64 bytes, got " & $hashSize)
+  if key.len > 64:
+    raise newException(ValueError,
+      "BLAKE2b key too long: expected at most 64 bytes, got " & $key.len)
   for i in 0 ..< 8:
     ctx.hash[i] = blake2bIv[i]
   ctx.hash[0] = ctx.hash[0] xor uint64(0x01010000) xor

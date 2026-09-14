@@ -167,9 +167,10 @@ proc initHmac*(ctx: var Sha256HmacContext, key: openArray[byte]) =
   var keyPtr: BytePtr = nil
   var keySize = key.len
   if keySize > 64:
-    let hashed = sha256(key)
+    var hashed = sha256(key)
     for i in 0 ..< 32:
       ctx.key[i] = hashed[i]
+    wipe(hashed)
     keyPtr = cast[BytePtr](addr ctx.key[0])
     keySize = 32
   elif keySize > 0:

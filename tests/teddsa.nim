@@ -71,6 +71,18 @@ test "edDSA scalarbase equivalence":
   let p2 = scalarbase(scalarPlus)
   check p1 == p2
 
+test "edDSA helpers reject wrong-size inputs":
+  expect ValueError:
+    discard reduce(@[])
+  expect ValueError:
+    discard reduce(@[byte 1, 2, 3])
+  expect ValueError:
+    discard mulAdd(@[byte 0], @[byte 0], @[byte 0])
+  expect ValueError:
+    discard scalarbase(@[])
+  expect ValueError:
+    discard scalarbase(@[byte 1, 2, 3])
+
 test "edDSA ph (pre-hashed) roundtrip + equivalence":
   var seed: array[32, byte]
   for j in 0 ..< 32: seed[j] = byte(j * 11 + 2)

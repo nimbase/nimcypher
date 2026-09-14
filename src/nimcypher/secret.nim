@@ -15,6 +15,11 @@ type
 
 proc secret*[T](data: T): Secret[T] =
   ## Wrap `data` in a `Secret` that wipes it on scope exit.
+  ## Only array-like `T` (e.g. `array[N, byte]`, `Key32`) is wiped
+  ## reliably. Do NOT wrap BigInt-backed keys (`RsaPrivateKey`,
+  ## `EcPrivateKey`): their limbs live in managed seqs, so the generic
+  ## wipe zeroes the object header and orphans the key buffer instead
+  ## of scrubbing it. Use the explicit `wipe` procs for those types.
   Secret[T](data: data)
 
 proc wipeSecret*[T](s: var Secret[T]) =

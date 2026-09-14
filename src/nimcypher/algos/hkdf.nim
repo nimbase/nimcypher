@@ -10,11 +10,19 @@ import ./sha256
 
 {.push checks: off.}
 
+proc checkOkmSize(okmSize, hashLen: int) {.inline.} =
+  ## RFC 5869 §2.3: output length is bounded by 255 * HashLen. Larger
+  ## requests silently wrap the block counter and yield wrong key
+  ## material, so every expand entry point enforces the limit.
+  if okmSize < 0 or okmSize > 255 * hashLen:
+    raise newException(ValueError,
+      "HKDF output size out of range 0.." & $(255 * hashLen) &
+      ", got " & $okmSize)
+
 proc sha512HkdfExpand*(prk, info: openArray[byte], okmSize: int): seq[byte] =
   ## Expand a pseudo-random key into output keying material.
-  ## `okmSize` is limited to 255 * 64 = 16320 bytes (RFC 5869); larger
-  ## requests silently wrap the block counter and yield wrong key material.
-  ## Callers must enforce the limit (see `nimcypher/hash`).
+  ## `okmSize` is limited to 255 * 64 = 16320 bytes (RFC 5869).
+  checkOkmSize(okmSize, 64)
   result = newSeq[byte](okmSize)
   var notFirst = 0
   var ctr: byte = 1
@@ -49,6 +57,8 @@ proc sha512Hkdf*(ikm, salt, info: openArray[byte], okmSize: int): seq[byte] =
 
 proc sha256HkdfExpand*(prk, info: openArray[byte], okmSize: int): seq[byte] =
   ## Expand a pseudo-random key with HKDF-SHA-256 (RFC 5869, 32-byte blocks).
+  ## `okmSize` is limited to 255 * 32 = 8160 bytes.
+  checkOkmSize(okmSize, 32)
   result = newSeq[byte](okmSize)
   var notFirst = 0
   var ctr: byte = 1

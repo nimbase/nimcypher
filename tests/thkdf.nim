@@ -39,3 +39,11 @@ test "hkdf output length is capped at 255 blocks (16320 bytes)":
     discard hashAPI.hkdfSha512(ikm, @[], @[], 16321)
   expect ValueError:
     discard hashAPI.hkdfExpandSha512(@[byte 1, 2, 3], @[], 16321)
+  # the low-level expand enforces the cap too (defense in depth)
+  expect ValueError:
+    discard sha512HkdfExpand(@[byte 1, 2, 3], @[], 16321)
+  expect ValueError:
+    discard sha512Hkdf(ikm, @[], @[], 16321)
+  expect ValueError:
+    discard sha256HkdfExpand(@[byte 1, 2, 3], @[], 8161)
+  check sha256HkdfExpand(@[byte 1, 2, 3], @[], 8160).len == 8160

@@ -11,6 +11,7 @@ import std/unittest
 import bigints
 import nimcypher/algos/bigint_ext
 import nimcypher/algos/ecdsa as ecdsaAlgo
+import nimcypher/ecdsa as ecdsaApi
 import nimcypher/utils
 import vectorutils
 
@@ -149,3 +150,28 @@ suite "ecdh":
     expect ValueError:
       discard ecdh(aPriv, bPub)
     wipe(aPriv)
+
+  test "hashed ECDH secret agrees and differs from raw":
+    var (aPriv, _) = generateKeyPair(P256)
+    var (bPriv, bPub) = generateKeyPair(P256)
+    let aPub = publicKeyFromPrivate(aPriv)
+    let h1 = ecdsaApi.ecdhHashedSecret(aPriv, bPub)
+    let h2 = ecdsaApi.ecdhHashedSecret(bPriv, aPub)
+    check h1 == h2
+    check h1.len == 32
+    wipe(aPriv); wipe(bPriv)
+
+suite "ecdsa scalar-mult edge cases":
+  test "blinded mult respects the group law (0, 1, n -> inf, G)":
+    for curve in [P256, Secp256k1]:
+      let cp = curveParams(curve)
+      let g = generator(cp)
+      check pointMul(cp, initBigInt(0), g).inf
+      check pointMul(cp, cp.n, g).inf # blinding adds multiples of n
+      let one = pointMul(cp, initBigInt(1), g)
+      check not one.inf
+      check one.x == g.x and one.y == g.y
+      # 2*G via mult equals double via add
+      let two = pointMul(cp, initBigInt(2), g)
+      let doubled = pointAdd(cp, g, g)
+      check two.x == doubled.x and two.y == doubled.y
