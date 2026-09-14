@@ -160,7 +160,7 @@
   <dl class="item">
     <div id="generateSigningKeyPair-procs-all">
   <div id="generateSigningKeyPair">
-  <dt><pre><span class="Keyword">proc</span> <a href="#generateSigningKeyPair"><span class="Identifier">generateSigningKeyPair</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="#SigningKeyPair"><span class="Identifier">SigningKeyPair</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+  <dt><pre><span class="Keyword">proc</span> <a href="#generateSigningKeyPair"><span class="Identifier">generateSigningKeyPair</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="#SigningKeyPair"><span class="Identifier">SigningKeyPair</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -169,8 +169,8 @@
   </dd>
 </div>
 <div id="generateSigningKeyPair,Seed32">
-  <dt><pre><span class="Keyword">proc</span> <a href="#generateSigningKeyPair%2CSeed32"><span class="Identifier">generateSigningKeyPair</span></a><span class="Other">(</span><span class="Identifier">seed</span><span class="Other">:</span> <a href="utils.html#Seed32"><span class="Identifier">Seed32</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#SigningKeyPair"><span class="Identifier">SigningKeyPair</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#generateSigningKeyPair%2CSeed32"><span class="Identifier">generateSigningKeyPair</span></a><span class="Other">(</span><span class="Identifier">seed</span><span class="Other">:</span> <a href="utils.html#Seed32"><span class="Identifier">Seed32</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#SigningKeyPair"><span class="Identifier">SigningKeyPair</span></a> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Generate an EdDSA signing key pair from a 32-byte seed.
@@ -237,7 +237,7 @@
 <div id="sign-procs-all">
   <div id="sign,Secret[SecretKey],openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#sign%2CSecret%5BSecretKey%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">sign</span></a><span class="Other">(</span><span class="Identifier">secretKey</span><span class="Other">:</span> <a href="secret.html#Secret"><span class="Identifier">Secret</span></a><span class="Other">[</span><a href="utils.html#SecretKey"><span class="Identifier">SecretKey</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Signature"><span class="Identifier">Signature</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Sign a message with the secret key.
@@ -246,7 +246,7 @@
 </div>
 <div id="sign,Secret[SecretKey],string">
   <dt><pre><span class="Keyword">proc</span> <a href="#sign%2CSecret%5BSecretKey%5D%2Cstring"><span class="Identifier">sign</span></a><span class="Other">(</span><span class="Identifier">secretKey</span><span class="Other">:</span> <a href="secret.html#Secret"><span class="Identifier">Secret</span></a><span class="Other">[</span><a href="utils.html#SecretKey"><span class="Identifier">SecretKey</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Signature"><span class="Identifier">Signature</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -255,7 +255,7 @@
 </div>
 <div id="sign,SecretKey,openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#sign%2CSecretKey%2CopenArray%5Bbyte%5D"><span class="Identifier">sign</span></a><span class="Other">(</span><span class="Identifier">secretKey</span><span class="Other">:</span> <a href="utils.html#SecretKey"><span class="Identifier">SecretKey</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Signature"><span class="Identifier">Signature</span></a> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Sign a message with a raw secret key.
@@ -263,8 +263,8 @@
   </dd>
 </div>
 <div id="sign,SecretKey,string">
-  <dt><pre><span class="Keyword">proc</span> <a href="#sign%2CSecretKey%2Cstring"><span class="Identifier">sign</span></a><span class="Other">(</span><span class="Identifier">secretKey</span><span class="Other">:</span> <a href="utils.html#SecretKey"><span class="Identifier">SecretKey</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Signature"><span class="Identifier">Signature</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#sign%2CSecretKey%2Cstring"><span class="Identifier">sign</span></a><span class="Other">(</span><span class="Identifier">secretKey</span><span class="Other">:</span> <a href="utils.html#SecretKey"><span class="Identifier">SecretKey</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Signature"><span class="Identifier">Signature</span></a> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -299,7 +299,7 @@
 <div id="verify-procs-all">
   <div id="verify,PublicKey,openArray[byte],Signature">
   <dt><pre><span class="Keyword">proc</span> <a href="#verify%2CPublicKey%2CopenArray%5Bbyte%5D%2CSignature"><span class="Identifier">verify</span></a><span class="Other">(</span><span class="Identifier">publicKey</span><span class="Other">:</span> <a href="utils.html#PublicKey"><span class="Identifier">PublicKey</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">signature</span><span class="Other">:</span> <a href="utils.html#Signature"><span class="Identifier">Signature</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Verify a signature against the message and public key.
@@ -308,7 +308,7 @@
 </div>
 <div id="verify,PublicKey,string,Signature">
   <dt><pre><span class="Keyword">proc</span> <a href="#verify%2CPublicKey%2Cstring%2CSignature"><span class="Identifier">verify</span></a><span class="Other">(</span><span class="Identifier">publicKey</span><span class="Other">:</span> <a href="utils.html#PublicKey"><span class="Identifier">PublicKey</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">signature</span><span class="Other">:</span> <a href="utils.html#Signature"><span class="Identifier">Signature</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     
@@ -327,7 +327,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

@@ -1,24 +1,24 @@
 nimTitle	rsa	nimcypher/rsa.html	module nimcypher/rsa		0
-nim	generateRsaKeyPair	nimcypher/rsa.html#generateRsaKeyPair,int,int	proc generateRsaKeyPair(bits = 2048; e = 65537): rsaAlgo.RsaPrivateKey		19
-nim	rsaPublicKey	nimcypher/rsa.html#rsaPublicKey_2	proc rsaPublicKey(key: rsaAlgo.RsaPrivateKey): rsaAlgo.RsaPublicKey		24
-nim	wipeRsaKey	nimcypher/rsa.html#wipeRsaKey	proc wipeRsaKey(key: var rsaAlgo.RsaPrivateKey)		28
-nim	rsaPkcs1v15Sign	nimcypher/rsa.html#rsaPkcs1v15Sign,,,openArray[byte]	proc rsaPkcs1v15Sign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash;\n                msg: openArray[byte]): seq[byte]		33
-nim	rsaPkcs1v15Sign	nimcypher/rsa.html#rsaPkcs1v15Sign,,,string	proc rsaPkcs1v15Sign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash; msg: string): seq[\n    byte]		38
-nim	rsaPkcs1v15Verify	nimcypher/rsa.html#rsaPkcs1v15Verify,,,openArray[byte],openArray[byte]	proc rsaPkcs1v15Verify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash;\n                  msg: openArray[byte]; sig: openArray[byte]): bool		42
-nim	rsaPkcs1v15Verify	nimcypher/rsa.html#rsaPkcs1v15Verify,,,string,openArray[byte]	proc rsaPkcs1v15Verify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash; msg: string;\n                  sig: openArray[byte]): bool		47
-nim	rsaPssSign	nimcypher/rsa.html#rsaPssSign,,,openArray[byte]	proc rsaPssSign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash; msg: openArray[byte]): seq[\n    byte]		51
-nim	rsaPssSign	nimcypher/rsa.html#rsaPssSign,,,string	proc rsaPssSign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash; msg: string): seq[\n    byte]		56
-nim	rsaPssVerify	nimcypher/rsa.html#rsaPssVerify,,,openArray[byte],openArray[byte]	proc rsaPssVerify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash;\n             msg: openArray[byte]; sig: openArray[byte]): bool		60
-nim	rsaPssVerify	nimcypher/rsa.html#rsaPssVerify,,,string,openArray[byte]	proc rsaPssVerify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash; msg: string;\n             sig: openArray[byte]): bool		65
-nim	rsaOaepEncrypt	nimcypher/rsa.html#rsaOaepEncrypt,,,openArray[byte]	proc rsaOaepEncrypt(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash;\n               msg: openArray[byte]): seq[byte]		69
-nim	rsaOaepEncrypt	nimcypher/rsa.html#rsaOaepEncrypt,,,string	proc rsaOaepEncrypt(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash; msg: string): seq[\n    byte]		74
-nim	rsaOaepDecrypt	nimcypher/rsa.html#rsaOaepDecrypt,,,openArray[byte]	proc rsaOaepDecrypt(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash;\n               cipher: openArray[byte]): seq[byte]		78
-nim	rsaPkcs1v15Encrypt	nimcypher/rsa.html#rsaPkcs1v15Encrypt,,openArray[byte]	proc rsaPkcs1v15Encrypt(key: rsaAlgo.RsaPublicKey; msg: openArray[byte]): seq[byte]		83
-nim	rsaPkcs1v15Encrypt	nimcypher/rsa.html#rsaPkcs1v15Encrypt,,string	proc rsaPkcs1v15Encrypt(key: rsaAlgo.RsaPublicKey; msg: string): seq[byte]		88
-nim	rsaPkcs1v15Decrypt	nimcypher/rsa.html#rsaPkcs1v15Decrypt,,openArray[byte]	proc rsaPkcs1v15Decrypt(key: rsaAlgo.RsaPrivateKey; cipher: openArray[byte]): seq[\n    byte]		91
-nimgrp	rsapsssign	nimcypher/rsa.html#rsaPssSign-procs-all	proc		51
-nimgrp	rsapkcs1v15sign	nimcypher/rsa.html#rsaPkcs1v15Sign-procs-all	proc		33
-nimgrp	rsapkcs1v15encrypt	nimcypher/rsa.html#rsaPkcs1v15Encrypt-procs-all	proc		83
-nimgrp	rsapkcs1v15verify	nimcypher/rsa.html#rsaPkcs1v15Verify-procs-all	proc		42
-nimgrp	rsapssverify	nimcypher/rsa.html#rsaPssVerify-procs-all	proc		60
-nimgrp	rsaoaepencrypt	nimcypher/rsa.html#rsaOaepEncrypt-procs-all	proc		69
+nim	generateRsaKeyPair	nimcypher/rsa.html#generateRsaKeyPair,int,int	proc generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): rsaAlgo.RsaPrivateKey		19
+nim	rsaPublicKey	nimcypher/rsa.html#rsaPublicKey_2	proc rsaPublicKey(key: rsaAlgo.RsaPrivateKey): rsaAlgo.RsaPublicKey		25
+nim	wipeRsaKey	nimcypher/rsa.html#wipeRsaKey	proc wipeRsaKey(key: var rsaAlgo.RsaPrivateKey)		29
+nim	rsaPkcs1v15Sign	nimcypher/rsa.html#rsaPkcs1v15Sign,,,openArray[byte]	proc rsaPkcs1v15Sign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash;\n                msg: openArray[byte]): seq[byte]		34
+nim	rsaPkcs1v15Sign	nimcypher/rsa.html#rsaPkcs1v15Sign,,,string	proc rsaPkcs1v15Sign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash; msg: string): seq[\n    byte]		39
+nim	rsaPkcs1v15Verify	nimcypher/rsa.html#rsaPkcs1v15Verify,,,openArray[byte],openArray[byte]	proc rsaPkcs1v15Verify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash;\n                  msg: openArray[byte]; sig: openArray[byte]): bool		43
+nim	rsaPkcs1v15Verify	nimcypher/rsa.html#rsaPkcs1v15Verify,,,string,openArray[byte]	proc rsaPkcs1v15Verify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash; msg: string;\n                  sig: openArray[byte]): bool		48
+nim	rsaPssSign	nimcypher/rsa.html#rsaPssSign,,,openArray[byte]	proc rsaPssSign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash; msg: openArray[byte]): seq[\n    byte]		52
+nim	rsaPssSign	nimcypher/rsa.html#rsaPssSign,,,string	proc rsaPssSign(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash; msg: string): seq[\n    byte]		57
+nim	rsaPssVerify	nimcypher/rsa.html#rsaPssVerify,,,openArray[byte],openArray[byte]	proc rsaPssVerify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash;\n             msg: openArray[byte]; sig: openArray[byte]): bool		61
+nim	rsaPssVerify	nimcypher/rsa.html#rsaPssVerify,,,string,openArray[byte]	proc rsaPssVerify(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash; msg: string;\n             sig: openArray[byte]): bool		66
+nim	rsaOaepEncrypt	nimcypher/rsa.html#rsaOaepEncrypt,,,openArray[byte]	proc rsaOaepEncrypt(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash;\n               msg: openArray[byte]): seq[byte]		70
+nim	rsaOaepEncrypt	nimcypher/rsa.html#rsaOaepEncrypt,,,string	proc rsaOaepEncrypt(key: rsaAlgo.RsaPublicKey; h: rsaAlgo.RsaHash; msg: string): seq[\n    byte]		75
+nim	rsaOaepDecrypt	nimcypher/rsa.html#rsaOaepDecrypt,,,openArray[byte]	proc rsaOaepDecrypt(key: rsaAlgo.RsaPrivateKey; h: rsaAlgo.RsaHash;\n               cipher: openArray[byte]): seq[byte]		79
+nim	rsaPkcs1v15Encrypt	nimcypher/rsa.html#rsaPkcs1v15Encrypt,,openArray[byte]	proc rsaPkcs1v15Encrypt(key: rsaAlgo.RsaPublicKey; msg: openArray[byte]): seq[byte]		84
+nim	rsaPkcs1v15Encrypt	nimcypher/rsa.html#rsaPkcs1v15Encrypt,,string	proc rsaPkcs1v15Encrypt(key: rsaAlgo.RsaPublicKey; msg: string): seq[byte]		89
+nim	rsaPkcs1v15Decrypt	nimcypher/rsa.html#rsaPkcs1v15Decrypt,,openArray[byte]	proc rsaPkcs1v15Decrypt(key: rsaAlgo.RsaPrivateKey; cipher: openArray[byte]): seq[\n    byte]		92
+nimgrp	rsapsssign	nimcypher/rsa.html#rsaPssSign-procs-all	proc		52
+nimgrp	rsapkcs1v15sign	nimcypher/rsa.html#rsaPkcs1v15Sign-procs-all	proc		34
+nimgrp	rsapkcs1v15encrypt	nimcypher/rsa.html#rsaPkcs1v15Encrypt-procs-all	proc		84
+nimgrp	rsapkcs1v15verify	nimcypher/rsa.html#rsaPkcs1v15Verify-procs-all	proc		43
+nimgrp	rsapssverify	nimcypher/rsa.html#rsaPssVerify-procs-all	proc		61
+nimgrp	rsaoaepencrypt	nimcypher/rsa.html#rsaOaepEncrypt-procs-all	proc		70

@@ -118,7 +118,7 @@
     <div id="eddsaSecretToX25519-procs-all">
   <div id="eddsaSecretToX25519,array[,byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#eddsaSecretToX25519%2Carray%5B%2Cbyte%5D"><span class="Identifier">eddsaSecretToX25519</span></a><span class="Other">(</span><span class="Identifier">eddsaSecret</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">64</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">32</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Convert an EdDSA secret key to an X25519 secret key: the 32-byte seed is hashed to 64 bytes with BLAKE2b and the first 32 bytes are clamped as an X25519 scalar. NimCypher extension: Monocypher 4.0.3 only offers the public-key conversion <tt class="docutils literal"><span class="pre"><span class="Identifier">eddsaToX25519</span></span></tt>; this mirrors libsodium's <tt class="docutils literal"><span class="pre"><span class="Identifier">crypto_sign_ed25519_sk_to_curve25519</span></span></tt>.
@@ -221,7 +221,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

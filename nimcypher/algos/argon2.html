@@ -85,6 +85,10 @@
     byte]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">validateConfig
+  <li><a class="reference" href="#validateConfig%2CArgon2Config%2Cint" title="validateConfig(config: Argon2Config; hashSize: int)">validateConfig(config: Argon2Config; hashSize: int)</a></li>
+
+</ul>
 
     </ul>
   </details>
@@ -137,8 +141,8 @@
     <div id="argon2-procs-all">
   <div id="argon2,Argon2Config,int,openArray[byte],openArray[byte],openArray[byte],openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#argon2%2CArgon2Config%2Cint%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">argon2</span></a><span class="Other">(</span><span class="Identifier">config</span><span class="Other">:</span> <a href="#Argon2Config"><span class="Identifier">Argon2Config</span></a><span class="Other">;</span> <span class="Identifier">hashSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span>
-            <span class="Identifier">password</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">ad</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+            <span class="Identifier">password</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">ad</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Password key derivation with Argon2 (d, i or id), with an optional key and associated data.
@@ -147,10 +151,22 @@
 </div>
 <div id="argon2,Argon2Config,int,openArray[byte],openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#argon2%2CArgon2Config%2Cint%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">argon2</span></a><span class="Other">(</span><span class="Identifier">config</span><span class="Other">:</span> <a href="#Argon2Config"><span class="Identifier">Argon2Config</span></a><span class="Other">;</span> <span class="Identifier">hashSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">password</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span>
-    <span class="Identifier">byte</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span class="Identifier">byte</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Password key derivation with Argon2 (d, i or id), no extra key or associated data.
+    
+  </dd>
+</div>
+
+</div>
+<div id="validateConfig-procs-all">
+  <div id="validateConfig,Argon2Config,int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#validateConfig%2CArgon2Config%2Cint"><span class="Identifier">validateConfig</span></a><span class="Other">(</span><span class="Identifier">config</span><span class="Other">:</span> <a href="#Argon2Config"><span class="Identifier">Argon2Config</span></a><span class="Other">;</span> <span class="Identifier">hashSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Validate an Argon2 configuration. Raises ValueError on parameters that would divide by zero or index empty memory (<tt class="docutils literal"><span class="pre"><span class="Identifier">nbLanes</span> <span class="Operator">==</span> <span class="DecNumber">0</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="Identifier">nbPasses</span> <span class="Operator">==</span> <span class="DecNumber">0</span></span></tt>, <tt class="docutils literal"><span class="pre"><span class="Identifier">nbBlocks</span> <span class="Keyword">div</span> <span class="Identifier">nbLanes</span> <span class="Operator">&lt;</span> <span class="DecNumber">4</span></span></tt> which yields a zero segment size, <tt class="docutils literal"><span class="pre"><span class="Identifier">hashSize</span> <span class="Operator">&lt;=</span> <span class="DecNumber">0</span></span></tt>). Note: like Monocypher, smaller-than-recommended memory is rounded down, not rejected (RFC 9106 suggests <tt class="docutils literal"><span class="pre"><span class="Identifier">nbBlocks</span> <span class="Operator">&gt;=</span> <span class="DecNumber">8</span> <span class="Operator">*</span> <span class="Identifier">nbLanes</span></span></tt> for security; only the memory-safety floor is enforced here).
     
   </dd>
 </div>
@@ -166,7 +182,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

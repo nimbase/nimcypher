@@ -62,7 +62,7 @@
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">generateRsaKeyPair
-  <li><a class="reference" href="#generateRsaKeyPair%2Cint%2Cint" title="generateRsaKeyPair(bits = 2048; e = 65537): rsaAlgo.RsaPrivateKey">generateRsaKeyPair(bits = 2048; e = 65537): rsaAlgo.RsaPrivateKey</a></li>
+  <li><a class="reference" href="#generateRsaKeyPair%2Cint%2Cint" title="generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): rsaAlgo.RsaPrivateKey">generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): rsaAlgo.RsaPrivateKey</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">rsaOaepDecrypt
@@ -162,11 +162,11 @@
   <dl class="item">
     <div id="generateRsaKeyPair-procs-all">
   <div id="generateRsaKeyPair,int,int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#generateRsaKeyPair%2Cint%2Cint"><span class="Identifier">generateRsaKeyPair</span></a><span class="Other">(</span><span class="Identifier">bits</span> <span class="Other">=</span> <span class="DecNumber">2048</span><span class="Other">;</span> <span class="Identifier">e</span> <span class="Other">=</span> <span class="DecNumber">65537</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">rsaAlgo</span><span class="Other">.</span><span class="Identifier">RsaPrivateKey</span> {.
+  <dt><pre><span class="Keyword">proc</span> <a href="#generateRsaKeyPair%2Cint%2Cint"><span class="Identifier">generateRsaKeyPair</span></a><span class="Other">(</span><span class="Identifier">bits</span> <span class="Other">=</span> <span class="DecNumber">2048</span><span class="Other">;</span> <span class="Identifier">e</span> <span class="Other">=</span> <span class="DecNumber">65537</span><span class="Other">;</span> <span class="Identifier">allowSmallKeys</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">rsaAlgo</span><span class="Other">.</span><span class="Identifier">RsaPrivateKey</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Generate an RSA key pair. <tt class="docutils literal"><span class="pre"><span class="Identifier">bits</span></span></tt> defaults to 2048; sizes below 2048 are insecure and exist for tests only.
+    Generate an RSA key pair. <tt class="docutils literal"><span class="pre"><span class="Identifier">bits</span></span></tt> defaults to 2048; sizes below 2048 are insecure and rejected unless <tt class="docutils literal"><span class="pre"><span class="Identifier">allowSmallKeys</span></span></tt> is set (tests only).
     
   </dd>
 </div>
@@ -375,7 +375,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

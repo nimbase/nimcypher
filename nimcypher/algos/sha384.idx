@@ -8,6 +8,6 @@ nim	Sha384HmacContext	nimcypher/algos/sha384.html#Sha384HmacContext	object Sha38
 nim	init384	nimcypher/algos/sha384.html#init384,Sha512Context	proc init384(ctx: var Sha512Context)		25
 nim	sha384	nimcypher/algos/sha384.html#sha384,openArray[byte]	proc sha384(message: openArray[byte]): Sha384Digest		39
 nim	initHmac384	nimcypher/algos/sha384.html#initHmac384,Sha384HmacContext,openArray[byte]	proc initHmac384(ctx: var Sha384HmacContext; key: openArray[byte])		48
-nim	update	nimcypher/algos/sha384.html#update,Sha384HmacContext,openArray[byte]	proc update(ctx: var Sha384HmacContext; message: openArray[byte])		66
-nim	final	nimcypher/algos/sha384.html#final,Sha384HmacContext	proc final(ctx: var Sha384HmacContext): Sha384Hmac		69
-nim	sha384Hmac	nimcypher/algos/sha384.html#sha384Hmac,openArray[byte],openArray[byte]	proc sha384Hmac(key, message: openArray[byte]): Sha384Hmac		84
+nim	update	nimcypher/algos/sha384.html#update,Sha384HmacContext,openArray[byte]	proc update(ctx: var Sha384HmacContext; message: openArray[byte])		67
+nim	final	nimcypher/algos/sha384.html#final,Sha384HmacContext	proc final(ctx: var Sha384HmacContext): Sha384Hmac		70
+nim	sha384Hmac	nimcypher/algos/sha384.html#sha384Hmac,openArray[byte],openArray[byte]	proc sha384Hmac(key, message: openArray[byte]): Sha384Hmac		85

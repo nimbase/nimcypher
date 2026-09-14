@@ -410,7 +410,7 @@
     <a href="#Tag16"><span class="Identifier">Tag16</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    AES-GCM authenticated encryption. Returns (ciphertext, 16-byte tag). Use a unique nonce per message under a given key.
+    AES-GCM authenticated encryption. Returns (ciphertext, 16-byte tag). Use a unique nonce per message under a given key: GCM nonce reuse leaks the authentication key (forgeries) and the plaintext XOR. Use <tt class="docutils literal"><span class="pre"><span class="Identifier">gcmSeal</span></span></tt> for a fresh random nonce per message.
     
   </dd>
 </div>
@@ -547,7 +547,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

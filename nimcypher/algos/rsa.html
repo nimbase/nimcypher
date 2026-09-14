@@ -86,7 +86,7 @@
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
       <ul class="simple nested-toc-section">generateRsaKeyPair
-  <li><a class="reference" href="#generateRsaKeyPair%2Cint%2Cint" title="generateRsaKeyPair(bits = 2048; e = 65537): RsaPrivateKey">generateRsaKeyPair(bits = 2048; e = 65537): RsaPrivateKey</a></li>
+  <li><a class="reference" href="#generateRsaKeyPair%2Cint%2Cint" title="generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): RsaPrivateKey">generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): RsaPrivateKey</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">hashLen
@@ -216,11 +216,11 @@
   <dl class="item">
     <div id="generateRsaKeyPair-procs-all">
   <div id="generateRsaKeyPair,int,int">
-  <dt><pre><span class="Keyword">proc</span> <a href="#generateRsaKeyPair%2Cint%2Cint"><span class="Identifier">generateRsaKeyPair</span></a><span class="Other">(</span><span class="Identifier">bits</span> <span class="Other">=</span> <span class="DecNumber">2048</span><span class="Other">;</span> <span class="Identifier">e</span> <span class="Other">=</span> <span class="DecNumber">65537</span><span class="Other">)</span><span class="Other">:</span> <a href="#RsaPrivateKey"><span class="Identifier">RsaPrivateKey</span></a> {.
+  <dt><pre><span class="Keyword">proc</span> <a href="#generateRsaKeyPair%2Cint%2Cint"><span class="Identifier">generateRsaKeyPair</span></a><span class="Other">(</span><span class="Identifier">bits</span> <span class="Other">=</span> <span class="DecNumber">2048</span><span class="Other">;</span> <span class="Identifier">e</span> <span class="Other">=</span> <span class="DecNumber">65537</span><span class="Other">;</span> <span class="Identifier">allowSmallKeys</span> <span class="Other">=</span> <span class="Identifier">false</span><span class="Other">)</span><span class="Other">:</span> <a href="#RsaPrivateKey"><span class="Identifier">RsaPrivateKey</span></a> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Generate an RSA key pair. <tt class="docutils literal"><span class="pre"><span class="Identifier">bits</span></span></tt> is the modulus size (default 2048). <tt class="docutils literal"><span class="pre"><span class="Identifier">e</span></span></tt> defaults to 65537. Sizes below 2048 are insecure and exist for tests only; JOSE callers must enforce &gt;= 2048.
+    Generate an RSA key pair. <tt class="docutils literal"><span class="pre"><span class="Identifier">bits</span></span></tt> is the modulus size (default 2048). <tt class="docutils literal"><span class="pre"><span class="Identifier">e</span></span></tt> defaults to 65537. Sizes below 2048 are insecure and rejected unless <tt class="docutils literal"><span class="pre"><span class="Identifier">allowSmallKeys</span></span></tt> is set (tests only, never production keys).
     
   </dd>
 </div>
@@ -244,7 +244,7 @@
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    RSAES-OAEP decrypt. Raises ValueError(&quot;decryption error&quot;) on failure.
+    RSAES-OAEP decrypt. Raises ValueError(&quot;decryption error&quot;) on failure. Failure messages are uniform, but the decode still branches on padding validity (non-uniform timing): callers must not let attackers measure decrypt timing (known limitation, full constant-time decode is follow-up work).
     
   </dd>
 </div>
@@ -269,7 +269,7 @@
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    RSAES-PKCS1-v1_5 decrypt. Raises ValueError(&quot;decryption error&quot;).
+    RSAES-PKCS1-v1_5 decrypt. Raises ValueError(&quot;decryption error&quot;). Same timing caveat as <tt class="docutils literal"><span class="pre"><span class="Identifier">oaepDecrypt</span></span></tt>: uniform messages, but padding-validity branching is not constant-time, so decrypt timing must stay hidden from attackers.
     
   </dd>
 </div>
@@ -294,7 +294,7 @@
             <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    RSASSA-PKCS1-v1_5 sign (JWA RS256/384/512).
+    RSASSA-PKCS1-v1_5 sign (JWA RS256/384/512). The signature is verified with the public operation before return (fault-attack mitigation: a faulted CRT computation raises instead of leaking a Bellcore-oracle signature).
     
   </dd>
 </div>
@@ -307,7 +307,7 @@
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    RSASSA-PKCS1-v1_5 verify. Returns false (no exception) on bad signature.
+    RSASSA-PKCS1-v1_5 verify. Returns false (no exception) on bad signature. SHA-1 is not a valid signature hash here: it returns false rather than raising, so verifiers never throw on attacker-controlled inputs.
     
   </dd>
 </div>
@@ -319,7 +319,7 @@
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">,</span> <span class="Identifier">OSError</span><span class="Other">,</span> <span class="Identifier">Exception</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">RootEffect</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    RSASSA-PSS sign with saltLen = hashLen (JWA PS256/384/512).
+    RSASSA-PSS sign with saltLen = hashLen (JWA PS256/384/512). The signature is verified with the public operation before return (fault-attack mitigation, see <tt class="docutils literal"><span class="pre"><span class="Identifier">pkcs1v15Sign</span></span></tt>).
     
   </dd>
 </div>
@@ -395,7 +395,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

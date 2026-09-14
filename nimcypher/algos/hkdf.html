@@ -102,7 +102,7 @@
     <div id="sha256Hkdf-procs-all">
   <div id="sha256Hkdf,openArray[byte],openArray[byte],openArray[byte],int">
   <dt><pre><span class="Keyword">proc</span> <a href="#sha256Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha256Hkdf</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     HKDF-SHA-256: extract with salt then expand.
@@ -114,10 +114,10 @@
 <div id="sha256HkdfExpand-procs-all">
   <div id="sha256HkdfExpand,openArray[byte],openArray[byte],int">
   <dt><pre><span class="Keyword">proc</span> <a href="#sha256HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha256HkdfExpand</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Expand a pseudo-random key with HKDF-SHA-256 (RFC 5869, 32-byte blocks).
+    Expand a pseudo-random key with HKDF-SHA-256 (RFC 5869, 32-byte blocks). <tt class="docutils literal"><span class="pre"><span class="Identifier">okmSize</span></span></tt> is limited to 255 * 32 = 8160 bytes.
     
   </dd>
 </div>
@@ -126,7 +126,7 @@
 <div id="sha512Hkdf-procs-all">
   <div id="sha512Hkdf,openArray[byte],openArray[byte],openArray[byte],int">
   <dt><pre><span class="Keyword">proc</span> <a href="#sha512Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha512Hkdf</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     HKDF-SHA-512: derive output keying material from an input key material, a salt and optional info.
@@ -138,10 +138,10 @@
 <div id="sha512HkdfExpand-procs-all">
   <div id="sha512HkdfExpand,openArray[byte],openArray[byte],int">
   <dt><pre><span class="Keyword">proc</span> <a href="#sha512HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha512HkdfExpand</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Expand a pseudo-random key into output keying material. <tt class="docutils literal"><span class="pre"><span class="Identifier">okmSize</span></span></tt> is limited to 255 * 64 = 16320 bytes (RFC 5869); larger requests silently wrap the block counter and yield wrong key material. Callers must enforce the limit (see <tt class="docutils literal"><span class="pre"><span class="Identifier">nimcypher</span><span class="Operator">/</span><span class="Identifier">hash</span></span></tt>).
+    Expand a pseudo-random key into output keying material. <tt class="docutils literal"><span class="pre"><span class="Identifier">okmSize</span></span></tt> is limited to 255 * 64 = 16320 bytes (RFC 5869).
     
   </dd>
 </div>
@@ -157,7 +157,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

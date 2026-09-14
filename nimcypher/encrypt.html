@@ -129,6 +129,12 @@
   <li><a class="reference" href="#sharedSecret%2CKey32%2CKey32" title="sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]">sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">sharedSecretHashed
+  <li><a class="reference" href="#sharedSecretHashed%2CKey32%2CKey32%2CopenArray%5Bbyte%5D" title="sharedSecretHashed(mySecret: Key32; theirPublic: Key32;
+                   info: openArray[byte] = []): Secret[Key32]">sharedSecretHashed(mySecret: Key32; theirPublic: Key32;
+                   info: openArray[byte] = []): Secret[Key32]</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">unseal
   <li><a class="reference" href="#unseal%2CSealedMessage%2CKey32" title="unseal(msg: SealedMessage; key: Key32): seq[byte]">unseal(msg: SealedMessage; key: Key32): seq[byte]</a></li>
 
@@ -158,7 +164,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="algos/aead.html">algos/aead</a>, <a class="reference external" href="algos/x25519.html">algos/x25519</a>, <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="utils.html">utils</a>, <a class="reference external" href="secret.html">secret</a>
+    <a class="reference external" href="algos/aead.html">algos/aead</a>, <a class="reference external" href="algos/x25519.html">algos/x25519</a>, <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="algos/hkdf.html">algos/hkdf</a>, <a class="reference external" href="utils.html">utils</a>, <a class="reference external" href="secret.html">secret</a>
   </dl>
 </div>
 <div class="section" id="7">
@@ -274,8 +280,8 @@
 </div>
 <div id="computeChallengeMac-procs-all">
   <div id="computeChallengeMac,Key32,Mac16">
-  <dt><pre><span class="Keyword">proc</span> <a href="#computeChallengeMac%2CKey32%2CMac16"><span class="Identifier">computeChallengeMac</span></a><span class="Other">(</span><span class="Identifier">secret</span><span class="Other">:</span> <a href="utils.html#Key32"><span class="Identifier">Key32</span></a><span class="Other">;</span> <span class="Identifier">challenge</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
-    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dt><pre><span class="Keyword">proc</span> <a href="#computeChallengeMac%2CKey32%2CMac16"><span class="Identifier">computeChallengeMac</span></a><span class="Other">(</span><span class="Identifier">secret</span><span class="Other">:</span> <a href="utils.html#Key32"><span class="Identifier">Key32</span></a><span class="Other">;</span> <span class="Identifier">challenge</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Compute a keyed BLAKE2b MAC of the challenge using the shared secret.
@@ -311,7 +317,7 @@
     <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Encrypt and authenticate <tt class="docutils literal"><span class="pre"><span class="Identifier">text</span></span></tt>. Returns (cipherText, mac).
+    Encrypt and authenticate <tt class="docutils literal"><span class="pre"><span class="Identifier">text</span></span></tt>. Returns (cipherText, mac). Never reuse a <tt class="docutils literal"><span class="pre"><span class="Identifier">nonce</span></span></tt> with the same <tt class="docutils literal"><span class="pre"><span class="Identifier">key</span></span></tt>: nonce reuse destroys confidentiality (recoverable plaintext XOR) and forgeries become possible. Use <tt class="docutils literal"><span class="pre"><span class="Identifier">seal</span></span></tt> for a fresh random nonce per message.
     
   </dd>
 </div>
@@ -353,7 +359,20 @@
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
-    Compute the X25519 shared secret. Hash it to derive a symmetric key. The shared secret is wiped automatically when it goes out of scope.
+    Compute the X25519 shared secret. Raw key material: never use it directly as a symmetric key; pass it through <tt class="docutils literal"><span class="pre"><span class="Identifier">sharedSecretHashed</span></span></tt> (or another KDF) first. The shared secret is wiped automatically when it goes out of scope.
+    
+  </dd>
+</div>
+
+</div>
+<div id="sharedSecretHashed-procs-all">
+  <div id="sharedSecretHashed,Key32,Key32,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sharedSecretHashed%2CKey32%2CKey32%2CopenArray%5Bbyte%5D"><span class="Identifier">sharedSecretHashed</span></a><span class="Other">(</span><span class="Identifier">mySecret</span><span class="Other">:</span> <a href="utils.html#Key32"><span class="Identifier">Key32</span></a><span class="Other">;</span> <span class="Identifier">theirPublic</span><span class="Other">:</span> <a href="utils.html#Key32"><span class="Identifier">Key32</span></a><span class="Other">;</span>
+                        <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> <span class="Other">=</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="secret.html#Secret"><span class="Identifier">Secret</span></a><span class="Other">[</span><a href="utils.html#Key32"><span class="Identifier">Key32</span></a><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    X25519 shared secret run through HKDF-SHA-256 (empty salt, <tt class="docutils literal"><span class="pre"><span class="Identifier">info</span></span></tt> as context). Use this instead of <tt class="docutils literal"><span class="pre"><span class="Identifier">sharedSecret</span></span></tt> whenever the output keys symmetric encryption.
     
   </dd>
 </div>
@@ -374,7 +393,7 @@
 <div id="verifyChallengeMac-procs-all">
   <div id="verifyChallengeMac,Key32,Mac16,Mac16">
   <dt><pre><span class="Keyword">proc</span> <a href="#verifyChallengeMac%2CKey32%2CMac16%2CMac16"><span class="Identifier">verifyChallengeMac</span></a><span class="Other">(</span><span class="Identifier">secret</span><span class="Other">:</span> <a href="utils.html#Key32"><span class="Identifier">Key32</span></a><span class="Other">;</span> <span class="Identifier">challenge</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a><span class="Other">;</span> <span class="Identifier">received</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
-    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
     Verify the received MAC against the expected MAC.
@@ -414,7 +433,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

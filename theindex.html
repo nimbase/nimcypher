@@ -623,6 +623,12 @@
 <li><a class="reference external"
           data-doc-search-tag="ecdsa: proc ecdh(priv: EcPrivateKey; peer: EcPublicKey): seq[byte]" href="nimcypher/algos/ecdsa.html#ecdh%2CEcPrivateKey%2CEcPublicKey">ecdsa: proc ecdh(priv: EcPrivateKey; peer: EcPublicKey): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="ecdhHashedSecret" href="#ecdhHashedSecret"><span>ecdhHashedSecret:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="ecdsa: proc ecdhHashedSecret(priv: ecdsaAlgo.EcPrivateKey; peer: ecdsaAlgo.EcPublicKey;
+                 info: openArray[byte] = []): array[32, byte]" href="nimcypher/ecdsa.html#ecdhHashedSecret%2C%2C%2CopenArray%5Bbyte%5D">ecdsa: proc ecdhHashedSecret(priv: ecdsaAlgo.EcPrivateKey; peer: ecdsaAlgo.EcPublicKey;
+                 info: openArray[byte] = []): array[32, byte]</a></li>
+          </ul></dd>
 <dt><a name="ecdhSharedSecret" href="#ecdhSharedSecret"><span>ecdhSharedSecret:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="ecdsa: proc ecdhSharedSecret(priv: ecdsaAlgo.EcPrivateKey; peer: ecdsaAlgo.EcPublicKey): seq[
@@ -1055,9 +1061,9 @@
           </ul></dd>
 <dt><a name="generateRsaKeyPair" href="#generateRsaKeyPair"><span>generateRsaKeyPair:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
-          data-doc-search-tag="rsa: proc generateRsaKeyPair(bits = 2048; e = 65537): RsaPrivateKey" href="nimcypher/algos/rsa.html#generateRsaKeyPair%2Cint%2Cint">rsa: proc generateRsaKeyPair(bits = 2048; e = 65537): RsaPrivateKey</a></li>
+          data-doc-search-tag="rsa: proc generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): RsaPrivateKey" href="nimcypher/algos/rsa.html#generateRsaKeyPair%2Cint%2Cint">rsa: proc generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): RsaPrivateKey</a></li>
           <li><a class="reference external"
-          data-doc-search-tag="rsa: proc generateRsaKeyPair(bits = 2048; e = 65537): rsaAlgo.RsaPrivateKey" href="nimcypher/rsa.html#generateRsaKeyPair%2Cint%2Cint">rsa: proc generateRsaKeyPair(bits = 2048; e = 65537): rsaAlgo.RsaPrivateKey</a></li>
+          data-doc-search-tag="rsa: proc generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): rsaAlgo.RsaPrivateKey" href="nimcypher/rsa.html#generateRsaKeyPair%2Cint%2Cint">rsa: proc generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): rsaAlgo.RsaPrivateKey</a></li>
           </ul></dd>
 <dt><a name="generateSalt" href="#generateSalt"><span>generateSalt:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -2129,6 +2135,12 @@
 <li><a class="reference external"
           data-doc-search-tag="encrypt: proc sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]" href="nimcypher/encrypt.html#sharedSecret%2CKey32%2CKey32">encrypt: proc sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]</a></li>
           </ul></dd>
+<dt><a name="sharedSecretHashed" href="#sharedSecretHashed"><span>sharedSecretHashed:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="encrypt: proc sharedSecretHashed(mySecret: Key32; theirPublic: Key32;
+                   info: openArray[byte] = []): Secret[Key32]" href="nimcypher/encrypt.html#sharedSecretHashed%2CKey32%2CKey32%2CopenArray%5Bbyte%5D">encrypt: proc sharedSecretHashed(mySecret: Key32; theirPublic: Key32;
+                   info: openArray[byte] = []): Secret[Key32]</a></li>
+          </ul></dd>
 <dt><a name="sign" href="#sign"><span>sign:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="ecdsa: proc sign(priv: EcPrivateKey; msg: openArray[byte]): seq[byte]" href="nimcypher/algos/ecdsa.html#sign%2CEcPrivateKey%2CopenArray%5Bbyte%5D">ecdsa: proc sign(priv: EcPrivateKey; msg: openArray[byte]): seq[byte]</a></li>
@@ -2321,6 +2333,10 @@
           <li><a class="reference external"
           data-doc-search-tag="xxhash: proc update(state: var Xxh64State; data: openArray[byte])" href="nimcypher/hashes/xxhash.html#update%2CXxh64State%2CopenArray%5Bbyte%5D">xxhash: proc update(state: var Xxh64State; data: openArray[byte])</a></li>
           </ul></dd>
+<dt><a name="validateConfig" href="#validateConfig"><span>validateConfig:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="argon2: proc validateConfig(config: Argon2Config; hashSize: int)" href="nimcypher/algos/argon2.html#validateConfig%2CArgon2Config%2Cint">argon2: proc validateConfig(config: Argon2Config; hashSize: int)</a></li>
+          </ul></dd>
 <dt><a name="validatePublicKey" href="#validatePublicKey"><span>validatePublicKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="ecdsa: proc validatePublicKey(pub: EcPublicKey): bool" href="nimcypher/algos/ecdsa.html#validatePublicKey%2CEcPublicKey">ecdsa: proc validatePublicKey(pub: EcPublicKey): bool</a></li>
@@ -2368,6 +2384,14 @@
           data-doc-search-tag="rsa: proc wipe(key: var RsaPrivateKey)" href="nimcypher/algos/rsa.html#wipe%2CRsaPrivateKey">rsa: proc wipe(key: var RsaPrivateKey)</a></li>
           <li><a class="reference external"
           data-doc-search-tag="utils: proc wipe(secret: var openArray[byte])" href="nimcypher/utils.html#wipe%2CopenArray%5Bbyte%5D">utils: proc wipe(secret: var openArray[byte])</a></li>
+          </ul></dd>
+<dt><a name="wipeAesContext" href="#wipeAesContext"><span>wipeAesContext:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc wipeAesContext(ctx: var AesContext)" href="nimcypher/algos/aes.html#wipeAesContext%2CAesContext">aes: proc wipeAesContext(ctx: var AesContext)</a></li>
+          </ul></dd>
+<dt><a name="wipeChacha20Context" href="#wipeChacha20Context"><span>wipeChacha20Context:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="chacha20: proc wipeChacha20Context(ctx: var Chacha20Context)" href="nimcypher/algos/chacha20.html#wipeChacha20Context%2CChacha20Context">chacha20: proc wipeChacha20Context(ctx: var Chacha20Context)</a></li>
           </ul></dd>
 <dt><a name="wipeEcKey" href="#wipeEcKey"><span>wipeEcKey:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -2571,7 +2595,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

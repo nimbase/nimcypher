@@ -11,12 +11,12 @@ nim	hashLen	nimcypher/algos/rsa.html#hashLen,RsaHash	proc hashLen(h: RsaHash): i
 nim	rsaPublicKey	nimcypher/algos/rsa.html#rsaPublicKey,BigInt,BigInt	proc rsaPublicKey(n, e: BigInt): RsaPublicKey		164
 nim	rsaPrivateKey	nimcypher/algos/rsa.html#rsaPrivateKey,BigInt,BigInt,BigInt,BigInt,BigInt	proc rsaPrivateKey(n, e, d, p, q: BigInt): RsaPrivateKey		172
 nim	publicKey	nimcypher/algos/rsa.html#publicKey,RsaPrivateKey	proc publicKey(key: RsaPrivateKey): RsaPublicKey		186
-nim	generateRsaKeyPair	nimcypher/algos/rsa.html#generateRsaKeyPair,int,int	proc generateRsaKeyPair(bits = 2048; e = 65537): RsaPrivateKey		189
-nim	pkcs1v15Sign	nimcypher/algos/rsa.html#pkcs1v15Sign,RsaPrivateKey,RsaHash,openArray[byte]	proc pkcs1v15Sign(key: RsaPrivateKey; h: RsaHash; msg: openArray[byte]): seq[byte]		261
-nim	pkcs1v15Verify	nimcypher/algos/rsa.html#pkcs1v15Verify,RsaPublicKey,RsaHash,openArray[byte],openArray[byte]	proc pkcs1v15Verify(key: RsaPublicKey; h: RsaHash; msg: openArray[byte];\n               sig: openArray[byte]): bool		269
-nim	pssSign	nimcypher/algos/rsa.html#pssSign,RsaPrivateKey,RsaHash,openArray[byte]	proc pssSign(key: RsaPrivateKey; h: RsaHash; msg: openArray[byte]): seq[byte]		316
-nim	pssVerify	nimcypher/algos/rsa.html#pssVerify,RsaPublicKey,RsaHash,openArray[byte],openArray[byte]	proc pssVerify(key: RsaPublicKey; h: RsaHash; msg: openArray[byte];\n          sig: openArray[byte]): bool		328
-nim	oaepEncrypt	nimcypher/algos/rsa.html#oaepEncrypt,RsaPublicKey,RsaHash,openArray[byte],openArray[byte]	proc oaepEncrypt(key: RsaPublicKey; h: RsaHash; msg: openArray[byte];\n            label: openArray[byte] = []): seq[byte]		451
-nim	oaepDecrypt	nimcypher/algos/rsa.html#oaepDecrypt,RsaPrivateKey,RsaHash,openArray[byte],openArray[byte]	proc oaepDecrypt(key: RsaPrivateKey; h: RsaHash; cipher: openArray[byte];\n            label: openArray[byte] = []): seq[byte]		461
-nim	pkcs1v15Encrypt	nimcypher/algos/rsa.html#pkcs1v15Encrypt,RsaPublicKey,openArray[byte]	proc pkcs1v15Encrypt(key: RsaPublicKey; msg: openArray[byte]): seq[byte]		521
-nim	pkcs1v15Decrypt	nimcypher/algos/rsa.html#pkcs1v15Decrypt,RsaPrivateKey,openArray[byte]	proc pkcs1v15Decrypt(key: RsaPrivateKey; cipher: openArray[byte]): seq[byte]		527
+nim	generateRsaKeyPair	nimcypher/algos/rsa.html#generateRsaKeyPair,int,int	proc generateRsaKeyPair(bits = 2048; e = 65537; allowSmallKeys = false): RsaPrivateKey		189
+nim	pkcs1v15Sign	nimcypher/algos/rsa.html#pkcs1v15Sign,RsaPrivateKey,RsaHash,openArray[byte]	proc pkcs1v15Sign(key: RsaPrivateKey; h: RsaHash; msg: openArray[byte]): seq[byte]		265
+nim	pkcs1v15Verify	nimcypher/algos/rsa.html#pkcs1v15Verify,RsaPublicKey,RsaHash,openArray[byte],openArray[byte]	proc pkcs1v15Verify(key: RsaPublicKey; h: RsaHash; msg: openArray[byte];\n               sig: openArray[byte]): bool		279
+nim	pssSign	nimcypher/algos/rsa.html#pssSign,RsaPrivateKey,RsaHash,openArray[byte]	proc pssSign(key: RsaPrivateKey; h: RsaHash; msg: openArray[byte]): seq[byte]		330
+nim	pssVerify	nimcypher/algos/rsa.html#pssVerify,RsaPublicKey,RsaHash,openArray[byte],openArray[byte]	proc pssVerify(key: RsaPublicKey; h: RsaHash; msg: openArray[byte];\n          sig: openArray[byte]): bool		347
+nim	oaepEncrypt	nimcypher/algos/rsa.html#oaepEncrypt,RsaPublicKey,RsaHash,openArray[byte],openArray[byte]	proc oaepEncrypt(key: RsaPublicKey; h: RsaHash; msg: openArray[byte];\n            label: openArray[byte] = []): seq[byte]		471
+nim	oaepDecrypt	nimcypher/algos/rsa.html#oaepDecrypt,RsaPrivateKey,RsaHash,openArray[byte],openArray[byte]	proc oaepDecrypt(key: RsaPrivateKey; h: RsaHash; cipher: openArray[byte];\n            label: openArray[byte] = []): seq[byte]		481
+nim	pkcs1v15Encrypt	nimcypher/algos/rsa.html#pkcs1v15Encrypt,RsaPublicKey,openArray[byte]	proc pkcs1v15Encrypt(key: RsaPublicKey; msg: openArray[byte]): seq[byte]		545
+nim	pkcs1v15Decrypt	nimcypher/algos/rsa.html#pkcs1v15Decrypt,RsaPrivateKey,openArray[byte]	proc pkcs1v15Decrypt(key: RsaPrivateKey; cipher: openArray[byte]): seq[byte]		551

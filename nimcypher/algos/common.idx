@@ -14,13 +14,13 @@ nim	load64LeBuf	nimcypher/algos/common.html#load64LeBuf,openArray[uint64],BytePt
 nim	store32LeBuf	nimcypher/algos/common.html#store32LeBuf,BytePtr,openArray[uint32],int	proc store32LeBuf(dst: BytePtr; src: openArray[uint32]; size: int)		71
 nim	store64LeBuf	nimcypher/algos/common.html#store64LeBuf,BytePtr,openArray[uint64],int	proc store64LeBuf(dst: BytePtr; src: openArray[uint64]; size: int)		75
 nim	rotr64	nimcypher/algos/common.html#rotr64,uint64,uint64	proc rotr64(x: uint64; n: uint64): uint64		79
-nim	rotl32	nimcypher/algos/common.html#rotl32,uint32,uint32	proc rotl32(x: uint32; n: uint32): uint32		82
-nim	gap	nimcypher/algos/common.html#gap,int,int	proc gap(x, pow_2: int): int		88
-nim	neq0	nimcypher/algos/common.html#neq0,uint64	proc neq0(diff: uint64): int32		91
-nim	constantTimeEqual	nimcypher/algos/common.html#constantTimeEqual,openArray[byte],openArray[byte]	proc constantTimeEqual(a, b: openArray[byte]): bool		107
-nim	verify16	nimcypher/algos/common.html#verify16,array[,byte],array[,byte]	proc verify16(a, b: array[16, byte]): bool		127
-nim	verify32	nimcypher/algos/common.html#verify32,array[,byte],array[,byte]	proc verify32(a, b: array[32, byte]): bool		132
-nim	verify64	nimcypher/algos/common.html#verify64,array[,byte],array[,byte]	proc verify64(a, b: array[64, byte]): bool		137
-nim	wipe	nimcypher/algos/common.html#wipe,openArray[byte]	proc wipe(secret: var openArray[byte])		142
-nim	wipe	nimcypher/algos/common.html#wipe,T	proc wipe[T](x: var T)		151
-nimgrp	wipe	nimcypher/algos/common.html#wipe-procs-all	proc		142
+nim	rotl32	nimcypher/algos/common.html#rotl32,uint32,uint32	proc rotl32(x: uint32; n: uint32): uint32		84
+nim	gap	nimcypher/algos/common.html#gap,int,int	proc gap(x, pow_2: int): int		92
+nim	neq0	nimcypher/algos/common.html#neq0,uint64	proc neq0(diff: uint64): int32		95
+nim	constantTimeEqual	nimcypher/algos/common.html#constantTimeEqual,openArray[byte],openArray[byte]	proc constantTimeEqual(a, b: openArray[byte]): bool		111
+nim	verify16	nimcypher/algos/common.html#verify16,array[,byte],array[,byte]	proc verify16(a, b: array[16, byte]): bool		131
+nim	verify32	nimcypher/algos/common.html#verify32,array[,byte],array[,byte]	proc verify32(a, b: array[32, byte]): bool		136
+nim	verify64	nimcypher/algos/common.html#verify64,array[,byte],array[,byte]	proc verify64(a, b: array[64, byte]): bool		141
+nim	wipe	nimcypher/algos/common.html#wipe,openArray[byte]	proc wipe(secret: var openArray[byte])		146
+nim	wipe	nimcypher/algos/common.html#wipe,T	proc wipe[T](x: var T)		155
+nimgrp	wipe	nimcypher/algos/common.html#wipe-procs-all	proc		146

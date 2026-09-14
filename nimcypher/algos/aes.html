@@ -283,6 +283,10 @@
   <li><a class="reference" href="#pkcs7Unpad%2CopenArray%5Bbyte%5D%2Cint" title="pkcs7Unpad(data: openArray[byte]; blockSize: int = 16): seq[byte]">pkcs7Unpad(data: openArray[byte]; blockSize: int = 16): seq[byte]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">wipeAesContext
+  <li><a class="reference" href="#wipeAesContext%2CAesContext" title="wipeAesContext(ctx: var AesContext)">wipeAesContext(ctx: var AesContext)</a></li>
+
+</ul>
 
     </ul>
   </details>
@@ -887,6 +891,17 @@
 </div>
 
 </div>
+<div id="wipeAesContext-procs-all">
+  <div id="wipeAesContext,AesContext">
+  <dt><pre><span class="Keyword">proc</span> <a href="#wipeAesContext%2CAesContext"><span class="Identifier">wipeAesContext</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#AesContext"><span class="Identifier">AesContext</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Scrub the expanded key schedule. Call when done with the context; the high-level one-shots do this before return. Long-lived contexts (e.g. streaming GCM via <tt class="docutils literal"><span class="pre"><span class="Identifier">gcmFinishEnc</span></span></tt>/<tt class="docutils literal"><span class="pre"><span class="Identifier">gcmFinishDec</span></span></tt>) are wiped by their finish procs.
+    
+  </dd>
+</div>
+
+</div>
 
   </dl>
 </div>
@@ -897,7 +912,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>

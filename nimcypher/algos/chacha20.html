@@ -158,6 +158,10 @@
               nonce: array[24, byte]; counter: uint64 = 0)</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">wipeChacha20Context
+  <li><a class="reference" href="#wipeChacha20Context%2CChacha20Context" title="wipeChacha20Context(ctx: var Chacha20Context)">wipeChacha20Context(ctx: var Chacha20Context)</a></li>
+
+</ul>
 
     </ul>
   </details>
@@ -188,7 +192,7 @@
   <span class="Identifier">counter</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint64</span></pre></dt>
   <dd>
     
-    A streaming ChaCha20 state. All three variants collapse to the DJB form once initialized, so the state always holds an 8-byte nonce.
+    A streaming ChaCha20 state. All three variants collapse to the DJB form once initialized, so the state always holds an 8-byte nonce. Holds the key: call <tt class="docutils literal"><span class="pre"><span class="Identifier">wipeChacha20Context</span></span></tt> when done (the one-shot procs keep no state and already scrub their stack temporaries).
     
   </dd>
 </div>
@@ -439,6 +443,18 @@
 </div>
 
 </div>
+<div id="wipeChacha20Context-procs-all">
+  <div id="wipeChacha20Context,Chacha20Context">
+  <dt><pre><span class="Keyword">proc</span> <a href="#wipeChacha20Context%2CChacha20Context"><span class="Identifier">wipeChacha20Context</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Chacha20Context"><span class="Identifier">Chacha20Context</span></a><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Scrub a streaming context (key, nonce, buffered keystream tail).
+    
+  </dd>
+</div>
+
+</div>
 
   </dl>
 </div>
@@ -449,7 +465,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:16:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 17:02:37 UTC</small>
       </div>
     </div>
   </div>
