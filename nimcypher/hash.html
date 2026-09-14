@@ -62,6 +62,10 @@
     <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
     <ul class="simple simple-toc-section">
       <li><a class="reference" href="#Blake2b" title="Blake2b = object">Blake2b</a></li>
+<li><a class="reference" href="#Md5Digest" title="Md5Digest = array[Md5DigestSize, uint8]">Md5Digest</a></li>
+<li><a class="reference" href="#Md5Hmac" title="Md5Hmac = array[Md5DigestSize, uint8]">Md5Hmac</a></li>
+<li><a class="reference" href="#Md5HmacState" title="Md5HmacState = object">Md5HmacState</a></li>
+<li><a class="reference" href="#Md5State" title="Md5State = object">Md5State</a></li>
 <li><a class="reference" href="#Sha1Hmac" title="Sha1Hmac = array[Sha1DigestSize, uint8]">Sha1Hmac</a></li>
 <li><a class="reference" href="#Sha256Digest" title="Sha256Digest = array[Sha256DigestSize, uint8]">Sha256Digest</a></li>
 <li><a class="reference" href="#Sha256Hmac" title="Sha256Hmac = array[Sha256DigestSize, uint8]">Sha256Hmac</a></li>
@@ -75,6 +79,10 @@
 <li><a class="reference" href="#Sha512Hmac" title="Sha512Hmac = array[Sha512DigestSize, uint8]">Sha512Hmac</a></li>
 <li><a class="reference" href="#Sha512HmacState" title="Sha512HmacState = object">Sha512HmacState</a></li>
 <li><a class="reference" href="#Sha512State" title="Sha512State = object">Sha512State</a></li>
+<li><a class="reference" href="#Xxh3_64" title="Xxh3_64 = object">Xxh3_64</a></li>
+<li><a class="reference" href="#Xxh3_128" title="Xxh3_128 = object">Xxh3_128</a></li>
+<li><a class="reference" href="#Xxh32" title="Xxh32 = object">Xxh32</a></li>
+<li><a class="reference" href="#Xxh64" title="Xxh64 = object">Xxh64</a></li>
 
     </ul>
   </details>
@@ -89,6 +97,8 @@
 <li><a class="reference" href="#Blake2bMinDigestSize" title="Blake2bMinDigestSize = 1">Blake2bMinDigestSize</a></li>
 <li><a class="reference" href="#HkdfMaxOkmLen" title="HkdfMaxOkmLen = 16320">HkdfMaxOkmLen</a></li>
 <li><a class="reference" href="#HkdfSha256MaxOkmLen" title="HkdfSha256MaxOkmLen = 8160">HkdfSha256MaxOkmLen</a></li>
+<li><a class="reference" href="#Md5BlockSize" title="Md5BlockSize = 64">Md5BlockSize</a></li>
+<li><a class="reference" href="#Md5DigestSize" title="Md5DigestSize = 16">Md5DigestSize</a></li>
 <li><a class="reference" href="#Sha1BlockSize" title="Sha1BlockSize = 64">Sha1BlockSize</a></li>
 <li><a class="reference" href="#Sha1DigestSize" title="Sha1DigestSize = 20">Sha1DigestSize</a></li>
 <li><a class="reference" href="#Sha256BlockSize" title="Sha256BlockSize = 64">Sha256BlockSize</a></li>
@@ -135,22 +145,34 @@
 </ul>
 <ul class="simple nested-toc-section">finish
   <li><a class="reference" href="#finish%2CBlake2b" title="finish(state: var Blake2b): seq[byte]">finish(state: var Blake2b): seq[byte]</a></li>
+<li><a class="reference" href="#finish%2CMd5HmacState" title="finish(state: var Md5HmacState): Md5Hmac">finish(state: var Md5HmacState): Md5Hmac</a></li>
+<li><a class="reference" href="#finish%2CMd5State" title="finish(state: var Md5State): Md5Digest">finish(state: var Md5State): Md5Digest</a></li>
 <li><a class="reference" href="#finish%2CSha256HmacState" title="finish(state: var Sha256HmacState): Sha256Hmac">finish(state: var Sha256HmacState): Sha256Hmac</a></li>
 <li><a class="reference" href="#finish%2CSha256State" title="finish(state: var Sha256State): Sha256Digest">finish(state: var Sha256State): Sha256Digest</a></li>
 <li><a class="reference" href="#finish%2CSha384HmacState" title="finish(state: var Sha384HmacState): Sha384Hmac">finish(state: var Sha384HmacState): Sha384Hmac</a></li>
 <li><a class="reference" href="#finish%2CSha384State" title="finish(state: var Sha384State): Sha384Digest">finish(state: var Sha384State): Sha384Digest</a></li>
 <li><a class="reference" href="#finish%2CSha512HmacState" title="finish(state: var Sha512HmacState): Sha512Hmac">finish(state: var Sha512HmacState): Sha512Hmac</a></li>
 <li><a class="reference" href="#finish%2CSha512State" title="finish(state: var Sha512State): Sha512Digest">finish(state: var Sha512State): Sha512Digest</a></li>
+<li><a class="reference" href="#finish%2CXxh3_64" title="finish(state: var Xxh3_64): uint64">finish(state: var Xxh3_64): uint64</a></li>
+<li><a class="reference" href="#finish%2CXxh3_128" title="finish(state: var Xxh3_128): xxhAlgo.Xxh128">finish(state: var Xxh3_128): xxhAlgo.Xxh128</a></li>
+<li><a class="reference" href="#finish%2CXxh32" title="finish(state: var Xxh32): uint32">finish(state: var Xxh32): uint32</a></li>
+<li><a class="reference" href="#finish%2CXxh64" title="finish(state: var Xxh64): uint64">finish(state: var Xxh64): uint64</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">finishHex
   <li><a class="reference" href="#finishHex%2CBlake2b" title="finishHex(state: var Blake2b): string">finishHex(state: var Blake2b): string</a></li>
+<li><a class="reference" href="#finishHex%2CMd5HmacState" title="finishHex(state: var Md5HmacState): string">finishHex(state: var Md5HmacState): string</a></li>
+<li><a class="reference" href="#finishHex%2CMd5State" title="finishHex(state: var Md5State): string">finishHex(state: var Md5State): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha256HmacState" title="finishHex(state: var Sha256HmacState): string">finishHex(state: var Sha256HmacState): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha256State" title="finishHex(state: var Sha256State): string">finishHex(state: var Sha256State): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha384HmacState" title="finishHex(state: var Sha384HmacState): string">finishHex(state: var Sha384HmacState): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha384State" title="finishHex(state: var Sha384State): string">finishHex(state: var Sha384State): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha512HmacState" title="finishHex(state: var Sha512HmacState): string">finishHex(state: var Sha512HmacState): string</a></li>
 <li><a class="reference" href="#finishHex%2CSha512State" title="finishHex(state: var Sha512State): string">finishHex(state: var Sha512State): string</a></li>
+<li><a class="reference" href="#finishHex%2CXxh3_64" title="finishHex(state: var Xxh3_64): string">finishHex(state: var Xxh3_64): string</a></li>
+<li><a class="reference" href="#finishHex%2CXxh3_128" title="finishHex(state: var Xxh3_128): string">finishHex(state: var Xxh3_128): string</a></li>
+<li><a class="reference" href="#finishHex%2CXxh32" title="finishHex(state: var Xxh32): string">finishHex(state: var Xxh32): string</a></li>
+<li><a class="reference" href="#finishHex%2CXxh64" title="finishHex(state: var Xxh64): string">finishHex(state: var Xxh64): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">hkdfExpandSha256
@@ -186,6 +208,15 @@
 <li><a class="reference" href="#initBlake2bKeyed%2Cstring%2Cint" title="initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b">initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">initMd5
+  <li><a class="reference" href="#initMd5" title="initMd5(): Md5State">initMd5(): Md5State</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initMd5Hmac
+  <li><a class="reference" href="#initMd5Hmac%2CopenArray%5Bbyte%5D" title="initMd5Hmac(key: openArray[byte]): Md5HmacState">initMd5Hmac(key: openArray[byte]): Md5HmacState</a></li>
+<li><a class="reference" href="#initMd5Hmac%2Cstring" title="initMd5Hmac(key: string): Md5HmacState">initMd5Hmac(key: string): Md5HmacState</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">initSha256
   <li><a class="reference" href="#initSha256" title="initSha256(): Sha256State">initSha256(): Sha256State</a></li>
 
@@ -211,6 +242,42 @@
 <ul class="simple nested-toc-section">initSha512Hmac
   <li><a class="reference" href="#initSha512Hmac%2CopenArray%5Bbyte%5D" title="initSha512Hmac(key: openArray[byte]): Sha512HmacState">initSha512Hmac(key: openArray[byte]): Sha512HmacState</a></li>
 <li><a class="reference" href="#initSha512Hmac%2Cstring" title="initSha512Hmac(key: string): Sha512HmacState">initSha512Hmac(key: string): Sha512HmacState</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initXxh3_64
+  <li><a class="reference" href="#initXxh3_64%2Cuint64" title="initXxh3_64(seed: uint64 = 0): Xxh3_64">initXxh3_64(seed: uint64 = 0): Xxh3_64</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initXxh3_128
+  <li><a class="reference" href="#initXxh3_128%2Cuint64" title="initXxh3_128(seed: uint64 = 0): Xxh3_128">initXxh3_128(seed: uint64 = 0): Xxh3_128</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initXxh32
+  <li><a class="reference" href="#initXxh32%2Cuint32" title="initXxh32(seed: uint32 = 0): Xxh32">initXxh32(seed: uint32 = 0): Xxh32</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">initXxh64
+  <li><a class="reference" href="#initXxh64%2Cuint64" title="initXxh64(seed: uint64 = 0): Xxh64">initXxh64(seed: uint64 = 0): Xxh64</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">md5
+  <li><a class="reference" href="#md5%2CopenArray%5Bbyte%5D" title="md5(message: openArray[byte]): Md5Digest">md5(message: openArray[byte]): Md5Digest</a></li>
+<li><a class="reference" href="#md5%2Cstring" title="md5(message: string): Md5Digest">md5(message: string): Md5Digest</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">md5Hex
+  <li><a class="reference" href="#md5Hex%2CopenArray%5Bbyte%5D" title="md5Hex(message: openArray[byte]): string">md5Hex(message: openArray[byte]): string</a></li>
+<li><a class="reference" href="#md5Hex%2Cstring" title="md5Hex(message: string): string">md5Hex(message: string): string</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">md5Hmac
+  <li><a class="reference" href="#md5Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="md5Hmac(key, message: openArray[byte]): Md5Hmac">md5Hmac(key, message: openArray[byte]): Md5Hmac</a></li>
+<li><a class="reference" href="#md5Hmac%2Cstring%2Cstring" title="md5Hmac(key, message: string): Md5Hmac">md5Hmac(key, message: string): Md5Hmac</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">md5HmacHex
+  <li><a class="reference" href="#md5HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="md5HmacHex(key, message: openArray[byte]): string">md5HmacHex(key, message: openArray[byte]): string</a></li>
+<li><a class="reference" href="#md5HmacHex%2Cstring%2Cstring" title="md5HmacHex(key, message: string): string">md5HmacHex(key, message: string): string</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">sha1Hmac
@@ -286,6 +353,10 @@
 <ul class="simple nested-toc-section">update
   <li><a class="reference" href="#update%2CBlake2b%2CopenArray%5Bbyte%5D" title="update(state: var Blake2b; chunk: openArray[byte])">update(state: var Blake2b; chunk: openArray[byte])</a></li>
 <li><a class="reference" href="#update%2CBlake2b%2Cstring" title="update(state: var Blake2b; chunk: string)">update(state: var Blake2b; chunk: string)</a></li>
+<li><a class="reference" href="#update%2CMd5HmacState%2CopenArray%5Bbyte%5D" title="update(state: var Md5HmacState; message: openArray[byte])">update(state: var Md5HmacState; message: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CMd5HmacState%2Cstring" title="update(state: var Md5HmacState; message: string)">update(state: var Md5HmacState; message: string)</a></li>
+<li><a class="reference" href="#update%2CMd5State%2CopenArray%5Bbyte%5D" title="update(state: var Md5State; message: openArray[byte])">update(state: var Md5State; message: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CMd5State%2Cstring" title="update(state: var Md5State; message: string)">update(state: var Md5State; message: string)</a></li>
 <li><a class="reference" href="#update%2CSha256HmacState%2CopenArray%5Bbyte%5D" title="update(state: var Sha256HmacState; message: openArray[byte])">update(state: var Sha256HmacState; message: openArray[byte])</a></li>
 <li><a class="reference" href="#update%2CSha256HmacState%2Cstring" title="update(state: var Sha256HmacState; message: string)">update(state: var Sha256HmacState; message: string)</a></li>
 <li><a class="reference" href="#update%2CSha256State%2CopenArray%5Bbyte%5D" title="update(state: var Sha256State; message: openArray[byte])">update(state: var Sha256State; message: openArray[byte])</a></li>
@@ -298,10 +369,58 @@
 <li><a class="reference" href="#update%2CSha512HmacState%2Cstring" title="update(state: var Sha512HmacState; message: string)">update(state: var Sha512HmacState; message: string)</a></li>
 <li><a class="reference" href="#update%2CSha512State%2CopenArray%5Bbyte%5D" title="update(state: var Sha512State; message: openArray[byte])">update(state: var Sha512State; message: openArray[byte])</a></li>
 <li><a class="reference" href="#update%2CSha512State%2Cstring" title="update(state: var Sha512State; message: string)">update(state: var Sha512State; message: string)</a></li>
+<li><a class="reference" href="#update%2CXxh3_64%2CopenArray%5Bbyte%5D" title="update(state: var Xxh3_64; chunk: openArray[byte])">update(state: var Xxh3_64; chunk: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CXxh3_64%2Cstring" title="update(state: var Xxh3_64; chunk: string)">update(state: var Xxh3_64; chunk: string)</a></li>
+<li><a class="reference" href="#update%2CXxh3_128%2CopenArray%5Bbyte%5D" title="update(state: var Xxh3_128; chunk: openArray[byte])">update(state: var Xxh3_128; chunk: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CXxh3_128%2Cstring" title="update(state: var Xxh3_128; chunk: string)">update(state: var Xxh3_128; chunk: string)</a></li>
+<li><a class="reference" href="#update%2CXxh32%2CopenArray%5Bbyte%5D" title="update(state: var Xxh32; chunk: openArray[byte])">update(state: var Xxh32; chunk: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CXxh32%2Cstring" title="update(state: var Xxh32; chunk: string)">update(state: var Xxh32; chunk: string)</a></li>
+<li><a class="reference" href="#update%2CXxh64%2CopenArray%5Bbyte%5D" title="update(state: var Xxh64; chunk: openArray[byte])">update(state: var Xxh64; chunk: openArray[byte])</a></li>
+<li><a class="reference" href="#update%2CXxh64%2Cstring" title="update(state: var Xxh64; chunk: string)">update(state: var Xxh64; chunk: string)</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">verifyDigest
   <li><a class="reference" href="#verifyDigest%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="verifyDigest(a, b: openArray[byte]): bool">verifyDigest(a, b: openArray[byte]): bool</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh3_64bits
+  <li><a class="reference" href="#xxh3_64bits%2CopenArray%5Bbyte%5D%2Cuint64" title="xxh3_64bits(data: openArray[byte]; seed: uint64 = 0): uint64">xxh3_64bits(data: openArray[byte]; seed: uint64 = 0): uint64</a></li>
+<li><a class="reference" href="#xxh3_64bits%2Cstring%2Cuint64" title="xxh3_64bits(data: string; seed: uint64 = 0): uint64">xxh3_64bits(data: string; seed: uint64 = 0): uint64</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh3_64bitsHex
+  <li><a class="reference" href="#xxh3_64bitsHex%2CopenArray%5Bbyte%5D%2Cuint64" title="xxh3_64bitsHex(data: openArray[byte]; seed: uint64 = 0): string">xxh3_64bitsHex(data: openArray[byte]; seed: uint64 = 0): string</a></li>
+<li><a class="reference" href="#xxh3_64bitsHex%2Cstring%2Cuint64" title="xxh3_64bitsHex(data: string; seed: uint64 = 0): string">xxh3_64bitsHex(data: string; seed: uint64 = 0): string</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh32
+  <li><a class="reference" href="#xxh32%2CopenArray%5Bbyte%5D%2Cuint32" title="xxh32(data: openArray[byte]; seed: uint32 = 0): uint32">xxh32(data: openArray[byte]; seed: uint32 = 0): uint32</a></li>
+<li><a class="reference" href="#xxh32%2Cstring%2Cuint32" title="xxh32(data: string; seed: uint32 = 0): uint32">xxh32(data: string; seed: uint32 = 0): uint32</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh32Hex
+  <li><a class="reference" href="#xxh32Hex%2CopenArray%5Bbyte%5D%2Cuint32" title="xxh32Hex(data: openArray[byte]; seed: uint32 = 0): string">xxh32Hex(data: openArray[byte]; seed: uint32 = 0): string</a></li>
+<li><a class="reference" href="#xxh32Hex%2Cstring%2Cuint32" title="xxh32Hex(data: string; seed: uint32 = 0): string">xxh32Hex(data: string; seed: uint32 = 0): string</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh64
+  <li><a class="reference" href="#xxh64%2CopenArray%5Bbyte%5D%2Cuint64" title="xxh64(data: openArray[byte]; seed: uint64 = 0): uint64">xxh64(data: openArray[byte]; seed: uint64 = 0): uint64</a></li>
+<li><a class="reference" href="#xxh64%2Cstring%2Cuint64" title="xxh64(data: string; seed: uint64 = 0): uint64">xxh64(data: string; seed: uint64 = 0): uint64</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh64Hex
+  <li><a class="reference" href="#xxh64Hex%2CopenArray%5Bbyte%5D%2Cuint64" title="xxh64Hex(data: openArray[byte]; seed: uint64 = 0): string">xxh64Hex(data: openArray[byte]; seed: uint64 = 0): string</a></li>
+<li><a class="reference" href="#xxh64Hex%2Cstring%2Cuint64" title="xxh64Hex(data: string; seed: uint64 = 0): string">xxh64Hex(data: string; seed: uint64 = 0): string</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh128
+  <li><a class="reference" href="#xxh128%2CopenArray%5Bbyte%5D%2Cuint64" title="xxh128(data: openArray[byte]; seed: uint64 = 0): xxhAlgo.Xxh128">xxh128(data: openArray[byte]; seed: uint64 = 0): xxhAlgo.Xxh128</a></li>
+<li><a class="reference" href="#xxh128%2Cstring%2Cuint64" title="xxh128(data: string; seed: uint64 = 0): xxhAlgo.Xxh128">xxh128(data: string; seed: uint64 = 0): xxhAlgo.Xxh128</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">xxh128Hex
+  <li><a class="reference" href="#xxh128Hex%2CopenArray%5Bbyte%5D%2Cuint64" title="xxh128Hex(data: openArray[byte]; seed: uint64 = 0): string">xxh128Hex(data: openArray[byte]; seed: uint64 = 0): string</a></li>
+<li><a class="reference" href="#xxh128Hex%2Cstring%2Cuint64" title="xxh128Hex(data: string; seed: uint64 = 0): string">xxh128Hex(data: string; seed: uint64 = 0): string</a></li>
 
 </ul>
 
@@ -320,7 +439,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="algos/sha512.html">algos/sha512</a>, <a class="reference external" href="algos/sha256.html">algos/sha256</a>, <a class="reference external" href="algos/sha384.html">algos/sha384</a>, <a class="reference external" href="algos/sha1.html">algos/sha1</a>, <a class="reference external" href="algos/hkdf.html">algos/hkdf</a>, <a class="reference external" href="utils.html">utils</a>
+    <a class="reference external" href="algos/blake2b.html">algos/blake2b</a>, <a class="reference external" href="algos/sha512.html">algos/sha512</a>, <a class="reference external" href="algos/sha256.html">algos/sha256</a>, <a class="reference external" href="algos/sha384.html">algos/sha384</a>, <a class="reference external" href="algos/sha1.html">algos/sha1</a>, <a class="reference external" href="algos/hkdf.html">algos/hkdf</a>, <a class="reference external" href="hashes/md5.html">hashes/md5</a>, <a class="reference external" href="hashes/xxhash.html">hashes/xxhash</a>, <a class="reference external" href="utils.html">utils</a>
   </dl>
 </div>
 <div class="section" id="7">
@@ -331,6 +450,38 @@
   <dd>
     
     Stateful BLAKE2b computation. Update with chunks, then <tt class="docutils literal"><span class="pre"><span class="Identifier">finish</span></span></tt>.
+    
+  </dd>
+</div>
+<div id="Md5Digest">
+  <dt><pre><a href="#Md5Digest"><span class="Identifier">Md5Digest</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">Md5DigestSize</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Md5Hmac">
+  <dt><pre><a href="#Md5Hmac"><span class="Identifier">Md5Hmac</span></a> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">Md5DigestSize</span><span class="Other">,</span> <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Md5HmacState">
+  <dt><pre><a href="#Md5HmacState"><span class="Identifier">Md5HmacState</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Md5State">
+  <dt><pre><a href="#Md5State"><span class="Identifier">Md5State</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
     
   </dd>
 </div>
@@ -438,6 +589,38 @@
     
   </dd>
 </div>
+<div id="Xxh3_64">
+  <dt><pre><a href="#Xxh3_64"><span class="Identifier">Xxh3_64</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Xxh3_128">
+  <dt><pre><a href="#Xxh3_128"><span class="Identifier">Xxh3_128</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Xxh32">
+  <dt><pre><a href="#Xxh32"><span class="Identifier">Xxh32</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Xxh64">
+  <dt><pre><a href="#Xxh64"><span class="Identifier">Xxh64</span></a> <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 
   </dl>
 </div>
@@ -486,6 +669,22 @@
 </div>
 <div id="HkdfSha256MaxOkmLen">
   <dt><pre><a href="#HkdfSha256MaxOkmLen"><span class="Identifier">HkdfSha256MaxOkmLen</span></a> <span class="Other">=</span> <span class="DecNumber">8160</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Md5BlockSize">
+  <dt><pre><a href="#Md5BlockSize"><span class="Identifier">Md5BlockSize</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="Md5DigestSize">
+  <dt><pre><a href="#Md5DigestSize"><span class="Identifier">Md5DigestSize</span></a> <span class="Other">=</span> <span class="DecNumber">16</span></pre></dt>
   <dd>
     
     
@@ -659,6 +858,24 @@
     
   </dd>
 </div>
+<div id="finish,Md5HmacState">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CMd5HmacState"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5HmacState"><span class="Identifier">Md5HmacState</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#Md5Hmac"><span class="Identifier">Md5Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finish,Md5State">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CMd5State"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5State"><span class="Identifier">Md5State</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#Md5Digest"><span class="Identifier">Md5Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="finish,Sha256HmacState">
   <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CSha256HmacState"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256Hmac"><span class="Identifier">Sha256Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -713,11 +930,65 @@
     
   </dd>
 </div>
+<div id="finish,Xxh3_64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CXxh3_64"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_64"><span class="Identifier">Xxh3_64</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finish,Xxh3_128">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CXxh3_128"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_128"><span class="Identifier">Xxh3_128</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">xxhAlgo</span><span class="Other">.</span><span class="Identifier">Xxh128</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finish,Xxh32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CXxh32"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh32"><span class="Identifier">Xxh32</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+                                        <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finish,Xxh64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finish%2CXxh64"><span class="Identifier">finish</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh64"><span class="Identifier">Xxh64</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+                                        <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 
 </div>
 <div id="finishHex-procs-all">
   <div id="finishHex,Blake2b">
   <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CBlake2b"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Blake2b"><span class="Identifier">Blake2b</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finishHex,Md5HmacState">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CMd5HmacState"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5HmacState"><span class="Identifier">Md5HmacState</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finishHex,Md5State">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CMd5State"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5State"><span class="Identifier">Md5State</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -772,6 +1043,42 @@
 </div>
 <div id="finishHex,Sha512State">
   <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CSha512State"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha512State"><span class="Identifier">Sha512State</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finishHex,Xxh3_64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CXxh3_64"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_64"><span class="Identifier">Xxh3_64</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finishHex,Xxh3_128">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CXxh3_128"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_128"><span class="Identifier">Xxh3_128</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finishHex,Xxh32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CXxh32"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh32"><span class="Identifier">Xxh32</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="finishHex,Xxh64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#finishHex%2CXxh64"><span class="Identifier">finishHex</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh64"><span class="Identifier">Xxh64</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -935,6 +1242,37 @@
 </div>
 
 </div>
+<div id="initMd5-procs-all">
+  <div id="initMd5">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initMd5"><span class="Identifier">initMd5</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="#Md5State"><span class="Identifier">Md5State</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="initMd5Hmac-procs-all">
+  <div id="initMd5Hmac,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initMd5Hmac%2CopenArray%5Bbyte%5D"><span class="Identifier">initMd5Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Md5HmacState"><span class="Identifier">Md5HmacState</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="initMd5Hmac,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initMd5Hmac%2Cstring"><span class="Identifier">initMd5Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Md5HmacState"><span class="Identifier">Md5HmacState</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
 <div id="initSha256-procs-all">
   <div id="initSha256">
   <dt><pre><span class="Keyword">proc</span> <a href="#initSha256"><span class="Identifier">initSha256</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha256State"><span class="Identifier">Sha256State</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -1022,6 +1360,132 @@
 </div>
 <div id="initSha512Hmac,string">
   <dt><pre><span class="Keyword">proc</span> <a href="#initSha512Hmac%2Cstring"><span class="Identifier">initSha512Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Sha512HmacState"><span class="Identifier">Sha512HmacState</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="initXxh3_64-procs-all">
+  <div id="initXxh3_64,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initXxh3_64%2Cuint64"><span class="Identifier">initXxh3_64</span></a><span class="Other">(</span><span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="#Xxh3_64"><span class="Identifier">Xxh3_64</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="initXxh3_128-procs-all">
+  <div id="initXxh3_128,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initXxh3_128%2Cuint64"><span class="Identifier">initXxh3_128</span></a><span class="Other">(</span><span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="#Xxh3_128"><span class="Identifier">Xxh3_128</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="initXxh32-procs-all">
+  <div id="initXxh32,uint32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initXxh32%2Cuint32"><span class="Identifier">initXxh32</span></a><span class="Other">(</span><span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="#Xxh32"><span class="Identifier">Xxh32</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="initXxh64-procs-all">
+  <div id="initXxh64,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#initXxh64%2Cuint64"><span class="Identifier">initXxh64</span></a><span class="Other">(</span><span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <a href="#Xxh64"><span class="Identifier">Xxh64</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="md5-procs-all">
+  <div id="md5,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5%2CopenArray%5Bbyte%5D"><span class="Identifier">md5</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Md5Digest"><span class="Identifier">Md5Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="md5,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5%2Cstring"><span class="Identifier">md5</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Md5Digest"><span class="Identifier">Md5Digest</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="md5Hex-procs-all">
+  <div id="md5Hex,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5Hex%2CopenArray%5Bbyte%5D"><span class="Identifier">md5Hex</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="md5Hex,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5Hex%2Cstring"><span class="Identifier">md5Hex</span></a><span class="Other">(</span><span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="md5Hmac-procs-all">
+  <div id="md5Hmac,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5Hmac%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">md5Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="#Md5Hmac"><span class="Identifier">Md5Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="md5Hmac,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5Hmac%2Cstring%2Cstring"><span class="Identifier">md5Hmac</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <a href="#Md5Hmac"><span class="Identifier">Md5Hmac</span></a> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="md5HmacHex-procs-all">
+  <div id="md5HmacHex,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5HmacHex%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">md5HmacHex</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="md5HmacHex,string,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#md5HmacHex%2Cstring%2Cstring"><span class="Identifier">md5HmacHex</span></a><span class="Other">(</span><span class="Identifier">key</span><span class="Other">,</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -1338,6 +1802,42 @@
     
   </dd>
 </div>
+<div id="update,Md5HmacState,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CMd5HmacState%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5HmacState"><span class="Identifier">Md5HmacState</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Md5HmacState,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CMd5HmacState%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5HmacState"><span class="Identifier">Md5HmacState</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Md5State,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CMd5State%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5State"><span class="Identifier">Md5State</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Md5State,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CMd5State%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Md5State"><span class="Identifier">Md5State</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="update,Sha256HmacState,openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#update%2CSha256HmacState%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Sha256HmacState"><span class="Identifier">Sha256HmacState</span></a><span class="Other">;</span> <span class="Identifier">message</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -1446,6 +1946,78 @@
     
   </dd>
 </div>
+<div id="update,Xxh3_64,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh3_64%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_64"><span class="Identifier">Xxh3_64</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Xxh3_64,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh3_64%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_64"><span class="Identifier">Xxh3_64</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Xxh3_128,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh3_128%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_128"><span class="Identifier">Xxh3_128</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Xxh3_128,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh3_128%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh3_128"><span class="Identifier">Xxh3_128</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Xxh32,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh32%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh32"><span class="Identifier">Xxh32</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Xxh32,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh32%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh32"><span class="Identifier">Xxh32</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Xxh64,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh64%2CopenArray%5Bbyte%5D"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh64"><span class="Identifier">Xxh64</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="update,Xxh64,string">
+  <dt><pre><span class="Keyword">proc</span> <a href="#update%2CXxh64%2Cstring"><span class="Identifier">update</span></a><span class="Other">(</span><span class="Identifier">state</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#Xxh64"><span class="Identifier">Xxh64</span></a><span class="Other">;</span> <span class="Identifier">chunk</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 
 </div>
 <div id="verifyDigest-procs-all">
@@ -1455,6 +2027,174 @@
   <dd>
     
     Constant-time comparison of two digests.
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh3_64bits-procs-all">
+  <div id="xxh3_64bits,openArray[byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh3_64bits%2CopenArray%5Bbyte%5D%2Cuint64"><span class="Identifier">xxh3_64bits</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh3_64bits,string,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh3_64bits%2Cstring%2Cuint64"><span class="Identifier">xxh3_64bits</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh3_64bitsHex-procs-all">
+  <div id="xxh3_64bitsHex,openArray[byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh3_64bitsHex%2CopenArray%5Bbyte%5D%2Cuint64"><span class="Identifier">xxh3_64bitsHex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh3_64bitsHex,string,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh3_64bitsHex%2Cstring%2Cuint64"><span class="Identifier">xxh3_64bitsHex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh32-procs-all">
+  <div id="xxh32,openArray[byte],uint32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh32%2CopenArray%5Bbyte%5D%2Cuint32"><span class="Identifier">xxh32</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh32,string,uint32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh32%2Cstring%2Cuint32"><span class="Identifier">xxh32</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh32Hex-procs-all">
+  <div id="xxh32Hex,openArray[byte],uint32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh32Hex%2CopenArray%5Bbyte%5D%2Cuint32"><span class="Identifier">xxh32Hex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh32Hex,string,uint32">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh32Hex%2Cstring%2Cuint32"><span class="Identifier">xxh32Hex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh64-procs-all">
+  <div id="xxh64,openArray[byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh64%2CopenArray%5Bbyte%5D%2Cuint64"><span class="Identifier">xxh64</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh64,string,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh64%2Cstring%2Cuint64"><span class="Identifier">xxh64</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh64Hex-procs-all">
+  <div id="xxh64Hex,openArray[byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh64Hex%2CopenArray%5Bbyte%5D%2Cuint64"><span class="Identifier">xxh64Hex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh64Hex,string,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh64Hex%2Cstring%2Cuint64"><span class="Identifier">xxh64Hex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh128-procs-all">
+  <div id="xxh128,openArray[byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh128%2CopenArray%5Bbyte%5D%2Cuint64"><span class="Identifier">xxh128</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">xxhAlgo</span><span class="Other">.</span><span class="Identifier">Xxh128</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh128,string,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh128%2Cstring%2Cuint64"><span class="Identifier">xxh128</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">xxhAlgo</span><span class="Other">.</span><span class="Identifier">Xxh128</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="xxh128Hex-procs-all">
+  <div id="xxh128Hex,openArray[byte],uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh128Hex%2CopenArray%5Bbyte%5D%2Cuint64"><span class="Identifier">xxh128Hex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="xxh128Hex,string,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#xxh128Hex%2Cstring%2Cuint64"><span class="Identifier">xxh128Hex</span></a><span class="Other">(</span><span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">seed</span><span class="Other">:</span> <span class="Identifier">uint64</span> <span class="Other">=</span> <span class="DecNumber">0</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">string</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
     
   </dd>
 </div>
@@ -1470,7 +2210,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-12 19:22:32 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-14 11:07:08 UTC</small>
       </div>
     </div>
   </div>

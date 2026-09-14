@@ -1,147 +1,225 @@
 nimTitle	hash	nimcypher/hash.html	module nimcypher/hash		0
-nim	Blake2bMinDigestSize	nimcypher/hash.html#Blake2bMinDigestSize	const Blake2bMinDigestSize		16
-nim	Blake2bMaxDigestSize	nimcypher/hash.html#Blake2bMaxDigestSize	const Blake2bMaxDigestSize		17
-nim	Blake2bDefaultDigestSize	nimcypher/hash.html#Blake2bDefaultDigestSize	const Blake2bDefaultDigestSize		18
-nim	Blake2bMaxKeySize	nimcypher/hash.html#Blake2bMaxKeySize	const Blake2bMaxKeySize		19
-nim	Sha512DigestSize	nimcypher/hash.html#Sha512DigestSize	const Sha512DigestSize		20
-nim	Sha512BlockSize	nimcypher/hash.html#Sha512BlockSize	const Sha512BlockSize		21
-nim	Sha384DigestSize	nimcypher/hash.html#Sha384DigestSize	const Sha384DigestSize		22
-nim	Sha384BlockSize	nimcypher/hash.html#Sha384BlockSize	const Sha384BlockSize		23
-nim	Sha256DigestSize	nimcypher/hash.html#Sha256DigestSize	const Sha256DigestSize		24
-nim	Sha256BlockSize	nimcypher/hash.html#Sha256BlockSize	const Sha256BlockSize		25
-nim	Sha1DigestSize	nimcypher/hash.html#Sha1DigestSize	const Sha1DigestSize		26
-nim	Sha1BlockSize	nimcypher/hash.html#Sha1BlockSize	const Sha1BlockSize		27
-nim	Sha512Digest	nimcypher/hash.html#Sha512Digest	type Sha512Digest		30
-nim	Sha512Hmac	nimcypher/hash.html#Sha512Hmac	type Sha512Hmac		31
-nim	Sha384Digest	nimcypher/hash.html#Sha384Digest	type Sha384Digest		32
-nim	Sha384Hmac	nimcypher/hash.html#Sha384Hmac	type Sha384Hmac		33
-nim	Sha256Digest	nimcypher/hash.html#Sha256Digest	type Sha256Digest		34
-nim	Sha256Hmac	nimcypher/hash.html#Sha256Hmac	type Sha256Hmac		35
-nim	Sha1Hmac	nimcypher/hash.html#Sha1Hmac	type Sha1Hmac		36
-nim	Blake2b	nimcypher/hash.html#Blake2b	object Blake2b		38
-nim	Sha512State	nimcypher/hash.html#Sha512State	object Sha512State		44
-nim	Sha512HmacState	nimcypher/hash.html#Sha512HmacState	object Sha512HmacState		49
-nim	blake	nimcypher/hash.html#blake,openArray[byte],int	proc blake(message: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): seq[\n    byte]		63
-nim	blake	nimcypher/hash.html#blake,string,int	proc blake(message: string; hashSize: int = Blake2bDefaultDigestSize): seq[byte]		68
-nim	blakeHex	nimcypher/hash.html#blakeHex,openArray[byte],int	proc blakeHex(message: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): string		72
-nim	blakeHex	nimcypher/hash.html#blakeHex,string,int	proc blakeHex(message: string; hashSize: int = Blake2bDefaultDigestSize): string		75
-nim	blakeKeyed	nimcypher/hash.html#blakeKeyed,openArray[byte],openArray[byte],int	proc blakeKeyed(message: openArray[byte]; key: openArray[byte];\n           hashSize: int = Blake2bDefaultDigestSize): seq[byte]		78
-nim	blakeKeyed	nimcypher/hash.html#blakeKeyed,string,string,int	proc blakeKeyed(message, key: string; hashSize: int = Blake2bDefaultDigestSize): seq[\n    byte]		85
-nim	blakeKeyedHex	nimcypher/hash.html#blakeKeyedHex,openArray[byte],openArray[byte],int	proc blakeKeyedHex(message: openArray[byte]; key: openArray[byte];\n              hashSize: int = Blake2bDefaultDigestSize): string		91
-nim	blakeKeyedHex	nimcypher/hash.html#blakeKeyedHex,string,string,int	proc blakeKeyedHex(message, key: string; hashSize: int = Blake2bDefaultDigestSize): string		95
-nim	initBlake2b	nimcypher/hash.html#initBlake2b,int	proc initBlake2b(hashSize: int = Blake2bDefaultDigestSize): Blake2b		100
-nim	initBlake2bKeyed	nimcypher/hash.html#initBlake2bKeyed,openArray[byte],int	proc initBlake2bKeyed(key: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): Blake2b		106
-nim	initBlake2bKeyed	nimcypher/hash.html#initBlake2bKeyed,string,int	proc initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b		114
-nim	update	nimcypher/hash.html#update,Blake2b,openArray[byte]	proc update(state: var Blake2b; chunk: openArray[byte])		118
-nim	update	nimcypher/hash.html#update,Blake2b,string	proc update(state: var Blake2b; chunk: string)		123
-nim	finish	nimcypher/hash.html#finish,Blake2b	proc finish(state: var Blake2b): seq[byte]		126
-nim	finishHex	nimcypher/hash.html#finishHex,Blake2b	proc finishHex(state: var Blake2b): string		132
-nim	sha512	nimcypher/hash.html#sha512,openArray[byte]	proc sha512(message: openArray[byte]): Sha512Digest		136
-nim	sha512	nimcypher/hash.html#sha512,string	proc sha512(message: string): Sha512Digest		139
-nim	sha512Hex	nimcypher/hash.html#sha512Hex,openArray[byte]	proc sha512Hex(message: openArray[byte]): string		142
-nim	sha512Hex	nimcypher/hash.html#sha512Hex,string	proc sha512Hex(message: string): string		145
-nim	initSha512	nimcypher/hash.html#initSha512	proc initSha512(): Sha512State		149
-nim	update	nimcypher/hash.html#update,Sha512State,openArray[byte]	proc update(state: var Sha512State; message: openArray[byte])		153
-nim	update	nimcypher/hash.html#update,Sha512State,string	proc update(state: var Sha512State; message: string)		158
-nim	finish	nimcypher/hash.html#finish,Sha512State	proc finish(state: var Sha512State): Sha512Digest		161
-nim	finishHex	nimcypher/hash.html#finishHex,Sha512State	proc finishHex(state: var Sha512State): string		167
-nim	sha512Hmac	nimcypher/hash.html#sha512Hmac,openArray[byte],openArray[byte]	proc sha512Hmac(key, message: openArray[byte]): Sha512Hmac		171
-nim	sha512Hmac	nimcypher/hash.html#sha512Hmac,string,string	proc sha512Hmac(key, message: string): Sha512Hmac		174
-nim	sha512HmacHex	nimcypher/hash.html#sha512HmacHex,openArray[byte],openArray[byte]	proc sha512HmacHex(key, message: openArray[byte]): string		177
-nim	sha512HmacHex	nimcypher/hash.html#sha512HmacHex,string,string	proc sha512HmacHex(key, message: string): string		180
-nim	initSha512Hmac	nimcypher/hash.html#initSha512Hmac,openArray[byte]	proc initSha512Hmac(key: openArray[byte]): Sha512HmacState		184
-nim	initSha512Hmac	nimcypher/hash.html#initSha512Hmac,string	proc initSha512Hmac(key: string): Sha512HmacState		188
-nim	update	nimcypher/hash.html#update,Sha512HmacState,openArray[byte]	proc update(state: var Sha512HmacState; message: openArray[byte])		191
-nim	update	nimcypher/hash.html#update,Sha512HmacState,string	proc update(state: var Sha512HmacState; message: string)		196
-nim	finish	nimcypher/hash.html#finish,Sha512HmacState	proc finish(state: var Sha512HmacState): Sha512Hmac		199
-nim	finishHex	nimcypher/hash.html#finishHex,Sha512HmacState	proc finishHex(state: var Sha512HmacState): string		205
-nim	sha1Hmac	nimcypher/hash.html#sha1Hmac,openArray[byte],openArray[byte]	proc sha1Hmac(key, message: openArray[byte]): Sha1Hmac		209
-nim	sha1Hmac	nimcypher/hash.html#sha1Hmac,string,string	proc sha1Hmac(key, message: string): Sha1Hmac		212
-nim	sha1HmacHex	nimcypher/hash.html#sha1HmacHex,openArray[byte],openArray[byte]	proc sha1HmacHex(key, message: openArray[byte]): string		215
-nim	sha1HmacHex	nimcypher/hash.html#sha1HmacHex,string,string	proc sha1HmacHex(key, message: string): string		218
-nim	sha256	nimcypher/hash.html#sha256,openArray[byte]	proc sha256(message: openArray[byte]): Sha256Digest		222
-nim	sha256	nimcypher/hash.html#sha256,string	proc sha256(message: string): Sha256Digest		225
-nim	sha256Hex	nimcypher/hash.html#sha256Hex,openArray[byte]	proc sha256Hex(message: openArray[byte]): string		228
-nim	sha256Hex	nimcypher/hash.html#sha256Hex,string	proc sha256Hex(message: string): string		231
-nim	Sha256State	nimcypher/hash.html#Sha256State	object Sha256State		236
-nim	Sha256HmacState	nimcypher/hash.html#Sha256HmacState	object Sha256HmacState		240
-nim	initSha256	nimcypher/hash.html#initSha256	proc initSha256(): Sha256State		244
-nim	update	nimcypher/hash.html#update,Sha256State,openArray[byte]	proc update(state: var Sha256State; message: openArray[byte])		248
-nim	update	nimcypher/hash.html#update,Sha256State,string	proc update(state: var Sha256State; message: string)		253
-nim	finish	nimcypher/hash.html#finish,Sha256State	proc finish(state: var Sha256State): Sha256Digest		256
-nim	finishHex	nimcypher/hash.html#finishHex,Sha256State	proc finishHex(state: var Sha256State): string		262
-nim	sha256Hmac	nimcypher/hash.html#sha256Hmac,openArray[byte],openArray[byte]	proc sha256Hmac(key, message: openArray[byte]): Sha256Hmac		266
-nim	sha256Hmac	nimcypher/hash.html#sha256Hmac,string,string	proc sha256Hmac(key, message: string): Sha256Hmac		269
-nim	sha256HmacHex	nimcypher/hash.html#sha256HmacHex,openArray[byte],openArray[byte]	proc sha256HmacHex(key, message: openArray[byte]): string		272
-nim	sha256HmacHex	nimcypher/hash.html#sha256HmacHex,string,string	proc sha256HmacHex(key, message: string): string		275
-nim	initSha256Hmac	nimcypher/hash.html#initSha256Hmac,openArray[byte]	proc initSha256Hmac(key: openArray[byte]): Sha256HmacState		278
-nim	initSha256Hmac	nimcypher/hash.html#initSha256Hmac,string	proc initSha256Hmac(key: string): Sha256HmacState		282
-nim	update	nimcypher/hash.html#update,Sha256HmacState,openArray[byte]	proc update(state: var Sha256HmacState; message: openArray[byte])		285
-nim	update	nimcypher/hash.html#update,Sha256HmacState,string	proc update(state: var Sha256HmacState; message: string)		290
-nim	finish	nimcypher/hash.html#finish,Sha256HmacState	proc finish(state: var Sha256HmacState): Sha256Hmac		293
-nim	finishHex	nimcypher/hash.html#finishHex,Sha256HmacState	proc finishHex(state: var Sha256HmacState): string		299
-nim	sha384	nimcypher/hash.html#sha384,openArray[byte]	proc sha384(message: openArray[byte]): Sha384Digest		303
-nim	sha384	nimcypher/hash.html#sha384,string	proc sha384(message: string): Sha384Digest		307
-nim	sha384Hex	nimcypher/hash.html#sha384Hex,openArray[byte]	proc sha384Hex(message: openArray[byte]): string		310
-nim	sha384Hex	nimcypher/hash.html#sha384Hex,string	proc sha384Hex(message: string): string		313
-nim	Sha384State	nimcypher/hash.html#Sha384State	object Sha384State		318
-nim	Sha384HmacState	nimcypher/hash.html#Sha384HmacState	object Sha384HmacState		322
-nim	initSha384	nimcypher/hash.html#initSha384	proc initSha384(): Sha384State		326
-nim	update	nimcypher/hash.html#update,Sha384State,openArray[byte]	proc update(state: var Sha384State; message: openArray[byte])		330
-nim	update	nimcypher/hash.html#update,Sha384State,string	proc update(state: var Sha384State; message: string)		335
-nim	finish	nimcypher/hash.html#finish,Sha384State	proc finish(state: var Sha384State): Sha384Digest		338
-nim	finishHex	nimcypher/hash.html#finishHex,Sha384State	proc finishHex(state: var Sha384State): string		345
-nim	sha384Hmac	nimcypher/hash.html#sha384Hmac,openArray[byte],openArray[byte]	proc sha384Hmac(key, message: openArray[byte]): Sha384Hmac		349
-nim	sha384Hmac	nimcypher/hash.html#sha384Hmac,string,string	proc sha384Hmac(key, message: string): Sha384Hmac		353
-nim	sha384HmacHex	nimcypher/hash.html#sha384HmacHex,openArray[byte],openArray[byte]	proc sha384HmacHex(key, message: openArray[byte]): string		356
-nim	sha384HmacHex	nimcypher/hash.html#sha384HmacHex,string,string	proc sha384HmacHex(key, message: string): string		359
-nim	initSha384Hmac	nimcypher/hash.html#initSha384Hmac,openArray[byte]	proc initSha384Hmac(key: openArray[byte]): Sha384HmacState		362
-nim	initSha384Hmac	nimcypher/hash.html#initSha384Hmac,string	proc initSha384Hmac(key: string): Sha384HmacState		366
-nim	update	nimcypher/hash.html#update,Sha384HmacState,openArray[byte]	proc update(state: var Sha384HmacState; message: openArray[byte])		369
-nim	update	nimcypher/hash.html#update,Sha384HmacState,string	proc update(state: var Sha384HmacState; message: string)		374
-nim	finish	nimcypher/hash.html#finish,Sha384HmacState	proc finish(state: var Sha384HmacState): Sha384Hmac		377
-nim	finishHex	nimcypher/hash.html#finishHex,Sha384HmacState	proc finishHex(state: var Sha384HmacState): string		384
-nim	HkdfMaxOkmLen	nimcypher/hash.html#HkdfMaxOkmLen	const HkdfMaxOkmLen		390
-nim	HkdfSha256MaxOkmLen	nimcypher/hash.html#HkdfSha256MaxOkmLen	const HkdfSha256MaxOkmLen		391
-nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte],Natural	proc hkdfSha512(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]		398
-nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,string,string,string,Natural	proc hkdfSha512(ikm, salt, info: string; okmLen: Natural): seq[byte]		403
-nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte],Natural	proc hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]		406
-nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,string,string,Natural	proc hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]		411
-nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte]	proc hkdfSha512[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]		414
-nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte]	proc hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]		420
-nim	hkdfSha256	nimcypher/hash.html#hkdfSha256,openArray[byte],openArray[byte],openArray[byte],Natural	proc hkdfSha256(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]		430
-nim	hkdfSha256	nimcypher/hash.html#hkdfSha256,string,string,string,Natural	proc hkdfSha256(ikm, salt, info: string; okmLen: Natural): seq[byte]		435
-nim	hkdfExpandSha256	nimcypher/hash.html#hkdfExpandSha256,openArray[byte],openArray[byte],Natural	proc hkdfExpandSha256(prk, info: openArray[byte]; okmLen: Natural): seq[byte]		438
-nim	hkdfExpandSha256	nimcypher/hash.html#hkdfExpandSha256,string,string,Natural	proc hkdfExpandSha256(prk, info: string; okmLen: Natural): seq[byte]		442
-nim	hkdfSha256	nimcypher/hash.html#hkdfSha256,openArray[byte],openArray[byte],openArray[byte]	proc hkdfSha256[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]		445
-nim	hkdfExpandSha256	nimcypher/hash.html#hkdfExpandSha256,openArray[byte],openArray[byte]	proc hkdfExpandSha256[N: static[int]](prk, info: openArray[byte]): array[N, uint8]		450
-nim	verifyDigest	nimcypher/hash.html#verifyDigest,openArray[byte],openArray[byte]	proc verifyDigest(a, b: openArray[byte]): bool		456
-nimgrp	sha512	nimcypher/hash.html#sha512-procs-all	proc		136
-nimgrp	sha512hex	nimcypher/hash.html#sha512Hex-procs-all	proc		142
-nimgrp	sha1hmachex	nimcypher/hash.html#sha1HmacHex-procs-all	proc		215
-nimgrp	blake	nimcypher/hash.html#blake-procs-all	proc		63
-nimgrp	sha256hmachex	nimcypher/hash.html#sha256HmacHex-procs-all	proc		272
-nimgrp	sha384	nimcypher/hash.html#sha384-procs-all	proc		303
-nimgrp	blakekeyed	nimcypher/hash.html#blakeKeyed-procs-all	proc		78
-nimgrp	finish	nimcypher/hash.html#finish-procs-all	proc		126
-nimgrp	sha1hmac	nimcypher/hash.html#sha1Hmac-procs-all	proc		209
-nimgrp	initsha512hmac	nimcypher/hash.html#initSha512Hmac-procs-all	proc		184
-nimgrp	sha384hmac	nimcypher/hash.html#sha384Hmac-procs-all	proc		349
-nimgrp	sha256hex	nimcypher/hash.html#sha256Hex-procs-all	proc		228
-nimgrp	blakehex	nimcypher/hash.html#blakeHex-procs-all	proc		72
-nimgrp	finishhex	nimcypher/hash.html#finishHex-procs-all	proc		132
-nimgrp	blakekeyedhex	nimcypher/hash.html#blakeKeyedHex-procs-all	proc		91
-nimgrp	sha256	nimcypher/hash.html#sha256-procs-all	proc		222
-nimgrp	sha384hex	nimcypher/hash.html#sha384Hex-procs-all	proc		310
-nimgrp	update	nimcypher/hash.html#update-procs-all	proc		118
-nimgrp	hkdfsha256	nimcypher/hash.html#hkdfSha256-procs-all	proc		430
-nimgrp	sha512hmac	nimcypher/hash.html#sha512Hmac-procs-all	proc		171
-nimgrp	initblake2bkeyed	nimcypher/hash.html#initBlake2bKeyed-procs-all	proc		106
-nimgrp	sha512hmachex	nimcypher/hash.html#sha512HmacHex-procs-all	proc		177
-nimgrp	hkdfsha512	nimcypher/hash.html#hkdfSha512-procs-all	proc		398
-nimgrp	hkdfexpandsha512	nimcypher/hash.html#hkdfExpandSha512-procs-all	proc		406
-nimgrp	hkdfexpandsha256	nimcypher/hash.html#hkdfExpandSha256-procs-all	proc		438
-nimgrp	sha384hmachex	nimcypher/hash.html#sha384HmacHex-procs-all	proc		356
-nimgrp	sha256hmac	nimcypher/hash.html#sha256Hmac-procs-all	proc		266
-nimgrp	initsha256hmac	nimcypher/hash.html#initSha256Hmac-procs-all	proc		278
-nimgrp	initsha384hmac	nimcypher/hash.html#initSha384Hmac-procs-all	proc		362
+nim	Blake2bMinDigestSize	nimcypher/hash.html#Blake2bMinDigestSize	const Blake2bMinDigestSize		18
+nim	Blake2bMaxDigestSize	nimcypher/hash.html#Blake2bMaxDigestSize	const Blake2bMaxDigestSize		19
+nim	Blake2bDefaultDigestSize	nimcypher/hash.html#Blake2bDefaultDigestSize	const Blake2bDefaultDigestSize		20
+nim	Blake2bMaxKeySize	nimcypher/hash.html#Blake2bMaxKeySize	const Blake2bMaxKeySize		21
+nim	Sha512DigestSize	nimcypher/hash.html#Sha512DigestSize	const Sha512DigestSize		22
+nim	Sha512BlockSize	nimcypher/hash.html#Sha512BlockSize	const Sha512BlockSize		23
+nim	Sha384DigestSize	nimcypher/hash.html#Sha384DigestSize	const Sha384DigestSize		24
+nim	Sha384BlockSize	nimcypher/hash.html#Sha384BlockSize	const Sha384BlockSize		25
+nim	Sha256DigestSize	nimcypher/hash.html#Sha256DigestSize	const Sha256DigestSize		26
+nim	Sha256BlockSize	nimcypher/hash.html#Sha256BlockSize	const Sha256BlockSize		27
+nim	Sha1DigestSize	nimcypher/hash.html#Sha1DigestSize	const Sha1DigestSize		28
+nim	Sha1BlockSize	nimcypher/hash.html#Sha1BlockSize	const Sha1BlockSize		29
+nim	Md5DigestSize	nimcypher/hash.html#Md5DigestSize	const Md5DigestSize		30
+nim	Md5BlockSize	nimcypher/hash.html#Md5BlockSize	const Md5BlockSize		31
+nim	Sha512Digest	nimcypher/hash.html#Sha512Digest	type Sha512Digest		34
+nim	Sha512Hmac	nimcypher/hash.html#Sha512Hmac	type Sha512Hmac		35
+nim	Sha384Digest	nimcypher/hash.html#Sha384Digest	type Sha384Digest		36
+nim	Sha384Hmac	nimcypher/hash.html#Sha384Hmac	type Sha384Hmac		37
+nim	Sha256Digest	nimcypher/hash.html#Sha256Digest	type Sha256Digest		38
+nim	Sha256Hmac	nimcypher/hash.html#Sha256Hmac	type Sha256Hmac		39
+nim	Sha1Hmac	nimcypher/hash.html#Sha1Hmac	type Sha1Hmac		40
+nim	Md5Digest	nimcypher/hash.html#Md5Digest	type Md5Digest		41
+nim	Md5Hmac	nimcypher/hash.html#Md5Hmac	type Md5Hmac		42
+nim	Blake2b	nimcypher/hash.html#Blake2b	object Blake2b		44
+nim	Sha512State	nimcypher/hash.html#Sha512State	object Sha512State		50
+nim	Sha512HmacState	nimcypher/hash.html#Sha512HmacState	object Sha512HmacState		55
+nim	blake	nimcypher/hash.html#blake,openArray[byte],int	proc blake(message: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): seq[\n    byte]		69
+nim	blake	nimcypher/hash.html#blake,string,int	proc blake(message: string; hashSize: int = Blake2bDefaultDigestSize): seq[byte]		74
+nim	blakeHex	nimcypher/hash.html#blakeHex,openArray[byte],int	proc blakeHex(message: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): string		78
+nim	blakeHex	nimcypher/hash.html#blakeHex,string,int	proc blakeHex(message: string; hashSize: int = Blake2bDefaultDigestSize): string		81
+nim	blakeKeyed	nimcypher/hash.html#blakeKeyed,openArray[byte],openArray[byte],int	proc blakeKeyed(message: openArray[byte]; key: openArray[byte];\n           hashSize: int = Blake2bDefaultDigestSize): seq[byte]		84
+nim	blakeKeyed	nimcypher/hash.html#blakeKeyed,string,string,int	proc blakeKeyed(message, key: string; hashSize: int = Blake2bDefaultDigestSize): seq[\n    byte]		91
+nim	blakeKeyedHex	nimcypher/hash.html#blakeKeyedHex,openArray[byte],openArray[byte],int	proc blakeKeyedHex(message: openArray[byte]; key: openArray[byte];\n              hashSize: int = Blake2bDefaultDigestSize): string		97
+nim	blakeKeyedHex	nimcypher/hash.html#blakeKeyedHex,string,string,int	proc blakeKeyedHex(message, key: string; hashSize: int = Blake2bDefaultDigestSize): string		101
+nim	initBlake2b	nimcypher/hash.html#initBlake2b,int	proc initBlake2b(hashSize: int = Blake2bDefaultDigestSize): Blake2b		106
+nim	initBlake2bKeyed	nimcypher/hash.html#initBlake2bKeyed,openArray[byte],int	proc initBlake2bKeyed(key: openArray[byte]; hashSize: int = Blake2bDefaultDigestSize): Blake2b		112
+nim	initBlake2bKeyed	nimcypher/hash.html#initBlake2bKeyed,string,int	proc initBlake2bKeyed(key: string; hashSize: int = Blake2bDefaultDigestSize): Blake2b		120
+nim	update	nimcypher/hash.html#update,Blake2b,openArray[byte]	proc update(state: var Blake2b; chunk: openArray[byte])		124
+nim	update	nimcypher/hash.html#update,Blake2b,string	proc update(state: var Blake2b; chunk: string)		129
+nim	finish	nimcypher/hash.html#finish,Blake2b	proc finish(state: var Blake2b): seq[byte]		132
+nim	finishHex	nimcypher/hash.html#finishHex,Blake2b	proc finishHex(state: var Blake2b): string		138
+nim	sha512	nimcypher/hash.html#sha512,openArray[byte]	proc sha512(message: openArray[byte]): Sha512Digest		142
+nim	sha512	nimcypher/hash.html#sha512,string	proc sha512(message: string): Sha512Digest		145
+nim	sha512Hex	nimcypher/hash.html#sha512Hex,openArray[byte]	proc sha512Hex(message: openArray[byte]): string		148
+nim	sha512Hex	nimcypher/hash.html#sha512Hex,string	proc sha512Hex(message: string): string		151
+nim	initSha512	nimcypher/hash.html#initSha512	proc initSha512(): Sha512State		155
+nim	update	nimcypher/hash.html#update,Sha512State,openArray[byte]	proc update(state: var Sha512State; message: openArray[byte])		159
+nim	update	nimcypher/hash.html#update,Sha512State,string	proc update(state: var Sha512State; message: string)		164
+nim	finish	nimcypher/hash.html#finish,Sha512State	proc finish(state: var Sha512State): Sha512Digest		167
+nim	finishHex	nimcypher/hash.html#finishHex,Sha512State	proc finishHex(state: var Sha512State): string		173
+nim	sha512Hmac	nimcypher/hash.html#sha512Hmac,openArray[byte],openArray[byte]	proc sha512Hmac(key, message: openArray[byte]): Sha512Hmac		177
+nim	sha512Hmac	nimcypher/hash.html#sha512Hmac,string,string	proc sha512Hmac(key, message: string): Sha512Hmac		180
+nim	sha512HmacHex	nimcypher/hash.html#sha512HmacHex,openArray[byte],openArray[byte]	proc sha512HmacHex(key, message: openArray[byte]): string		183
+nim	sha512HmacHex	nimcypher/hash.html#sha512HmacHex,string,string	proc sha512HmacHex(key, message: string): string		186
+nim	initSha512Hmac	nimcypher/hash.html#initSha512Hmac,openArray[byte]	proc initSha512Hmac(key: openArray[byte]): Sha512HmacState		190
+nim	initSha512Hmac	nimcypher/hash.html#initSha512Hmac,string	proc initSha512Hmac(key: string): Sha512HmacState		194
+nim	update	nimcypher/hash.html#update,Sha512HmacState,openArray[byte]	proc update(state: var Sha512HmacState; message: openArray[byte])		197
+nim	update	nimcypher/hash.html#update,Sha512HmacState,string	proc update(state: var Sha512HmacState; message: string)		202
+nim	finish	nimcypher/hash.html#finish,Sha512HmacState	proc finish(state: var Sha512HmacState): Sha512Hmac		205
+nim	finishHex	nimcypher/hash.html#finishHex,Sha512HmacState	proc finishHex(state: var Sha512HmacState): string		211
+nim	sha1Hmac	nimcypher/hash.html#sha1Hmac,openArray[byte],openArray[byte]	proc sha1Hmac(key, message: openArray[byte]): Sha1Hmac		215
+nim	sha1Hmac	nimcypher/hash.html#sha1Hmac,string,string	proc sha1Hmac(key, message: string): Sha1Hmac		218
+nim	sha1HmacHex	nimcypher/hash.html#sha1HmacHex,openArray[byte],openArray[byte]	proc sha1HmacHex(key, message: openArray[byte]): string		221
+nim	sha1HmacHex	nimcypher/hash.html#sha1HmacHex,string,string	proc sha1HmacHex(key, message: string): string		224
+nim	sha256	nimcypher/hash.html#sha256,openArray[byte]	proc sha256(message: openArray[byte]): Sha256Digest		228
+nim	sha256	nimcypher/hash.html#sha256,string	proc sha256(message: string): Sha256Digest		231
+nim	sha256Hex	nimcypher/hash.html#sha256Hex,openArray[byte]	proc sha256Hex(message: openArray[byte]): string		234
+nim	sha256Hex	nimcypher/hash.html#sha256Hex,string	proc sha256Hex(message: string): string		237
+nim	Sha256State	nimcypher/hash.html#Sha256State	object Sha256State		242
+nim	Sha256HmacState	nimcypher/hash.html#Sha256HmacState	object Sha256HmacState		246
+nim	initSha256	nimcypher/hash.html#initSha256	proc initSha256(): Sha256State		250
+nim	update	nimcypher/hash.html#update,Sha256State,openArray[byte]	proc update(state: var Sha256State; message: openArray[byte])		254
+nim	update	nimcypher/hash.html#update,Sha256State,string	proc update(state: var Sha256State; message: string)		259
+nim	finish	nimcypher/hash.html#finish,Sha256State	proc finish(state: var Sha256State): Sha256Digest		262
+nim	finishHex	nimcypher/hash.html#finishHex,Sha256State	proc finishHex(state: var Sha256State): string		268
+nim	sha256Hmac	nimcypher/hash.html#sha256Hmac,openArray[byte],openArray[byte]	proc sha256Hmac(key, message: openArray[byte]): Sha256Hmac		272
+nim	sha256Hmac	nimcypher/hash.html#sha256Hmac,string,string	proc sha256Hmac(key, message: string): Sha256Hmac		275
+nim	sha256HmacHex	nimcypher/hash.html#sha256HmacHex,openArray[byte],openArray[byte]	proc sha256HmacHex(key, message: openArray[byte]): string		278
+nim	sha256HmacHex	nimcypher/hash.html#sha256HmacHex,string,string	proc sha256HmacHex(key, message: string): string		281
+nim	initSha256Hmac	nimcypher/hash.html#initSha256Hmac,openArray[byte]	proc initSha256Hmac(key: openArray[byte]): Sha256HmacState		284
+nim	initSha256Hmac	nimcypher/hash.html#initSha256Hmac,string	proc initSha256Hmac(key: string): Sha256HmacState		288
+nim	update	nimcypher/hash.html#update,Sha256HmacState,openArray[byte]	proc update(state: var Sha256HmacState; message: openArray[byte])		291
+nim	update	nimcypher/hash.html#update,Sha256HmacState,string	proc update(state: var Sha256HmacState; message: string)		296
+nim	finish	nimcypher/hash.html#finish,Sha256HmacState	proc finish(state: var Sha256HmacState): Sha256Hmac		299
+nim	finishHex	nimcypher/hash.html#finishHex,Sha256HmacState	proc finishHex(state: var Sha256HmacState): string		305
+nim	sha384	nimcypher/hash.html#sha384,openArray[byte]	proc sha384(message: openArray[byte]): Sha384Digest		309
+nim	sha384	nimcypher/hash.html#sha384,string	proc sha384(message: string): Sha384Digest		313
+nim	sha384Hex	nimcypher/hash.html#sha384Hex,openArray[byte]	proc sha384Hex(message: openArray[byte]): string		316
+nim	sha384Hex	nimcypher/hash.html#sha384Hex,string	proc sha384Hex(message: string): string		319
+nim	Sha384State	nimcypher/hash.html#Sha384State	object Sha384State		324
+nim	Sha384HmacState	nimcypher/hash.html#Sha384HmacState	object Sha384HmacState		328
+nim	initSha384	nimcypher/hash.html#initSha384	proc initSha384(): Sha384State		332
+nim	update	nimcypher/hash.html#update,Sha384State,openArray[byte]	proc update(state: var Sha384State; message: openArray[byte])		336
+nim	update	nimcypher/hash.html#update,Sha384State,string	proc update(state: var Sha384State; message: string)		341
+nim	finish	nimcypher/hash.html#finish,Sha384State	proc finish(state: var Sha384State): Sha384Digest		344
+nim	finishHex	nimcypher/hash.html#finishHex,Sha384State	proc finishHex(state: var Sha384State): string		351
+nim	sha384Hmac	nimcypher/hash.html#sha384Hmac,openArray[byte],openArray[byte]	proc sha384Hmac(key, message: openArray[byte]): Sha384Hmac		355
+nim	sha384Hmac	nimcypher/hash.html#sha384Hmac,string,string	proc sha384Hmac(key, message: string): Sha384Hmac		359
+nim	sha384HmacHex	nimcypher/hash.html#sha384HmacHex,openArray[byte],openArray[byte]	proc sha384HmacHex(key, message: openArray[byte]): string		362
+nim	sha384HmacHex	nimcypher/hash.html#sha384HmacHex,string,string	proc sha384HmacHex(key, message: string): string		365
+nim	initSha384Hmac	nimcypher/hash.html#initSha384Hmac,openArray[byte]	proc initSha384Hmac(key: openArray[byte]): Sha384HmacState		368
+nim	initSha384Hmac	nimcypher/hash.html#initSha384Hmac,string	proc initSha384Hmac(key: string): Sha384HmacState		372
+nim	update	nimcypher/hash.html#update,Sha384HmacState,openArray[byte]	proc update(state: var Sha384HmacState; message: openArray[byte])		375
+nim	update	nimcypher/hash.html#update,Sha384HmacState,string	proc update(state: var Sha384HmacState; message: string)		380
+nim	finish	nimcypher/hash.html#finish,Sha384HmacState	proc finish(state: var Sha384HmacState): Sha384Hmac		383
+nim	finishHex	nimcypher/hash.html#finishHex,Sha384HmacState	proc finishHex(state: var Sha384HmacState): string		390
+nim	HkdfMaxOkmLen	nimcypher/hash.html#HkdfMaxOkmLen	const HkdfMaxOkmLen		396
+nim	HkdfSha256MaxOkmLen	nimcypher/hash.html#HkdfSha256MaxOkmLen	const HkdfSha256MaxOkmLen		397
+nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte],Natural	proc hkdfSha512(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]		404
+nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,string,string,string,Natural	proc hkdfSha512(ikm, salt, info: string; okmLen: Natural): seq[byte]		409
+nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte],Natural	proc hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]		412
+nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,string,string,Natural	proc hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]		417
+nim	hkdfSha512	nimcypher/hash.html#hkdfSha512,openArray[byte],openArray[byte],openArray[byte]	proc hkdfSha512[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]		420
+nim	hkdfExpandSha512	nimcypher/hash.html#hkdfExpandSha512,openArray[byte],openArray[byte]	proc hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]		426
+nim	hkdfSha256	nimcypher/hash.html#hkdfSha256,openArray[byte],openArray[byte],openArray[byte],Natural	proc hkdfSha256(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]		436
+nim	hkdfSha256	nimcypher/hash.html#hkdfSha256,string,string,string,Natural	proc hkdfSha256(ikm, salt, info: string; okmLen: Natural): seq[byte]		441
+nim	hkdfExpandSha256	nimcypher/hash.html#hkdfExpandSha256,openArray[byte],openArray[byte],Natural	proc hkdfExpandSha256(prk, info: openArray[byte]; okmLen: Natural): seq[byte]		444
+nim	hkdfExpandSha256	nimcypher/hash.html#hkdfExpandSha256,string,string,Natural	proc hkdfExpandSha256(prk, info: string; okmLen: Natural): seq[byte]		448
+nim	hkdfSha256	nimcypher/hash.html#hkdfSha256,openArray[byte],openArray[byte],openArray[byte]	proc hkdfSha256[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]		451
+nim	hkdfExpandSha256	nimcypher/hash.html#hkdfExpandSha256,openArray[byte],openArray[byte]	proc hkdfExpandSha256[N: static[int]](prk, info: openArray[byte]): array[N, uint8]		456
+nim	verifyDigest	nimcypher/hash.html#verifyDigest,openArray[byte],openArray[byte]	proc verifyDigest(a, b: openArray[byte]): bool		462
+nim	Md5State	nimcypher/hash.html#Md5State	object Md5State		475
+nim	Md5HmacState	nimcypher/hash.html#Md5HmacState	object Md5HmacState		479
+nim	md5	nimcypher/hash.html#md5,openArray[byte]	proc md5(message: openArray[byte]): Md5Digest		483
+nim	md5	nimcypher/hash.html#md5,string	proc md5(message: string): Md5Digest		486
+nim	md5Hex	nimcypher/hash.html#md5Hex,openArray[byte]	proc md5Hex(message: openArray[byte]): string		489
+nim	md5Hex	nimcypher/hash.html#md5Hex,string	proc md5Hex(message: string): string		492
+nim	initMd5	nimcypher/hash.html#initMd5	proc initMd5(): Md5State		495
+nim	update	nimcypher/hash.html#update,Md5State,openArray[byte]	proc update(state: var Md5State; message: openArray[byte])		499
+nim	update	nimcypher/hash.html#update,Md5State,string	proc update(state: var Md5State; message: string)		504
+nim	finish	nimcypher/hash.html#finish,Md5State	proc finish(state: var Md5State): Md5Digest		507
+nim	finishHex	nimcypher/hash.html#finishHex,Md5State	proc finishHex(state: var Md5State): string		513
+nim	md5Hmac	nimcypher/hash.html#md5Hmac,openArray[byte],openArray[byte]	proc md5Hmac(key, message: openArray[byte]): Md5Hmac		516
+nim	md5Hmac	nimcypher/hash.html#md5Hmac,string,string	proc md5Hmac(key, message: string): Md5Hmac		519
+nim	md5HmacHex	nimcypher/hash.html#md5HmacHex,openArray[byte],openArray[byte]	proc md5HmacHex(key, message: openArray[byte]): string		522
+nim	md5HmacHex	nimcypher/hash.html#md5HmacHex,string,string	proc md5HmacHex(key, message: string): string		525
+nim	initMd5Hmac	nimcypher/hash.html#initMd5Hmac,openArray[byte]	proc initMd5Hmac(key: openArray[byte]): Md5HmacState		528
+nim	initMd5Hmac	nimcypher/hash.html#initMd5Hmac,string	proc initMd5Hmac(key: string): Md5HmacState		532
+nim	update	nimcypher/hash.html#update,Md5HmacState,openArray[byte]	proc update(state: var Md5HmacState; message: openArray[byte])		535
+nim	update	nimcypher/hash.html#update,Md5HmacState,string	proc update(state: var Md5HmacState; message: string)		540
+nim	finish	nimcypher/hash.html#finish,Md5HmacState	proc finish(state: var Md5HmacState): Md5Hmac		543
+nim	finishHex	nimcypher/hash.html#finishHex,Md5HmacState	proc finishHex(state: var Md5HmacState): string		549
+nim	Xxh32	nimcypher/hash.html#Xxh32	object Xxh32		566
+nim	Xxh64	nimcypher/hash.html#Xxh64	object Xxh64		570
+nim	Xxh3_64	nimcypher/hash.html#Xxh3_64	object Xxh3_64		574
+nim	Xxh3_128	nimcypher/hash.html#Xxh3_128	object Xxh3_128		578
+nim	xxh32	nimcypher/hash.html#xxh32,openArray[byte],uint32	proc xxh32(data: openArray[byte]; seed: uint32 = 0): uint32		582
+nim	xxh32	nimcypher/hash.html#xxh32,string,uint32	proc xxh32(data: string; seed: uint32 = 0): uint32		585
+nim	xxh32Hex	nimcypher/hash.html#xxh32Hex,openArray[byte],uint32	proc xxh32Hex(data: openArray[byte]; seed: uint32 = 0): string		588
+nim	xxh32Hex	nimcypher/hash.html#xxh32Hex,string,uint32	proc xxh32Hex(data: string; seed: uint32 = 0): string		591
+nim	initXxh32	nimcypher/hash.html#initXxh32,uint32	proc initXxh32(seed: uint32 = 0): Xxh32		594
+nim	update	nimcypher/hash.html#update,Xxh32,openArray[byte]	proc update(state: var Xxh32; chunk: openArray[byte])		598
+nim	update	nimcypher/hash.html#update,Xxh32,string	proc update(state: var Xxh32; chunk: string)		603
+nim	finish	nimcypher/hash.html#finish,Xxh32	proc finish(state: var Xxh32): uint32		606
+nim	finishHex	nimcypher/hash.html#finishHex,Xxh32	proc finishHex(state: var Xxh32): string		612
+nim	xxh64	nimcypher/hash.html#xxh64,openArray[byte],uint64	proc xxh64(data: openArray[byte]; seed: uint64 = 0): uint64		615
+nim	xxh64	nimcypher/hash.html#xxh64,string,uint64	proc xxh64(data: string; seed: uint64 = 0): uint64		618
+nim	xxh64Hex	nimcypher/hash.html#xxh64Hex,openArray[byte],uint64	proc xxh64Hex(data: openArray[byte]; seed: uint64 = 0): string		621
+nim	xxh64Hex	nimcypher/hash.html#xxh64Hex,string,uint64	proc xxh64Hex(data: string; seed: uint64 = 0): string		624
+nim	initXxh64	nimcypher/hash.html#initXxh64,uint64	proc initXxh64(seed: uint64 = 0): Xxh64		627
+nim	update	nimcypher/hash.html#update,Xxh64,openArray[byte]	proc update(state: var Xxh64; chunk: openArray[byte])		631
+nim	update	nimcypher/hash.html#update,Xxh64,string	proc update(state: var Xxh64; chunk: string)		636
+nim	finish	nimcypher/hash.html#finish,Xxh64	proc finish(state: var Xxh64): uint64		639
+nim	finishHex	nimcypher/hash.html#finishHex,Xxh64	proc finishHex(state: var Xxh64): string		645
+nim	xxh3_64bits	nimcypher/hash.html#xxh3_64bits,openArray[byte],uint64	proc xxh3_64bits(data: openArray[byte]; seed: uint64 = 0): uint64		648
+nim	xxh3_64bits	nimcypher/hash.html#xxh3_64bits,string,uint64	proc xxh3_64bits(data: string; seed: uint64 = 0): uint64		651
+nim	xxh3_64bitsHex	nimcypher/hash.html#xxh3_64bitsHex,openArray[byte],uint64	proc xxh3_64bitsHex(data: openArray[byte]; seed: uint64 = 0): string		654
+nim	xxh3_64bitsHex	nimcypher/hash.html#xxh3_64bitsHex,string,uint64	proc xxh3_64bitsHex(data: string; seed: uint64 = 0): string		657
+nim	initXxh3_64	nimcypher/hash.html#initXxh3_64,uint64	proc initXxh3_64(seed: uint64 = 0): Xxh3_64		660
+nim	update	nimcypher/hash.html#update,Xxh3_64,openArray[byte]	proc update(state: var Xxh3_64; chunk: openArray[byte])		664
+nim	update	nimcypher/hash.html#update,Xxh3_64,string	proc update(state: var Xxh3_64; chunk: string)		669
+nim	finish	nimcypher/hash.html#finish,Xxh3_64	proc finish(state: var Xxh3_64): uint64		672
+nim	finishHex	nimcypher/hash.html#finishHex,Xxh3_64	proc finishHex(state: var Xxh3_64): string		678
+nim	xxh128	nimcypher/hash.html#xxh128,openArray[byte],uint64	proc xxh128(data: openArray[byte]; seed: uint64 = 0): xxhAlgo.Xxh128		681
+nim	xxh128	nimcypher/hash.html#xxh128,string,uint64	proc xxh128(data: string; seed: uint64 = 0): xxhAlgo.Xxh128		684
+nim	xxh128Hex	nimcypher/hash.html#xxh128Hex,openArray[byte],uint64	proc xxh128Hex(data: openArray[byte]; seed: uint64 = 0): string		687
+nim	xxh128Hex	nimcypher/hash.html#xxh128Hex,string,uint64	proc xxh128Hex(data: string; seed: uint64 = 0): string		691
+nim	initXxh3_128	nimcypher/hash.html#initXxh3_128,uint64	proc initXxh3_128(seed: uint64 = 0): Xxh3_128		695
+nim	update	nimcypher/hash.html#update,Xxh3_128,openArray[byte]	proc update(state: var Xxh3_128; chunk: openArray[byte])		699
+nim	update	nimcypher/hash.html#update,Xxh3_128,string	proc update(state: var Xxh3_128; chunk: string)		704
+nim	finish	nimcypher/hash.html#finish,Xxh3_128	proc finish(state: var Xxh3_128): xxhAlgo.Xxh128		707
+nim	finishHex	nimcypher/hash.html#finishHex,Xxh3_128	proc finishHex(state: var Xxh3_128): string		713
+nimgrp	blake	nimcypher/hash.html#blake-procs-all	proc		69
+nimgrp	xxh32	nimcypher/hash.html#xxh32-procs-all	proc		582
+nimgrp	finish	nimcypher/hash.html#finish-procs-all	proc		132
+nimgrp	sha1hmac	nimcypher/hash.html#sha1Hmac-procs-all	proc		215
+nimgrp	initsha512hmac	nimcypher/hash.html#initSha512Hmac-procs-all	proc		190
+nimgrp	sha384hmac	nimcypher/hash.html#sha384Hmac-procs-all	proc		355
+nimgrp	md5hmachex	nimcypher/hash.html#md5HmacHex-procs-all	proc		522
+nimgrp	xxh128hex	nimcypher/hash.html#xxh128Hex-procs-all	proc		687
+nimgrp	xxh364bits	nimcypher/hash.html#xxh3_64bits-procs-all	proc		648
+nimgrp	sha384hex	nimcypher/hash.html#sha384Hex-procs-all	proc		316
+nimgrp	update	nimcypher/hash.html#update-procs-all	proc		124
+nimgrp	hkdfsha256	nimcypher/hash.html#hkdfSha256-procs-all	proc		436
+nimgrp	initblake2bkeyed	nimcypher/hash.html#initBlake2bKeyed-procs-all	proc		112
+nimgrp	hkdfexpandsha512	nimcypher/hash.html#hkdfExpandSha512-procs-all	proc		412
+nimgrp	hkdfexpandsha256	nimcypher/hash.html#hkdfExpandSha256-procs-all	proc		444
+nimgrp	md5hmac	nimcypher/hash.html#md5Hmac-procs-all	proc		516
+nimgrp	initsha256hmac	nimcypher/hash.html#initSha256Hmac-procs-all	proc		284
+nimgrp	initsha384hmac	nimcypher/hash.html#initSha384Hmac-procs-all	proc		368
+nimgrp	sha512	nimcypher/hash.html#sha512-procs-all	proc		142
+nimgrp	sha512hex	nimcypher/hash.html#sha512Hex-procs-all	proc		148
+nimgrp	initmd5hmac	nimcypher/hash.html#initMd5Hmac-procs-all	proc		528
+nimgrp	sha1hmachex	nimcypher/hash.html#sha1HmacHex-procs-all	proc		221
+nimgrp	sha256hmachex	nimcypher/hash.html#sha256HmacHex-procs-all	proc		278
+nimgrp	sha384	nimcypher/hash.html#sha384-procs-all	proc		309
+nimgrp	xxh128	nimcypher/hash.html#xxh128-procs-all	proc		681
+nimgrp	blakekeyed	nimcypher/hash.html#blakeKeyed-procs-all	proc		84
+nimgrp	md5hex	nimcypher/hash.html#md5Hex-procs-all	proc		489
+nimgrp	xxh64	nimcypher/hash.html#xxh64-procs-all	proc		615
+nimgrp	xxh64hex	nimcypher/hash.html#xxh64Hex-procs-all	proc		621
+nimgrp	xxh364bitshex	nimcypher/hash.html#xxh3_64bitsHex-procs-all	proc		654
+nimgrp	sha256hex	nimcypher/hash.html#sha256Hex-procs-all	proc		234
+nimgrp	blakehex	nimcypher/hash.html#blakeHex-procs-all	proc		78
+nimgrp	finishhex	nimcypher/hash.html#finishHex-procs-all	proc		138
+nimgrp	blakekeyedhex	nimcypher/hash.html#blakeKeyedHex-procs-all	proc		97
+nimgrp	xxh32hex	nimcypher/hash.html#xxh32Hex-procs-all	proc		588
+nimgrp	sha256	nimcypher/hash.html#sha256-procs-all	proc		228
+nimgrp	sha512hmac	nimcypher/hash.html#sha512Hmac-procs-all	proc		177
+nimgrp	sha512hmachex	nimcypher/hash.html#sha512HmacHex-procs-all	proc		183
+nimgrp	hkdfsha512	nimcypher/hash.html#hkdfSha512-procs-all	proc		404
+nimgrp	sha384hmachex	nimcypher/hash.html#sha384HmacHex-procs-all	proc		362
+nimgrp	md5	nimcypher/hash.html#md5-procs-all	proc		483
+nimgrp	sha256hmac	nimcypher/hash.html#sha256Hmac-procs-all	proc		272

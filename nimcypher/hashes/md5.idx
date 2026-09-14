@@ -1,0 +1,16 @@
+nimTitle	md5	nimcypher/hashes/md5.html	module nimcypher/hashes/md5		0
+nim	Md5BlockSize	nimcypher/hashes/md5.html#Md5BlockSize	const Md5BlockSize		18
+nim	Md5DigestSize	nimcypher/hashes/md5.html#Md5DigestSize	const Md5DigestSize		19
+nim	Md5Digest	nimcypher/hashes/md5.html#Md5Digest	type Md5Digest		22
+nim	Md5Context	nimcypher/hashes/md5.html#Md5Context	object Md5Context		24
+nim	Md5HmacContext	nimcypher/hashes/md5.html#Md5HmacContext	object Md5HmacContext		30
+nim	init	nimcypher/hashes/md5.html#init,Md5Context	proc init(ctx: var Md5Context)		112
+nim	update	nimcypher/hashes/md5.html#update,Md5Context,openArray[byte]	proc update(ctx: var Md5Context; message: openArray[byte])		121
+nim	final	nimcypher/hashes/md5.html#final,Md5Context	proc final(ctx: var Md5Context): Md5Digest		149
+nim	md5	nimcypher/hashes/md5.html#md5,openArray[byte]	proc md5(message: openArray[byte]): Md5Digest		171
+nim	initHmac	nimcypher/hashes/md5.html#initHmac,Md5HmacContext,openArray[byte]	proc initHmac(ctx: var Md5HmacContext; key: openArray[byte])		180
+nim	update	nimcypher/hashes/md5.html#update,Md5HmacContext,openArray[byte]	proc update(ctx: var Md5HmacContext; message: openArray[byte])		199
+nim	final	nimcypher/hashes/md5.html#final,Md5HmacContext	proc final(ctx: var Md5HmacContext): Md5Digest		202
+nim	md5Hmac	nimcypher/hashes/md5.html#md5Hmac,openArray[byte],openArray[byte]	proc md5Hmac(key, message: openArray[byte]): Md5Digest		214
+nimgrp	final	nimcypher/hashes/md5.html#final-procs-all	proc		149
+nimgrp	update	nimcypher/hashes/md5.html#update-procs-all	proc		121

@@ -1,0 +1,38 @@
+nimTitle	xxhash	nimcypher/hashes/xxhash.html	module nimcypher/hashes/xxhash		0
+nim	XxhSecretSizeMin	nimcypher/hashes/xxhash.html#XxhSecretSizeMin	const XxhSecretSizeMin		17
+nim	XxhSecretDefaultSize	nimcypher/hashes/xxhash.html#XxhSecretDefaultSize	const XxhSecretDefaultSize		18
+nim	Xxh3MidsizeMax	nimcypher/hashes/xxhash.html#Xxh3MidsizeMax	const Xxh3MidsizeMax		19
+nim	Xxh128	nimcypher/hashes/xxhash.html#Xxh128	object Xxh128		22
+nim	Xxh32State	nimcypher/hashes/xxhash.html#Xxh32State	object Xxh32State		27
+nim	Xxh64State	nimcypher/hashes/xxhash.html#Xxh64State	object Xxh64State		34
+nim	xxh3_64	nimcypher/hashes/xxhash.html#xxh3_64	Xxh3Kind.xxh3_64		41
+nim	xxh3_128	nimcypher/hashes/xxhash.html#xxh3_128	Xxh3Kind.xxh3_128		41
+nim	Xxh3Kind	nimcypher/hashes/xxhash.html#Xxh3Kind	enum Xxh3Kind		41
+nim	Xxh3State	nimcypher/hashes/xxhash.html#Xxh3State	object Xxh3State		45
+nim	`==`	nimcypher/hashes/xxhash.html#==,Xxh128,Xxh128	proc `==`(a, b: Xxh128): bool		97
+nim	xxh32	nimcypher/hashes/xxhash.html#xxh32,openArray[byte],uint32	proc xxh32(data: openArray[byte]; seed: uint32 = 0): uint32		181
+nim	reset	nimcypher/hashes/xxhash.html#reset,Xxh32State,uint32	proc reset(state: var Xxh32State; seed: uint32 = 0)		202
+nim	update	nimcypher/hashes/xxhash.html#update,Xxh32State,openArray[byte]	proc update(state: var Xxh32State; data: openArray[byte])		211
+nim	digest	nimcypher/hashes/xxhash.html#digest,Xxh32State	proc digest(state: Xxh32State): uint32		245
+nim	xxh64	nimcypher/hashes/xxhash.html#xxh64,openArray[byte],uint64	proc xxh64(data: openArray[byte]; seed: uint64 = 0): uint64		285
+nim	reset	nimcypher/hashes/xxhash.html#reset,Xxh64State,uint64	proc reset(state: var Xxh64State; seed: uint64 = 0)		310
+nim	update	nimcypher/hashes/xxhash.html#update,Xxh64State,openArray[byte]	proc update(state: var Xxh64State; data: openArray[byte])		319
+nim	digest	nimcypher/hashes/xxhash.html#digest,Xxh64State	proc digest(state: Xxh64State): uint64		353
+nim	xxh3_64_withSecret	nimcypher/hashes/xxhash.html#xxh3_64_withSecret,openArray[byte],openArray[byte]	proc xxh3_64_withSecret(data: openArray[byte]; secret: openArray[byte]): uint64		687
+nim	xxh3_64bits_withSeed	nimcypher/hashes/xxhash.html#xxh3_64bits_withSeed,openArray[byte],uint64	proc xxh3_64bits_withSeed(data: openArray[byte]; seed: uint64): uint64		709
+nim	xxh3_64bits	nimcypher/hashes/xxhash.html#xxh3_64bits,openArray[byte]	proc xxh3_64bits(data: openArray[byte]): uint64		723
+nim	xxh3_64bits_withSecretAndSeed	nimcypher/hashes/xxhash.html#xxh3_64bits_withSecretAndSeed,openArray[byte],openArray[byte],uint64	proc xxh3_64bits_withSecretAndSeed(data: openArray[byte]; secret: openArray[byte];\n                              seed: uint64): uint64		727
+nim	xxh3_128_withSecret	nimcypher/hashes/xxhash.html#xxh3_128_withSecret,openArray[byte],openArray[byte]	proc xxh3_128_withSecret(data: openArray[byte]; secret: openArray[byte]): Xxh128		736
+nim	xxh3_128bits_withSeed	nimcypher/hashes/xxhash.html#xxh3_128bits_withSeed,openArray[byte],uint64	proc xxh3_128bits_withSeed(data: openArray[byte]; seed: uint64): Xxh128		765
+nim	xxh3_128bits	nimcypher/hashes/xxhash.html#xxh3_128bits,openArray[byte]	proc xxh3_128bits(data: openArray[byte]): Xxh128		779
+nim	xxh128	nimcypher/hashes/xxhash.html#xxh128,openArray[byte],uint64	proc xxh128(data: openArray[byte]; seed: uint64 = 0): Xxh128		783
+nim	xxh3_128bits_withSecretAndSeed	nimcypher/hashes/xxhash.html#xxh3_128bits_withSecretAndSeed,openArray[byte],openArray[byte],uint64	proc xxh3_128bits_withSecretAndSeed(data: openArray[byte]; secret: openArray[byte];\n                               seed: uint64): Xxh128		787
+nim	generateSecret	nimcypher/hashes/xxhash.html#generateSecret,openArray[byte],openArray[byte]	proc generateSecret(secret: var openArray[byte]; customSeed: openArray[byte])		796
+nim	resetXxh3	nimcypher/hashes/xxhash.html#resetXxh3,Xxh3State,Xxh3Kind,uint64	proc resetXxh3(state: var Xxh3State; kind: Xxh3Kind; seed: uint64 = 0)		835
+nim	resetXxh3WithSecret	nimcypher/hashes/xxhash.html#resetXxh3WithSecret,Xxh3State,Xxh3Kind,openArray[byte]	proc resetXxh3WithSecret(state: var Xxh3State; kind: Xxh3Kind;\n                    secret: openArray[byte])		842
+nim	update	nimcypher/hashes/xxhash.html#update,Xxh3State,openArray[byte]	proc update(state: var Xxh3State; data: openArray[byte])		851
+nim	digest64	nimcypher/hashes/xxhash.html#digest64,Xxh3State	proc digest64(state: Xxh3State): uint64		855
+nim	digest128	nimcypher/hashes/xxhash.html#digest128,Xxh3State	proc digest128(state: Xxh3State): Xxh128		865
+nimgrp	reset	nimcypher/hashes/xxhash.html#reset-procs-all	proc		202
+nimgrp	update	nimcypher/hashes/xxhash.html#update-procs-all	proc		211
+nimgrp	digest	nimcypher/hashes/xxhash.html#digest-procs-all	proc		245
