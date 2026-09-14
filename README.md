@@ -17,7 +17,9 @@
 NimCypher is a **pure-Nim cryptographic library** that started as a faithful port of
 [Monocypher](https://monocypher.org/) 4.0.3 and has grown beyond it with the addition
 of `AES-128`/`192`/`256` block cipher and `AES-GCM` authenticated encryption, the `SHA-2`
-family (`SHA-256`/`384`/`512`) plus `HMAC-SHA-1` and `HKDF-SHA-256`, and asymmetric
+family (`SHA-256`/`384`/`512`) plus `HMAC-SHA-1` and `HKDF-SHA-256`, legacy `MD5`
+and `HMAC-MD5` for interop, and the non-cryptographic `xxHash` family (`XXH32`,
+`XXH64`, `XXH3_64`, `XXH128`) for checksums, and asymmetric
 primitives: RSA (PKCS#1 v1.5, PSS, OAEP) and ECDSA/ECDH over P-256/P-384/P-521 and
 secp256k1. It has **zero C dependency** and no runtime dependencies beyond the Nim
 standard library, so it is easy to deploy and easy to audit.
@@ -49,6 +51,7 @@ High-level API (`import nimcypher`):
 - AES-GCM sealing with random nonces, plus AES block encryption in common modes
 - Authenticated encryption and sealing with XChaCha20-Poly1305, including streaming
 - Hashing with BLAKE2b and the SHA-2 family, HMAC variants, and HKDF key derivation
+- Legacy `MD5` / `HMAC-MD5` for interop and `xxHash` (`XXH32`/`XXH64`/`XXH3`) checksums
 - Argon2id password hashing, verification, and key derivation
 - Key exchange with X25519 and ECDH over standard curves
 - Signatures: EdDSA, deterministic ECDSA, and RSA PKCS#1 v1.5 plus PSS
@@ -59,6 +62,7 @@ High-level API (`import nimcypher`):
 Low-level primitives (`nimcypher/algos/...`):
 - AES block cipher and AES-GCM with streaming support, checked against NIST vectors
 - BLAKE2b, SHA-2, HMAC, and HKDF building blocks
+- `hashes/md5` (RFC 1321, HMAC-MD5) and `hashes/xxhash` (`XXH32`/`XXH64`/`XXH3_64`/`XXH128`)
 - Argon2 password hashing in all three variants
 - X25519 and ECDH key exchange, EdDSA and ECDSA signatures
 - RSA signing, encryption, and key generation on an internal Montgomery engine
@@ -165,7 +169,7 @@ let plain2 = aeadStreamRead(decStream, cipher2, mac2)
 assert plain1 & plain2 == toBytes(message)
 ```
 
-### Hashing: BLAKE2b, SHA-512/256/384, HMAC, HMAC-SHA-1, HKDF
+### Hashing: BLAKE2b, SHA-512/256/384, HMAC, HMAC-SHA-1, HKDF, MD5, xxHash
 
 ```nim
 import nimcypher/hash
@@ -187,6 +191,34 @@ var st = initSha256()               # streaming SHA-256 (also initSha512/initSha
 st.update(toBytes("hello "))
 st.update(toBytes("world"))
 assert st.finish() == sha256(toBytes("hello world"))
+```
+
+Legacy `MD5` (broken, interop only) and non-cryptographic `xxHash`
+(checksums only) live in the same module, with streaming support and
+low-level access under `nimcypher/hashes/md5` and `nimcypher/hashes/xxhash`:
+
+```nim
+import nimcypher/hash
+import nimcypher/utils
+
+assert md5Hex("abc") == "900150983CD24FB0D6963F7D28E17F72"
+assert md5HmacHex("Jefe", "what do ya want for nothing?") ==
+  "750C783E6AB0B503EAA86E310A5DB738"
+
+var m = initMd5()                   # streaming MD5 (also initMd5Hmac)
+m.update(toBytes("a"))
+m.update(toBytes("bc"))
+assert m.finishHex() == md5Hex("abc")
+
+assert xxh32Hex("abc") == "32D153FF"            # seeded 32-bit checksum
+assert xxh64Hex("abc") == "44BC2CF5AD770999"    # seeded 64-bit checksum
+assert xxh3_64bitsHex("abc") == "78AF5F94892F3950"
+assert xxh128Hex("abc") == "06B05AB6733A618578AF5F94892F3950"
+
+var x = initXxh3_64()               # streaming (also initXxh32/initXxh64/initXxh3_128)
+x.update(toBytes("hello "))
+x.update(toBytes("world"))
+assert x.finish() == xxh3_64bits(toBytes("hello world"))
 ```
 
 ### X25519 key exchange
@@ -398,8 +430,9 @@ Runs three suites:
   Monocypher library: key exchange, signatures, AEAD encryption/decryption, streaming,
   hashing, Argon2, Elligator, and constant-time verification.
 - **OpenSSL interop tests** (`topenssl.nim`): live two-way cross-checks against the system
-  `openssl` CLI over freshly generated keys: RSA PKCS#1 v1.5 / PSS / OAEP, ECDSA
-  (P-256, P-384, secp256k1), AES-ECB/CBC/CTR, SHA digests, HMAC-SHA-256, IETF ChaCha20,
+   `openssl` CLI over freshly generated keys: RSA PKCS#1 v1.5 / PSS / OAEP, ECDSA
+   (P-256, P-384, secp256k1), AES-ECB/CBC/CTR, SHA digests, MD5 digests,
+   HMAC-SHA-256, HMAC-MD5, IETF ChaCha20,
   X25519, and Ed25519. AES-GCM is covered by NIST vectors in `tgcm` instead (`openssl
   enc` rejects AEAD ciphers).
 - **High-level tests**: round trips and error handling for the `import nimcypher` API
@@ -518,6 +551,10 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
   limbs); ephemeral `seq[byte]` buffers are scrubbed via `wipe`.
 - Use `constantTimeEqual`, not `==`, to compare secrets.
 - Wipe secrets with `wipe` once you are done with them.
+- `MD5` is broken (practical collisions) and `HMAC-MD5` is legacy only:
+  both exist for interop with old formats, never for new designs.
+- `xxHash` (`XXH32`/`XXH64`/`XXH3`) is not cryptographic: checksums and
+  hash tables only, never signatures, MACs, or password hashing.
 
 
 ## Roadmap

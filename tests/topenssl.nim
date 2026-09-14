@@ -34,6 +34,7 @@ import nimcypher/algos/sha1 as sha1Algo
 import nimcypher/algos/sha256 as sha256Algo
 import nimcypher/algos/sha384 as sha384Algo
 import nimcypher/algos/sha512 as sha512Algo
+import nimcypher/hashes/md5 as md5Algo
 import nimcypher/algos/chacha20
 import nimcypher/algos/x25519
 import nimcypher/algos/ed25519
@@ -459,6 +460,20 @@ if osslBin != "":
       check sameBytes(@(sha256Algo.sha256Hmac(toBytes("testkey123"),
                                              toBytes(interopMsg))),
                       readBin("hm.bin"))
+
+    test "MD5 matches":
+      writeBin("msg.bin", interopMsg)
+      let msg = toBytes(interopMsg)
+      ossl("dgst", "-md5", "-binary", "-out", wp("dmd5.bin"), wp("msg.bin"))
+      check sameBytes(@(md5Algo.md5(msg)), readBin("dmd5.bin"))
+
+    test "HMAC-MD5 matches":
+      writeBin("msg.bin", interopMsg)
+      ossl("dgst", "-md5", "-hmac", "testkey123", "-binary",
+           "-out", wp("hmd5.bin"), wp("msg.bin"))
+      check sameBytes(@(md5Algo.md5Hmac(toBytes("testkey123"),
+                                       toBytes(interopMsg))),
+                      readBin("hmd5.bin"))
 
   suite "openssl ChaCha20":
     test "IETF ChaCha20 both directions (counter 0)":
