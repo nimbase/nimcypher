@@ -395,6 +395,7 @@ proc finishHex*(state: var Sha384HmacState): string =
 const
   HkdfMaxOkmLen* = 255 * Sha512DigestSize # RFC 5869: at most 255 blocks
   HkdfSha256MaxOkmLen* = 255 * Sha256DigestSize
+  HkdfSha384MaxOkmLen* = 255 * Sha384DigestSize
 
 proc ensureHkdfLength(okmLen: Natural) {.inline.} =
   if okmLen > HkdfMaxOkmLen:
@@ -455,6 +456,37 @@ proc hkdfSha256*[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uin
 
 proc hkdfExpandSha256*[N: static[int]](prk, info: openArray[byte]): array[N, uint8] =
   let okm = hkdfExpandSha256(prk, info, N)
+  for i in 0 ..< N:
+    result[i] = okm[i]
+
+proc ensureHkdfSha384Length(okmLen: Natural) {.inline.} =
+  if okmLen > HkdfSha384MaxOkmLen:
+    raise newException(ValueError,
+      "HKDF-SHA-384 output too large: at most " & $HkdfSha384MaxOkmLen & " bytes")
+
+proc hkdfSha384*(ikm, salt, info: openArray[byte], okmLen: Natural): seq[byte] =
+  ## Derive output keying material of `okmLen` bytes with HKDF-SHA-384.
+  ensureHkdfSha384Length(okmLen)
+  result = hkdfAlgo.sha384Hkdf(ikm, salt, info, okmLen)
+
+proc hkdfSha384*(ikm, salt, info: string, okmLen: Natural): seq[byte] =
+  hkdfSha384(toBytes(ikm), toBytes(salt), toBytes(info), okmLen)
+
+proc hkdfExpandSha384*(prk, info: openArray[byte], okmLen: Natural): seq[byte] =
+  ## Expand a pseudo-random key with HKDF-SHA-384.
+  ensureHkdfSha384Length(okmLen)
+  result = hkdfAlgo.sha384HkdfExpand(prk, info, okmLen)
+
+proc hkdfExpandSha384*(prk, info: string, okmLen: Natural): seq[byte] =
+  hkdfExpandSha384(toBytes(prk), toBytes(info), okmLen)
+
+proc hkdfSha384*[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8] =
+  let okm = hkdfSha384(ikm, salt, info, N)
+  for i in 0 ..< N:
+    result[i] = okm[i]
+
+proc hkdfExpandSha384*[N: static[int]](prk, info: openArray[byte]): array[N, uint8] =
+  let okm = hkdfExpandSha384(prk, info, N)
   for i in 0 ..< N:
     result[i] = okm[i]
 

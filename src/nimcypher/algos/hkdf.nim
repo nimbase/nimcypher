@@ -1,4 +1,4 @@
-# HKDF-SHA-512 key derivation.
+# HKDF key derivation (SHA-512, SHA-256, SHA-384).
 #
 # Ported from `monocypher-ed25519.c` (Monocypher 4.0.3).
 #
@@ -7,6 +7,7 @@
 import ./common
 import ./sha512
 import ./sha256
+import ./sha384
 
 {.push checks: off.}
 
@@ -86,6 +87,39 @@ proc sha256Hkdf*(ikm, salt, info: openArray[byte], okmSize: int): seq[byte] =
   ## HKDF-SHA-256: extract with salt then expand.
   var prk = sha256Hmac(salt, ikm)
   result = sha256HkdfExpand(prk, info, okmSize)
+  wipe(prk)
+
+proc sha384HkdfExpand*(prk, info: openArray[byte], okmSize: int): seq[byte] =
+  ## Expand a pseudo-random key with HKDF-SHA-384 (RFC 5869, 48-byte blocks).
+  ## `okmSize` is limited to 255 * 48 = 12240 bytes.
+  checkOkmSize(okmSize, 48)
+  result = newSeq[byte](okmSize)
+  var notFirst = 0
+  var ctr: byte = 1
+  var blk: array[48, byte]
+  var offset = 0
+  var remaining = okmSize
+  while remaining > 0:
+    let outSize = min(remaining, 48)
+    var ctx: Sha384HmacContext
+    initHmac384(ctx, prk)
+    if notFirst != 0:
+      update(ctx, blk)
+    update(ctx, info)
+    update(ctx, [ctr])
+    blk = final(ctx)
+    for i in 0 ..< outSize:
+      result[offset + i] = blk[i]
+    notFirst = 1
+    offset += outSize
+    remaining -= outSize
+    ctr += 1
+  wipe(blk)
+
+proc sha384Hkdf*(ikm, salt, info: openArray[byte], okmSize: int): seq[byte] =
+  ## HKDF-SHA-384: extract with salt then expand.
+  var prk = sha384Hmac(salt, ikm)
+  result = sha384HkdfExpand(prk, info, okmSize)
   wipe(prk)
 
 {.pop.}
