@@ -97,6 +97,7 @@
 <li><a class="reference" href="#Blake2bMinDigestSize" title="Blake2bMinDigestSize = 1">Blake2bMinDigestSize</a></li>
 <li><a class="reference" href="#HkdfMaxOkmLen" title="HkdfMaxOkmLen = 16320">HkdfMaxOkmLen</a></li>
 <li><a class="reference" href="#HkdfSha256MaxOkmLen" title="HkdfSha256MaxOkmLen = 8160">HkdfSha256MaxOkmLen</a></li>
+<li><a class="reference" href="#HkdfSha384MaxOkmLen" title="HkdfSha384MaxOkmLen = 12240">HkdfSha384MaxOkmLen</a></li>
 <li><a class="reference" href="#Md5BlockSize" title="Md5BlockSize = 64">Md5BlockSize</a></li>
 <li><a class="reference" href="#Md5DigestSize" title="Md5DigestSize = 16">Md5DigestSize</a></li>
 <li><a class="reference" href="#Sha1BlockSize" title="Sha1BlockSize = 64">Sha1BlockSize</a></li>
@@ -181,6 +182,12 @@
 <li><a class="reference" href="#hkdfExpandSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="hkdfExpandSha256[N: static[int]](prk, info: openArray[byte]): array[N, uint8]">hkdfExpandSha256[N: static[int]](prk, info: openArray[byte]): array[N, uint8]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">hkdfExpandSha384
+  <li><a class="reference" href="#hkdfExpandSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural" title="hkdfExpandSha384(prk, info: openArray[byte]; okmLen: Natural): seq[byte]">hkdfExpandSha384(prk, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfExpandSha384%2Cstring%2Cstring%2CNatural" title="hkdfExpandSha384(prk, info: string; okmLen: Natural): seq[byte]">hkdfExpandSha384(prk, info: string; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfExpandSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="hkdfExpandSha384[N: static[int]](prk, info: openArray[byte]): array[N, uint8]">hkdfExpandSha384[N: static[int]](prk, info: openArray[byte]): array[N, uint8]</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">hkdfExpandSha512
   <li><a class="reference" href="#hkdfExpandSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural" title="hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]">hkdfExpandSha512(prk, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
 <li><a class="reference" href="#hkdfExpandSha512%2Cstring%2Cstring%2CNatural" title="hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]">hkdfExpandSha512(prk, info: string; okmLen: Natural): seq[byte]</a></li>
@@ -191,6 +198,12 @@
   <li><a class="reference" href="#hkdfSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural" title="hkdfSha256(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]">hkdfSha256(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
 <li><a class="reference" href="#hkdfSha256%2Cstring%2Cstring%2Cstring%2CNatural" title="hkdfSha256(ikm, salt, info: string; okmLen: Natural): seq[byte]">hkdfSha256(ikm, salt, info: string; okmLen: Natural): seq[byte]</a></li>
 <li><a class="reference" href="#hkdfSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="hkdfSha256[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]">hkdfSha256[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">hkdfSha384
+  <li><a class="reference" href="#hkdfSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural" title="hkdfSha384(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]">hkdfSha384(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfSha384%2Cstring%2Cstring%2Cstring%2CNatural" title="hkdfSha384(ikm, salt, info: string; okmLen: Natural): seq[byte]">hkdfSha384(ikm, salt, info: string; okmLen: Natural): seq[byte]</a></li>
+<li><a class="reference" href="#hkdfSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="hkdfSha384[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]">hkdfSha384[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">hkdfSha512
@@ -675,6 +688,14 @@
     
   </dd>
 </div>
+<div id="HkdfSha384MaxOkmLen">
+  <dt><pre><a href="#HkdfSha384MaxOkmLen"><span class="Identifier">HkdfSha384MaxOkmLen</span></a> <span class="Other">=</span> <span class="DecNumber">12240</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
 <div id="Md5BlockSize">
   <dt><pre><a href="#Md5BlockSize"><span class="Identifier">Md5BlockSize</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
   <dd>
@@ -1118,6 +1139,36 @@
 </div>
 
 </div>
+<div id="hkdfExpandSha384-procs-all">
+  <div id="hkdfExpandSha384,openArray[byte],openArray[byte],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural"><span class="Identifier">hkdfExpandSha384</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Expand a pseudo-random key with HKDF-SHA-384.
+    
+  </dd>
+</div>
+<div id="hkdfExpandSha384,string,string,Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha384%2Cstring%2Cstring%2CNatural"><span class="Identifier">hkdfExpandSha384</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="hkdfExpandSha384,openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">hkdfExpandSha384</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">:</span> <span class="Identifier">static</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span>
+    <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
 <div id="hkdfExpandSha512-procs-all">
   <div id="hkdfExpandSha512,openArray[byte],openArray[byte],Natural">
   <dt><pre><span class="Keyword">proc</span> <a href="#hkdfExpandSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural"><span class="Identifier">hkdfExpandSha512</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
@@ -1169,6 +1220,36 @@
 </div>
 <div id="hkdfSha256,openArray[byte],openArray[byte],openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha256%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">hkdfSha256</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">:</span> <span class="Identifier">static</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span>
+    <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+
+</div>
+<div id="hkdfSha384-procs-all">
+  <div id="hkdfSha384,openArray[byte],openArray[byte],openArray[byte],Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural"><span class="Identifier">hkdfSha384</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Derive output keying material of <tt class="docutils literal"><span class="pre"><span class="Identifier">okmLen</span></span></tt> bytes with HKDF-SHA-384.
+    
+  </dd>
+</div>
+<div id="hkdfSha384,string,string,string,Natural">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha384%2Cstring%2Cstring%2Cstring%2CNatural"><span class="Identifier">hkdfSha384</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">string</span><span class="Other">;</span> <span class="Identifier">okmLen</span><span class="Other">:</span> <span class="Identifier">Natural</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    
+    
+  </dd>
+</div>
+<div id="hkdfSha384,openArray[byte],openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#hkdfSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">hkdfSha384</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">:</span> <span class="Identifier">static</span><span class="Other">[</span><span class="Identifier">int</span><span class="Other">]</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span>
     <span class="Identifier">uint8</span><span class="Other">]</span></pre></dt>
   <dd>
     
@@ -2210,7 +2291,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-19 16:35:55 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-28 18:11:56 UTC</small>
       </div>
     </div>
   </div>

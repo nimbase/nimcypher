@@ -69,6 +69,14 @@
   <li><a class="reference" href="#sha256HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint" title="sha256HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]">sha256HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">sha384Hkdf
+  <li><a class="reference" href="#sha384Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint" title="sha384Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]">sha384Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">sha384HkdfExpand
+  <li><a class="reference" href="#sha384HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint" title="sha384HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]">sha384HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">sha512Hkdf
   <li><a class="reference" href="#sha512Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint" title="sha512Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]">sha512Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
 
@@ -93,7 +101,7 @@
     <div class="section" id="6">
   <h1><a class="toc-backref" href="#6">Imports</a></h1>
   <dl class="item">
-    <a class="reference external" href="common.html">common</a>, <a class="reference external" href="sha512.html">sha512</a>, <a class="reference external" href="sha256.html">sha256</a>
+    <a class="reference external" href="common.html">common</a>, <a class="reference external" href="sha512.html">sha512</a>, <a class="reference external" href="sha256.html">sha256</a>, <a class="reference external" href="sha384.html">sha384</a>
   </dl>
 </div>
 <div class="section" id="12">
@@ -118,6 +126,30 @@
   <dd>
     
     Expand a pseudo-random key with HKDF-SHA-256 (RFC 5869, 32-byte blocks). <tt class="docutils literal"><span class="pre"><span class="Identifier">okmSize</span></span></tt> is limited to 255 * 32 = 8160 bytes.
+    
+  </dd>
+</div>
+
+</div>
+<div id="sha384Hkdf-procs-all">
+  <div id="sha384Hkdf,openArray[byte],openArray[byte],openArray[byte],int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha384Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha384Hkdf</span></a><span class="Other">(</span><span class="Identifier">ikm</span><span class="Other">,</span> <span class="Identifier">salt</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    HKDF-SHA-384: extract with salt then expand.
+    
+  </dd>
+</div>
+
+</div>
+<div id="sha384HkdfExpand-procs-all">
+  <div id="sha384HkdfExpand,openArray[byte],openArray[byte],int">
+  <dt><pre><span class="Keyword">proc</span> <a href="#sha384HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint"><span class="Identifier">sha384HkdfExpand</span></a><span class="Other">(</span><span class="Identifier">prk</span><span class="Other">,</span> <span class="Identifier">info</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">okmSize</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Expand a pseudo-random key with HKDF-SHA-384 (RFC 5869, 48-byte blocks). <tt class="docutils literal"><span class="pre"><span class="Identifier">okmSize</span></span></tt> is limited to 255 * 48 = 12240 bytes.
     
   </dd>
 </div>
@@ -157,7 +189,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-19 16:35:55 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-28 18:11:56 UTC</small>
       </div>
     </div>
   </div>

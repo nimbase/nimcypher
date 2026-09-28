@@ -1129,6 +1129,14 @@
           <li><a class="reference external"
           data-doc-search-tag="hash: proc hkdfExpandSha256(prk, info: string; okmLen: Natural): seq[byte]" href="nimcypher/hash.html#hkdfExpandSha256%2Cstring%2Cstring%2CNatural">hash: proc hkdfExpandSha256(prk, info: string; okmLen: Natural): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="hkdfExpandSha384" href="#hkdfExpandSha384"><span>hkdfExpandSha384:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hash: proc hkdfExpandSha384[N: static[int]](prk, info: openArray[byte]): array[N, uint8]" href="nimcypher/hash.html#hkdfExpandSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">hash: proc hkdfExpandSha384[N: static[int]](prk, info: openArray[byte]): array[N, uint8]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: proc hkdfExpandSha384(prk, info: openArray[byte]; okmLen: Natural): seq[byte]" href="nimcypher/hash.html#hkdfExpandSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural">hash: proc hkdfExpandSha384(prk, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: proc hkdfExpandSha384(prk, info: string; okmLen: Natural): seq[byte]" href="nimcypher/hash.html#hkdfExpandSha384%2Cstring%2Cstring%2CNatural">hash: proc hkdfExpandSha384(prk, info: string; okmLen: Natural): seq[byte]</a></li>
+          </ul></dd>
 <dt><a name="hkdfExpandSha512" href="#hkdfExpandSha512"><span>hkdfExpandSha512:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="hash: proc hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]" href="nimcypher/hash.html#hkdfExpandSha512%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">hash: proc hkdfExpandSha512[N: static[int]](prk, info: openArray[byte]): array[N, uint8]</a></li>
@@ -1152,6 +1160,18 @@
 <dt><a name="HkdfSha256MaxOkmLen" href="#HkdfSha256MaxOkmLen"><span>HkdfSha256MaxOkmLen:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="hash: const HkdfSha256MaxOkmLen" href="nimcypher/hash.html#HkdfSha256MaxOkmLen">hash: const HkdfSha256MaxOkmLen</a></li>
+          </ul></dd>
+<dt><a name="hkdfSha384" href="#hkdfSha384"><span>hkdfSha384:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hash: proc hkdfSha384[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]" href="nimcypher/hash.html#hkdfSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">hash: proc hkdfSha384[N: static[int]](ikm, salt, info: openArray[byte]): array[N, uint8]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: proc hkdfSha384(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]" href="nimcypher/hash.html#hkdfSha384%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CNatural">hash: proc hkdfSha384(ikm, salt, info: openArray[byte]; okmLen: Natural): seq[byte]</a></li>
+          <li><a class="reference external"
+          data-doc-search-tag="hash: proc hkdfSha384(ikm, salt, info: string; okmLen: Natural): seq[byte]" href="nimcypher/hash.html#hkdfSha384%2Cstring%2Cstring%2Cstring%2CNatural">hash: proc hkdfSha384(ikm, salt, info: string; okmLen: Natural): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="HkdfSha384MaxOkmLen" href="#HkdfSha384MaxOkmLen"><span>HkdfSha384MaxOkmLen:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hash: const HkdfSha384MaxOkmLen" href="nimcypher/hash.html#HkdfSha384MaxOkmLen">hash: const HkdfSha384MaxOkmLen</a></li>
           </ul></dd>
 <dt><a name="hkdfSha512" href="#hkdfSha512"><span>hkdfSha512:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -2025,6 +2045,14 @@
           <li><a class="reference external"
           data-doc-search-tag="hash: proc sha384Hex(message: string): string" href="nimcypher/hash.html#sha384Hex%2Cstring">hash: proc sha384Hex(message: string): string</a></li>
           </ul></dd>
+<dt><a name="sha384Hkdf" href="#sha384Hkdf"><span>sha384Hkdf:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hkdf: proc sha384Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]" href="nimcypher/algos/hkdf.html#sha384Hkdf%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint">hkdf: proc sha384Hkdf(ikm, salt, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="sha384HkdfExpand" href="#sha384HkdfExpand"><span>sha384HkdfExpand:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="hkdf: proc sha384HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]" href="nimcypher/algos/hkdf.html#sha384HkdfExpand%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cint">hkdf: proc sha384HkdfExpand(prk, info: openArray[byte]; okmSize: int): seq[byte]</a></li>
+          </ul></dd>
 <dt><a name="Sha384Hmac" href="#Sha384Hmac"><span>Sha384Hmac:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="sha384: type Sha384Hmac" href="nimcypher/algos/sha384.html#Sha384Hmac">sha384: type Sha384Hmac</a></li>
@@ -2595,7 +2623,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-19 16:35:55 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-09-28 18:11:56 UTC</small>
       </div>
     </div>
   </div>
