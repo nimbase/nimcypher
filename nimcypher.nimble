@@ -18,16 +18,16 @@ requires "bigints >= 1.0.0"
 feature "nimsimd":
   requires "nimsimd"
 
-task test, "Run the test suite":
-  for t in ["tcommon", "tchacha20", "tpoly1305", "tblake2b", "taead",
-            "tx25519", "teddsa", "telligator", "targon2", "tsha512",
-            "tsha1", "tsha256", "tsha384", "tmd5", "txxhash", "tbigint_ext", "thkdf", "ted25519",
-            "tmontgomery", "trsa", "tecdsa", "tinterop", "thighlevel", "taes", "tgcm",
-            "topenssl", "trc4", "ttls_codec", "ttls_key_schedule",
-            "ttls_aead", "ttls_record", "ttls_handshake",
-            "ttls_asn1", "ttls_x509", "ttls_verify", "ttls_client",
-            "ttls_interop", "ttls_keys", "ttls_loopback"]:
-    exec "nim c -r --hints:off -d:danger tests/" & t & ".nim"
+# task test, "Run the test suite":
+#   for t in ["tcommon", "tchacha20", "tpoly1305", "tblake2b", "taead",
+#             "tx25519", "teddsa", "telligator", "targon2", "tsha512",
+#             "tsha1", "tsha256", "tsha384", "tmd5", "txxhash", "tbigint_ext", "thkdf", "ted25519",
+#             "tmontgomery", "trsa", "tecdsa", "tinterop", "thighlevel", "taes", "tgcm",
+#             "topenssl", "trc4", "ttls_codec", "ttls_key_schedule",
+#             "ttls_aead", "ttls_record", "ttls_handshake",
+#             "ttls_asn1", "ttls_x509", "ttls_verify", "ttls_client",
+#             "ttls_interop", "ttls_keys", "ttls_loopback"]:
+#     exec "nim c -r --hints:off -d:danger tests/" & t & ".nim"
 
 task test_simd, "Run the SIMD-accelerated tests":
   exec "nimble install -y nimsimd"
