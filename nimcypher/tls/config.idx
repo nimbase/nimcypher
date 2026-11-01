@@ -1,0 +1,6 @@
+nimTitle	config	nimcypher/tls/config.html	module nimcypher/tls/config		0
+nim	ClientConfig	nimcypher/tls/config.html#ClientConfig	object ClientConfig		9
+nim	defaultClientConfig	nimcypher/tls/config.html#defaultClientConfig	proc defaultClientConfig(): ClientConfig		16
+nim	defaultClientConfigWithRoots	nimcypher/tls/config.html#defaultClientConfigWithRoots,TrustStore	proc defaultClientConfigWithRoots(roots: TrustStore): ClientConfig		26
+nim	ServerConfig	nimcypher/tls/config.html#ServerConfig	object ServerConfig		31
+nim	defaultServerConfig	nimcypher/tls/config.html#defaultServerConfig	proc defaultServerConfig(): ServerConfig		37

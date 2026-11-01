@@ -1,0 +1,19 @@
+nimTitle	server	nimcypher/tls/server.html	module nimcypher/tls/server		0
+nim	ssExpectClientHello	nimcypher/tls/server.html#ssExpectClientHello	ServerState.ssExpectClientHello		30
+nim	ssExpectSecondHello	nimcypher/tls/server.html#ssExpectSecondHello	ServerState.ssExpectSecondHello		30
+nim	ssExpectFinished	nimcypher/tls/server.html#ssExpectFinished	ServerState.ssExpectFinished		30
+nim	ssTraffic	nimcypher/tls/server.html#ssTraffic	ServerState.ssTraffic		30
+nim	ssClosed	nimcypher/tls/server.html#ssClosed	ServerState.ssClosed		30
+nim	ssFailed	nimcypher/tls/server.html#ssFailed	ServerState.ssFailed		30
+nim	ServerState	nimcypher/tls/server.html#ServerState	enum ServerState		30
+nim	TlsServerConn	nimcypher/tls/server.html#TlsServerConn	object TlsServerConn		38
+nim	failed	nimcypher/tls/server.html#failed,TlsServerConn	proc failed(c: TlsServerConn): bool		76
+nim	established	nimcypher/tls/server.html#established,TlsServerConn	proc established(c: TlsServerConn): bool		79
+nim	takeOutbox	nimcypher/tls/server.html#takeOutbox,TlsServerConn	proc takeOutbox(c: var TlsServerConn): seq[byte]		82
+nim	readApp	nimcypher/tls/server.html#readApp,TlsServerConn	proc readApp(c: var TlsServerConn): seq[byte]		86
+nim	newServerConn	nimcypher/tls/server.html#newServerConn,ServerConfig,string,PrivateKey	proc newServerConn(config: ServerConfig; chainPem: string; key: PrivateKey): TlsServerConn		106
+nim	feed	nimcypher/tls/server.html#feed,TlsServerConn,openArray[byte]	proc feed(c: var TlsServerConn; chunk: openArray[byte])		539
+nim	encryptApp	nimcypher/tls/server.html#encryptApp,TlsServerConn,openArray[byte]	proc encryptApp(c: var TlsServerConn; data: openArray[byte])		551
+nim	encryptApp	nimcypher/tls/server.html#encryptApp,TlsServerConn,string	proc encryptApp(c: var TlsServerConn; data: string)		561
+nim	sendCloseNotify	nimcypher/tls/server.html#sendCloseNotify,TlsServerConn	proc sendCloseNotify(c: var TlsServerConn)		564
+nimgrp	encryptapp	nimcypher/tls/server.html#encryptApp-procs-all	proc		551

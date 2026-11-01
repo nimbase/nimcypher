@@ -1,0 +1,35 @@
+nimTitle	x509	nimcypher/tls/x509.html	module nimcypher/tls/x509		0
+nim	saRsaPkcs1Sha256	nimcypher/tls/x509.html#saRsaPkcs1Sha256	CertSigAlg.saRsaPkcs1Sha256		21
+nim	saRsaPkcs1Sha384	nimcypher/tls/x509.html#saRsaPkcs1Sha384	CertSigAlg.saRsaPkcs1Sha384		21
+nim	saRsaPkcs1Sha512	nimcypher/tls/x509.html#saRsaPkcs1Sha512	CertSigAlg.saRsaPkcs1Sha512		21
+nim	saRsaPssSha256	nimcypher/tls/x509.html#saRsaPssSha256	CertSigAlg.saRsaPssSha256		21
+nim	saRsaPssSha384	nimcypher/tls/x509.html#saRsaPssSha384	CertSigAlg.saRsaPssSha384		21
+nim	saRsaPssSha512	nimcypher/tls/x509.html#saRsaPssSha512	CertSigAlg.saRsaPssSha512		21
+nim	saEcdsaSha256	nimcypher/tls/x509.html#saEcdsaSha256	CertSigAlg.saEcdsaSha256		21
+nim	saEcdsaSha384	nimcypher/tls/x509.html#saEcdsaSha384	CertSigAlg.saEcdsaSha384		21
+nim	saEcdsaSha512	nimcypher/tls/x509.html#saEcdsaSha512	CertSigAlg.saEcdsaSha512		21
+nim	saEd25519	nimcypher/tls/x509.html#saEd25519	CertSigAlg.saEd25519		21
+nim	CertSigAlg	nimcypher/tls/x509.html#CertSigAlg	enum CertSigAlg		21
+nim	skRsa	nimcypher/tls/x509.html#skRsa	SpkiKind.skRsa		33
+nim	skEc	nimcypher/tls/x509.html#skEc	SpkiKind.skEc		33
+nim	skEd25519	nimcypher/tls/x509.html#skEd25519	SpkiKind.skEd25519		33
+nim	SpkiKind	nimcypher/tls/x509.html#SpkiKind	enum SpkiKind		33
+nim	PublicKeyInfo	nimcypher/tls/x509.html#PublicKeyInfo	object PublicKeyInfo		38
+nim	TbsCertificate	nimcypher/tls/x509.html#TbsCertificate	object TbsCertificate		48
+nim	Certificate	nimcypher/tls/x509.html#Certificate	object Certificate		67
+nim	rsaHashOf	nimcypher/tls/x509.html#rsaHashOf,CertSigAlg	proc rsaHashOf(alg: CertSigAlg): rsaAlgo.RsaHash		97
+nim	curveOfOid	nimcypher/tls/x509.html#curveOfOid,string	proc curveOfOid(oid: string): ecdsaAlgo.EcCurve		104
+nim	coordLenOf	nimcypher/tls/x509.html#coordLenOf	proc coordLenOf(c: ecdsaAlgo.EcCurve): int		111
+nim	parseCertTime	nimcypher/tls/x509.html#parseCertTime,Asn1Node	proc parseCertTime(n: Asn1Node): int64		130
+nim	commonName	nimcypher/tls/x509.html#commonName,openArray[byte]	proc commonName(nameDer: openArray[byte]): string		163
+nim	parsePssHash	nimcypher/tls/x509.html#parsePssHash,Asn1Node	proc parsePssHash(params: Asn1Node): CertSigAlg		181
+nim	parseSigAlg	nimcypher/tls/x509.html#parseSigAlg,Asn1Node	proc parseSigAlg(ai: Asn1Node): CertSigAlg		232
+nim	parseSpki	nimcypher/tls/x509.html#parseSpki,Asn1Node	proc parseSpki(n: Asn1Node): PublicKeyInfo		253
+nim	parseExtensions	nimcypher/tls/x509.html#parseExtensions,openArray[byte],TbsCertificate	proc parseExtensions(extDer: openArray[byte]; tbs: var TbsCertificate)		290
+nim	parseTbs	nimcypher/tls/x509.html#parseTbs,Asn1Node,seq[byte]	proc parseTbs(tbsNode: Asn1Node; raw: seq[byte]): TbsCertificate		361
+nim	parseCertificate	nimcypher/tls/x509.html#parseCertificate,openArray[byte]	proc parseCertificate(der: openArray[byte]): Certificate		402
+nim	rsaPubKey	nimcypher/tls/x509.html#rsaPubKey,PublicKeyInfo	proc rsaPubKey(info: PublicKeyInfo): rsaAlgo.RsaPublicKey		422
+nim	ecPubKey	nimcypher/tls/x509.html#ecPubKey,PublicKeyInfo	proc ecPubKey(info: PublicKeyInfo): ecdsaAlgo.EcPublicKey		429
+nim	rawToDerEcdsaSig	nimcypher/tls/x509.html#rawToDerEcdsaSig,openArray[byte],int	proc rawToDerEcdsaSig(raw: openArray[byte]; coordLen: int): seq[byte]		438
+nim	derToRawEcdsaSig	nimcypher/tls/x509.html#derToRawEcdsaSig,openArray[byte],int	proc derToRawEcdsaSig(der: openArray[byte]; coordLen: int): seq[byte]		458
+nim	verifyCertSignature	nimcypher/tls/x509.html#verifyCertSignature,Certificate,PublicKeyInfo	proc verifyCertSignature(cert: Certificate; issuerKey: PublicKeyInfo): bool		474

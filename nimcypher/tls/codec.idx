@@ -1,0 +1,18 @@
+nimTitle	codec	nimcypher/tls/codec.html	module nimcypher/tls/codec		0
+nim	TlsReader	nimcypher/tls/codec.html#TlsReader	object TlsReader		9
+nim	initReader	nimcypher/tls/codec.html#initReader,openArray[byte]	proc initReader(data: openArray[byte]): TlsReader		13
+nim	remaining	nimcypher/tls/codec.html#remaining,TlsReader	proc remaining(r: TlsReader): int		17
+nim	readByte	nimcypher/tls/codec.html#readByte,TlsReader	proc readByte(r: var TlsReader): byte		20
+nim	readUint16	nimcypher/tls/codec.html#readUint16,TlsReader	proc readUint16(r: var TlsReader): uint16		26
+nim	readUint24	nimcypher/tls/codec.html#readUint24,TlsReader	proc readUint24(r: var TlsReader): int		31
+nim	readBytes	nimcypher/tls/codec.html#readBytes,TlsReader,int	proc readBytes(r: var TlsReader; n: int): seq[byte]		37
+nim	readOpaque8	nimcypher/tls/codec.html#readOpaque8,TlsReader	proc readOpaque8(r: var TlsReader): seq[byte]		43
+nim	readOpaque16	nimcypher/tls/codec.html#readOpaque16,TlsReader	proc readOpaque16(r: var TlsReader): seq[byte]		47
+nim	readOpaque24	nimcypher/tls/codec.html#readOpaque24,TlsReader	proc readOpaque24(r: var TlsReader): seq[byte]		51
+nim	expectEmpty	nimcypher/tls/codec.html#expectEmpty,TlsReader	proc expectEmpty(r: TlsReader)		55
+nim	writeByte	nimcypher/tls/codec.html#writeByte,seq[byte],byte	proc writeByte(dst: var seq[byte]; v: byte)		61
+nim	writeUint16	nimcypher/tls/codec.html#writeUint16,seq[byte],uint16	proc writeUint16(dst: var seq[byte]; v: uint16)		64
+nim	writeUint24	nimcypher/tls/codec.html#writeUint24,seq[byte],int	proc writeUint24(dst: var seq[byte]; v: int)		68
+nim	writeOpaque8	nimcypher/tls/codec.html#writeOpaque8,seq[byte],openArray[byte]	proc writeOpaque8(dst: var seq[byte]; data: openArray[byte])		75
+nim	writeOpaque16	nimcypher/tls/codec.html#writeOpaque16,seq[byte],openArray[byte]	proc writeOpaque16(dst: var seq[byte]; data: openArray[byte])		81
+nim	writeOpaque24	nimcypher/tls/codec.html#writeOpaque24,seq[byte],openArray[byte]	proc writeOpaque24(dst: var seq[byte]; data: openArray[byte])		87

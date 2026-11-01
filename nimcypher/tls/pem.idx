@@ -1,0 +1,3 @@
+nimTitle	pem	nimcypher/tls/pem.html	module nimcypher/tls/pem		0
+nim	pemBlocks	nimcypher/tls/pem.html#pemBlocks,string,string	proc pemBlocks(text: string; label = "CERTIFICATE"): seq[seq[byte]]		8
+nim	pemParseFile	nimcypher/tls/pem.html#pemParseFile,string,string	proc pemParseFile(path: string; label = "CERTIFICATE"): seq[seq[byte]]		27
