@@ -1,9 +1,9 @@
 # Package
 
-version       = "0.2.5"
+version       = "0.3.0"
 author        = "George Lemon"
 description   = "A pure-Nim port of Monocypher 4.0.3: a small, easy to use crypto library."
-license       = "BSD-2-Clause OR CC0-1.0"
+license       = "BSD-2-Clause"
 srcDir        = "src"
 
 # Dependencies
@@ -23,7 +23,10 @@ task test, "Run the test suite":
             "tx25519", "teddsa", "telligator", "targon2", "tsha512",
             "tsha1", "tsha256", "tsha384", "tmd5", "txxhash", "tbigint_ext", "thkdf", "ted25519",
             "tmontgomery", "trsa", "tecdsa", "tinterop", "thighlevel", "taes", "tgcm",
-            "topenssl", "trc4"]:
+            "topenssl", "trc4", "ttls_codec", "ttls_key_schedule",
+            "ttls_aead", "ttls_record", "ttls_handshake",
+            "ttls_asn1", "ttls_x509", "ttls_verify", "ttls_client",
+            "ttls_interop", "ttls_keys", "ttls_loopback"]:
     exec "nim c -r --hints:off -d:danger tests/" & t & ".nim"
 
 task test_simd, "Run the SIMD-accelerated tests":
