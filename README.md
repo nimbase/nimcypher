@@ -16,8 +16,9 @@
 
 NimCypher is a **pure-Nim cryptographic library** that started as a faithful port of
 [Monocypher](https://monocypher.org/) 4.0.3 and has grown beyond it with the addition
-of `AES-128`/`192`/`256` block cipher and `AES-GCM` authenticated encryption, the `SHA-2`
-family (`SHA-256`/`384`/`512`) plus `HMAC-SHA-1` and `HKDF-SHA-256`, legacy `MD5`
+of `AES-128`/`192`/`256` block cipher and `AES-GCM` authenticated encryption, the full `SHA-2`
+family (`SHA-224`/`256`/`384`/`512`/`512-224`/`512-256`) plus raw `SHA-1`, `HMAC-SHA-1`
+and `HKDF-SHA-256`, legacy `MD5`
 and `HMAC-MD5` for interop, and the non-cryptographic `xxHash` family (`XXH32`,
 `XXH64`, `XXH3_64`, `XXH128`) for checksums, and asymmetric
 primitives: RSA (PKCS#1 v1.5, PSS, OAEP) and ECDSA/ECDH over P-256/P-384/P-521 and
@@ -50,7 +51,7 @@ implementation and the NIST test-vector suite.
 High-level API (`import nimcypher`):
 - AES-GCM sealing with random nonces, plus AES block encryption in common modes
 - Authenticated encryption and sealing with XChaCha20-Poly1305, including streaming
-- Hashing with BLAKE2b and the SHA-2 family, HMAC variants, and HKDF key derivation
+- Hashing with BLAKE2b and the full SHA-2 family, SHA-1, HMAC variants, and HKDF key derivation
 - Legacy `MD5` / `HMAC-MD5` for interop and `xxHash` (`XXH32`/`XXH64`/`XXH3`) checksums
 - Argon2id password hashing, verification, and key derivation
 - Key exchange with X25519 and ECDH over standard curves
@@ -61,7 +62,7 @@ High-level API (`import nimcypher`):
 
 Low-level primitives (`nimcypher/algos/...`):
 - AES block cipher and AES-GCM with streaming support, checked against NIST vectors
-- BLAKE2b, SHA-2, HMAC, and HKDF building blocks
+- BLAKE2b, full SHA-2 plus SHA-1, HMAC, and HKDF building blocks
 - `hashes/md5` (RFC 1321, HMAC-MD5) and `hashes/xxhash` (`XXH32`/`XXH64`/`XXH3_64`/`XXH128`)
 - Argon2 password hashing in all three variants
 - X25519 and ECDH key exchange, EdDSA and ECDSA signatures
@@ -169,7 +170,7 @@ let plain2 = aeadStreamRead(decStream, cipher2, mac2)
 assert plain1 & plain2 == toBytes(message)
 ```
 
-### Hashing: BLAKE2b, SHA-512/256/384, HMAC, HMAC-SHA-1, HKDF, MD5, xxHash
+### Hashing: BLAKE2b, full SHA-2, SHA-1, HMAC, HKDF, MD5, xxHash
 
 ```nim
 import nimcypher/hash
@@ -180,6 +181,10 @@ let mac    = blakeKeyed(toBytes("msg"), toBytes("key")) # keyed (MAC)
 let sha    = sha512Hex("hello world")                   # hex string
 let sha2   = sha256Hex("hello world")                   # 32-byte SHA-256
 let sha4   = sha384Hex("hello world")                   # 48-byte SHA-384
+let sha224d = sha224Hex("hello world")                  # 28-byte SHA-224
+let sha5224 = sha512_224Hex("hello world")              # 28-byte SHA-512/224
+let sha5256 = sha512_256Hex("hello world")              # 32-byte SHA-512/256
+let sha1d  = sha1Hex("hello world")                     # 20-byte SHA-1 (legacy only)
 let hmac   = sha512Hmac(toBytes("key"), toBytes("msg"))
 let hmac2  = sha256Hmac(toBytes("key"), toBytes("msg")) # 32-byte HMAC-SHA-256
 let hmac1  = sha1Hmac(toBytes("key"), toBytes("msg"))   # 20-byte HMAC-SHA-1 (RFC 2202)
@@ -187,8 +192,8 @@ let okm    = hkdfSha512(toBytes("ikm"), @[], toBytes("info"), 32)
 let okm2   = hkdfSha256(toBytes("ikm"), @[], toBytes("info"), 32)
 assert okm.len == 32 and okm2.len == 32
 
-var st = initSha256()               # streaming SHA-256 (also initSha512/initSha384)
-st.update(toBytes("hello "))
+var st = initSha256()               # streaming SHA-256 (also initSha512/initSha384,
+st.update(toBytes("hello "))        # initSha224/initSha512_224/initSha512_256/initSha1)
 st.update(toBytes("world"))
 assert st.finish() == sha256(toBytes("hello world"))
 ```
@@ -431,8 +436,8 @@ Runs three suites:
   hashing, Argon2, Elligator, and constant-time verification.
 - **OpenSSL interop tests** (`topenssl.nim`): live two-way cross-checks against the system
    `openssl` CLI over freshly generated keys: RSA PKCS#1 v1.5 / PSS / OAEP, ECDSA
-   (P-256, P-384, secp256k1), AES-ECB/CBC/CTR, SHA digests, MD5 digests,
-   HMAC-SHA-256, HMAC-MD5, IETF ChaCha20,
+   (P-256, P-384, secp256k1), AES-ECB/CBC/CTR, full SHA-2 + SHA-1 digests, MD5 digests,
+   HMAC-SHA-224/256/512-224/512-256, HMAC-MD5, IETF ChaCha20,
   X25519, and Ed25519. AES-GCM is covered by NIST vectors in `tgcm` instead (`openssl
   enc` rejects AEAD ciphers).
 - **High-level tests**: round trips and error handling for the `import nimcypher` API

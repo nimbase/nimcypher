@@ -18,10 +18,10 @@ type
   Sha256Digest* = array[Sha256DigestSize, byte]
 
   Sha256Context* = object
-    h: array[8, uint32]
-    buf: array[64, byte]
-    bufLen: int
-    totalLen: uint64
+    h*: array[8, uint32]
+    buf*: array[64, byte]
+    bufLen*: int
+    totalLen*: uint64
 
   Sha256HmacContext* = object
     key: array[64, byte]

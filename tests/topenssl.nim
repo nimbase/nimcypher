@@ -32,8 +32,11 @@ import nimcypher/algos/ecdsa as ecdsaAlgo
 import nimcypher/algos/aes
 import nimcypher/algos/sha1 as sha1Algo
 import nimcypher/algos/sha256 as sha256Algo
+import nimcypher/algos/sha224 as sha224Algo
 import nimcypher/algos/sha384 as sha384Algo
 import nimcypher/algos/sha512 as sha512Algo
+import nimcypher/algos/sha512_224 as sha512_224Algo
+import nimcypher/algos/sha512_256 as sha512_256Algo
 import nimcypher/hashes/md5 as md5Algo
 import nimcypher/algos/chacha20
 import nimcypher/algos/x25519
@@ -440,18 +443,42 @@ if osslBin != "":
       check sameBytes(readBin("aes_ecb_rt.bin"), pt)
 
   suite "openssl digests":
-    test "SHA-1/256/384/512 match":
+    test "SHA-1/224/256/384/512/512-224/512-256 match":
       writeBin("msg.bin", interopMsg)
       let msg = toBytes(interopMsg)
       ossl("dgst", "-sha1", "-binary", "-out", wp("d1.bin"), wp("msg.bin"))
+      ossl("dgst", "-sha224", "-binary", "-out", wp("d224.bin"), wp("msg.bin"))
       ossl("dgst", "-sha256", "-binary", "-out", wp("d256.bin"), wp("msg.bin"))
       ossl("dgst", "-sha384", "-binary", "-out", wp("d384.bin"), wp("msg.bin"))
       ossl("dgst", "-sha512", "-binary", "-out", wp("d512.bin"), wp("msg.bin"))
+      ossl("dgst", "-sha512-224", "-binary", "-out", wp("d512_224.bin"), wp("msg.bin"))
+      ossl("dgst", "-sha512-256", "-binary", "-out", wp("d512_256.bin"), wp("msg.bin"))
       check sameBytes(@(sha1Algo.sha1(msg)), readBin("d1.bin"))
+      check sameBytes(@(sha224Algo.sha224(msg)), readBin("d224.bin"))
       check sameBytes(@(sha256Algo.sha256(msg)), readBin("d256.bin"))
       let h384 = sha384Algo.sha384(msg)
       check sameBytes(h384.toOpenArray(0, 47), readBin("d384.bin"))
       check sameBytes(@(sha512Algo.sha512(msg)), readBin("d512.bin"))
+      check sameBytes(@(sha512_224Algo.sha512_224(msg)), readBin("d512_224.bin"))
+      check sameBytes(@(sha512_256Algo.sha512_256(msg)), readBin("d512_256.bin"))
+
+    test "HMAC-SHA-224/512-224/512-256 match":
+      writeBin("msg.bin", interopMsg)
+      ossl("dgst", "-sha224", "-hmac", "testkey123", "-binary",
+           "-out", wp("hm224.bin"), wp("msg.bin"))
+      ossl("dgst", "-sha512-224", "-hmac", "testkey123", "-binary",
+           "-out", wp("hm512_224.bin"), wp("msg.bin"))
+      ossl("dgst", "-sha512-256", "-hmac", "testkey123", "-binary",
+           "-out", wp("hm512_256.bin"), wp("msg.bin"))
+      check sameBytes(@(sha224Algo.sha224Hmac(toBytes("testkey123"),
+                                             toBytes(interopMsg))),
+                      readBin("hm224.bin"))
+      check sameBytes(@(sha512_224Algo.sha512_224Hmac(toBytes("testkey123"),
+                                                     toBytes(interopMsg))),
+                      readBin("hm512_224.bin"))
+      check sameBytes(@(sha512_256Algo.sha512_256Hmac(toBytes("testkey123"),
+                                                     toBytes(interopMsg))),
+                      readBin("hm512_256.bin"))
 
     test "HMAC-SHA-256 matches":
       writeBin("msg.bin", interopMsg)

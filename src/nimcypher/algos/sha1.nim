@@ -1,12 +1,11 @@
-# HMAC-SHA-1 (and internal SHA-1) — pure Nim, no C dependency.
+# SHA-1 hash and HMAC-SHA-1 — pure Nim, no C dependency.
 #
 # SHA-1 per FIPS 180-4 §6.1, HMAC per RFC 2104. Reference: RFC 3174.
 # SHA-1 is collision-broken: do not use it for collision-dependent
 # purposes (signatures, certificates, content addressing). HMAC-SHA-1
 # is retained for legacy interop (notably RSA-OAEP-SHA1 / JWA RSA-OAEP).
-# This file exposes HMAC-SHA-1 as the public primitive; SHA-1 itself is
-# internal (used to compress long HMAC keys and as the HMAC hash). No
-# streaming API — one-shot only.
+# Structure mirrors `sha256.nim`: streaming `Sha1Context`,
+# `Sha1HmacContext` with `init/update/final`, one-shot `sha1/sha1Hmac`.
 #
 # Dual-licensed under BSD-2-Clause OR CC0-1.0.
 
@@ -20,6 +19,16 @@ const
 
 type
   Sha1Digest* = array[Sha1DigestSize, byte]
+
+  Sha1Context* = object
+    h: array[5, uint32]
+    buf: array[64, byte]
+    bufLen: int
+    totalLen: uint64
+
+  Sha1HmacContext* = object
+    key: array[64, byte]
+    ctx: Sha1Context
 
 proc rotl32(x: uint32, n: int): uint32 {.inline.} =
   (x shl n) or (x shr (32 - n))
@@ -75,83 +84,122 @@ proc sha1Compress(h: var array[5, uint32], blk: BytePtr) {.inline.} =
   h[3] += d
   h[4] += e
 
-proc sha1*(message: openArray[byte]): Sha1Digest =
-  ## Internal SHA-1 (FIPS 180-4). Not exported at high level; used by HMAC.
-  var h: array[5, uint32] = [
-    0x67452301'u32, 0xEFCDAB89'u32, 0x98BADCFE'u32, 0x10325476'u32, 0xC3D2E1F0'u32
-  ]
-  let ml = message.len
-  let bitLen = uint64(ml) * 8
-  # padded length = smallest multiple of 64 >= ml+1+8
-  let paddedLen = ((ml + 1 + 8 + 63) div 64) * 64
-  var padded = newSeq[byte](paddedLen)
-  if ml > 0:
-    # copyMem with nil guard
-    copyMem(addr padded[0], unsafeAddr message[0], ml)
-  padded[ml] = 0x80
-  # last 8 bytes = bitLen BE (zero-filled gap already)
-  let off = paddedLen - 8
-  padded[off+0] = byte(bitLen shr 56)
-  padded[off+1] = byte(bitLen shr 48)
-  padded[off+2] = byte(bitLen shr 40)
-  padded[off+3] = byte(bitLen shr 32)
-  padded[off+4] = byte(bitLen shr 24)
-  padded[off+5] = byte(bitLen shr 16)
-  padded[off+6] = byte(bitLen shr 8)
-  padded[off+7] = byte(bitLen)
+proc init*(ctx: var Sha1Context) =
+  ctx.h[0] = 0x67452301'u32
+  ctx.h[1] = 0xEFCDAB89'u32
+  ctx.h[2] = 0x98BADCFE'u32
+  ctx.h[3] = 0x10325476'u32
+  ctx.h[4] = 0xC3D2E1F0'u32
+  ctx.buf = default(array[64, byte])
+  ctx.bufLen = 0
+  ctx.totalLen = 0
 
-  var blkPtr = cast[BytePtr](addr padded[0])
-  var offset = 0
-  while offset < paddedLen:
-    sha1Compress(h, blkPtr + offset)
-    offset += 64
+proc update*(ctx: var Sha1Context, message: openArray[byte]) =
+  if message.len == 0:
+    return
+  var off = 0
+  var left = message.len
+  # fill pending buffer to a full block
+  if ctx.bufLen > 0:
+    let need = 64 - ctx.bufLen
+    let take = min(need, left)
+    for i in 0 ..< take:
+      ctx.buf[ctx.bufLen + i] = message[off + i]
+    ctx.bufLen += take
+    off += take
+    left -= take
+    ctx.totalLen += uint64(take)
+    if ctx.bufLen == 64:
+      sha1Compress(ctx.h, cast[BytePtr](addr ctx.buf[0]))
+      ctx.bufLen = 0
+  # direct block path
+  while left >= 64:
+    sha1Compress(ctx.h,
+      cast[BytePtr](unsafeAddr message[off]))
+    off += 64
+    left -= 64
+    ctx.totalLen += 64
+  # tail
+  if left > 0:
+    for i in 0 ..< left:
+      ctx.buf[i] = message[off + i]
+    ctx.bufLen = left
+    ctx.totalLen += uint64(left)
 
-  # wipe padded material
-  wipe(padded)
+proc final*(ctx: var Sha1Context): Sha1Digest =
+  let bitLen = ctx.totalLen * 8
+  # pad: 0x80 then zeros until length field fits (need 9 bytes: 1 + 8)
+  var padLen = 1
+  while (ctx.bufLen + padLen) mod 64 != 56:
+    inc padLen
+  var pad = newSeq[byte](padLen + 8)
+  pad[0] = 0x80
+  let o = padLen
+  pad[o+0] = byte(bitLen shr 56)
+  pad[o+1] = byte(bitLen shr 48)
+  pad[o+2] = byte(bitLen shr 40)
+  pad[o+3] = byte(bitLen shr 32)
+  pad[o+4] = byte(bitLen shr 24)
+  pad[o+5] = byte(bitLen shr 16)
+  pad[o+6] = byte(bitLen shr 8)
+  pad[o+7] = byte(bitLen)
+  update(ctx, pad)
+  wipe(pad)
+  # ctx.bufLen must be 0 and totalLen a multiple of 64 now
   for i in 0 ..< 5:
-    store32Be(cast[BytePtr](addr result[i*4]), h[i])
-  wipe(h)
+    store32Be(cast[BytePtr](addr result[i * 4]), ctx.h[i])
+  wipe(ctx)
+
+proc sha1*(message: openArray[byte]): Sha1Digest =
+  ## Compute the SHA-1 hash of `message` (FIPS 180-4).
+  ## Collision-broken: legacy interop only, do not use in new designs.
+  var ctx: Sha1Context
+  init(ctx)
+  update(ctx, message)
+  result = final(ctx)
+
+# HMAC-SHA-1 (streaming, mirrors sha256.nim)
+
+proc initHmac*(ctx: var Sha1HmacContext, key: openArray[byte]) =
+  ## Initialize an HMAC-SHA-1 context with the given key.
+  var keyPtr: BytePtr = nil
+  var keySize = key.len
+  if keySize > 64:
+    var hashed = sha1(key)
+    for i in 0 ..< Sha1DigestSize:
+      ctx.key[i] = hashed[i]
+    wipe(hashed)
+    keyPtr = cast[BytePtr](addr ctx.key[0])
+    keySize = Sha1DigestSize
+  elif keySize > 0:
+    keyPtr = cast[BytePtr](unsafeAddr key[0])
+  for i in 0 ..< keySize:
+    ctx.key[i] = keyPtr[i] xor 0x36
+  for i in keySize ..< 64:
+    ctx.key[i] = 0x36
+  init(ctx.ctx)
+  update(ctx.ctx, ctx.key)
+
+proc update*(ctx: var Sha1HmacContext, message: openArray[byte]) =
+  update(ctx.ctx, message)
+
+proc final*(ctx: var Sha1HmacContext): Sha1Digest =
+  ## Compute the 20-byte HMAC.
+  var inner: Sha1Digest = final(ctx.ctx)
+  for i in 0 ..< 64:
+    ctx.key[i] = ctx.key[i] xor (0x36 xor 0x5c)
+  init(ctx.ctx)
+  update(ctx.ctx, ctx.key)
+  update(ctx.ctx, inner)
+  result = final(ctx.ctx)
+  wipe(inner)
+  wipe(ctx)
 
 proc sha1Hmac*(key, message: openArray[byte]): Sha1Digest =
   ## Compute HMAC-SHA-1 of `message` under `key` (RFC 2104).
-  ## One-shot only; no streaming context.
-  var blockKey: array[Sha1BlockSize, byte]
-  var keyLen = key.len
-  if keyLen > Sha1BlockSize:
-    var hashed = sha1(key)
-    for i in 0 ..< Sha1DigestSize:
-      blockKey[i] = hashed[i]
-    wipe(hashed)
-    keyLen = Sha1DigestSize
-  elif keyLen > 0:
-    copyMem(addr blockKey[0], unsafeAddr key[0], keyLen)
-  elif keyLen == 0:
-    discard
-
-  var ipad: array[Sha1BlockSize, byte]
-  var opad: array[Sha1BlockSize, byte]
-  for i in 0 ..< Sha1BlockSize:
-    ipad[i] = blockKey[i] xor 0x36
-    opad[i] = blockKey[i] xor 0x5c
-
-  # inner = SHA1(ipad || message)
-  let innerLen = Sha1BlockSize + message.len
-  var innerInput = newSeq[byte](innerLen)
-  copyMem(addr innerInput[0], addr ipad[0], Sha1BlockSize)
-  if message.len > 0:
-    copyMem(addr innerInput[Sha1BlockSize], unsafeAddr message[0], message.len)
-  var inner = sha1(innerInput)
-  wipe(innerInput)
-  wipe(ipad)
-
-  # outer = SHA1(opad || inner)
-  var outerInput = newSeq[byte](Sha1BlockSize + Sha1DigestSize)
-  copyMem(addr outerInput[0], addr opad[0], Sha1BlockSize)
-  copyMem(addr outerInput[Sha1BlockSize], unsafeAddr inner[0], Sha1DigestSize)
-  result = sha1(outerInput)
-  wipe(outerInput)
-  wipe(opad)
-  wipe(inner)
-  wipe(blockKey)
+  var ctx: Sha1HmacContext
+  initHmac(ctx, key)
+  update(ctx, message)
+  result = final(ctx)
 
 {.pop.}

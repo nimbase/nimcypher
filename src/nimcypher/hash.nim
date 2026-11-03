@@ -1,4 +1,5 @@
-# High-level hashing API: BLAKE2b, SHA-512, SHA-256, HMAC-SHA-1, HMAC, HKDF.
+# High-level hashing API: BLAKE2b, SHA-2 (224/256/384/512/512-224/512-256),
+# SHA-1, HMAC, HKDF.
 #
 # (c) 2025 George Lemon | MIT License
 #          Made by Humans from OpenPeeps
@@ -6,6 +7,9 @@
 import nimcypher/algos/blake2b as blakeAlgo
 import nimcypher/algos/sha512 as shaAlgo
 import nimcypher/algos/sha256 as sha256Algo
+import nimcypher/algos/sha224 as sha224Algo
+import nimcypher/algos/sha512_224 as sha512_224Algo
+import nimcypher/algos/sha512_256 as sha512_256Algo
 import nimcypher/algos/sha384 as sha384Algo
 import nimcypher/algos/sha1 as sha1Algo
 import nimcypher/algos/hkdf as hkdfAlgo
@@ -25,6 +29,12 @@ const
   Sha384BlockSize* = 128
   Sha256DigestSize* = 32
   Sha256BlockSize* = 64
+  Sha224DigestSize* = 28
+  Sha224BlockSize* = 64
+  Sha512_224DigestSize* = 28
+  Sha512_224BlockSize* = 128
+  Sha512_256DigestSize* = 32
+  Sha512_256BlockSize* = 128
   Sha1DigestSize* = 20
   Sha1BlockSize* = 64
   Md5DigestSize* = 16
@@ -37,6 +47,13 @@ type
   Sha384Hmac* = array[Sha384DigestSize, uint8]
   Sha256Digest* = array[Sha256DigestSize, uint8]
   Sha256Hmac* = array[Sha256DigestSize, uint8]
+  Sha224Digest* = array[Sha224DigestSize, uint8]
+  Sha224Hmac* = array[Sha224DigestSize, uint8]
+  Sha512_224Digest* = array[Sha512_224DigestSize, uint8]
+  Sha512_224Hmac* = array[Sha512_224DigestSize, uint8]
+  Sha512_256Digest* = array[Sha512_256DigestSize, uint8]
+  Sha512_256Hmac* = array[Sha512_256DigestSize, uint8]
+  Sha1Digest* = array[Sha1DigestSize, uint8]
   Sha1Hmac* = array[Sha1DigestSize, uint8]
   Md5Digest* = array[Md5DigestSize, uint8]
   Md5Hmac* = array[Md5DigestSize, uint8]
@@ -211,7 +228,51 @@ proc finish*(state: var Sha512HmacState): Sha512Hmac =
 proc finishHex*(state: var Sha512HmacState): string =
   toHex(finish(state))
 
-# HMAC-SHA-1 (one-shot, no streaming)
+# SHA-1 (one-shot + streaming). Broken: legacy interop only, do not use
+# in new designs.
+type
+  Sha1State* = object
+    ctx: sha1Algo.Sha1Context
+    finalized: bool
+
+  Sha1HmacState* = object
+    ctx: sha1Algo.Sha1HmacContext
+    finalized: bool
+
+proc sha1*(message: openArray[byte]): Sha1Digest =
+  sha1Algo.sha1(message)
+
+proc sha1*(message: string): Sha1Digest =
+  sha1(toBytes(message))
+
+proc sha1Hex*(message: openArray[byte]): string =
+  toHex(sha1(message))
+
+proc sha1Hex*(message: string): string =
+  toHex(sha1(message))
+
+proc initSha1*(): Sha1State =
+  result.finalized = false
+  sha1Algo.init(result.ctx)
+
+proc update*(state: var Sha1State, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "SHA-1 state already finalized")
+  sha1Algo.update(state.ctx, message)
+
+proc update*(state: var Sha1State, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha1State): Sha1Digest =
+  if state.finalized:
+    raise newException(ValueError, "SHA-1 state already finalized")
+  result = sha1Algo.final(state.ctx)
+  state.finalized = true
+
+proc finishHex*(state: var Sha1State): string =
+  toHex(finish(state))
+
+# HMAC-SHA-1 (one-shot + streaming)
 proc sha1Hmac*(key, message: openArray[byte]): Sha1Hmac =
   sha1Algo.sha1Hmac(key, message)
 
@@ -223,6 +284,30 @@ proc sha1HmacHex*(key, message: openArray[byte]): string =
 
 proc sha1HmacHex*(key, message: string): string =
   toHex(sha1Hmac(key, message))
+
+proc initSha1Hmac*(key: openArray[byte]): Sha1HmacState =
+  result.finalized = false
+  sha1Algo.initHmac(result.ctx, key)
+
+proc initSha1Hmac*(key: string): Sha1HmacState =
+  initSha1Hmac(toBytes(key))
+
+proc update*(state: var Sha1HmacState, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-1 state already finalized")
+  sha1Algo.update(state.ctx, message)
+
+proc update*(state: var Sha1HmacState, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha1HmacState): Sha1Hmac =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-1 state already finalized")
+  result = sha1Algo.final(state.ctx)
+  state.finalized = true
+
+proc finishHex*(state: var Sha1HmacState): string =
+  toHex(finish(state))
 
 # SHA-256 (one-shot)
 proc sha256*(message: openArray[byte]): Sha256Digest =
@@ -303,6 +388,91 @@ proc finish*(state: var Sha256HmacState): Sha256Hmac =
   state.finalized = true
 
 proc finishHex*(state: var Sha256HmacState): string =
+  toHex(finish(state))
+
+# SHA-224 (one-shot)
+proc sha224*(message: openArray[byte]): Sha224Digest =
+  let d = sha224Algo.sha224(message)
+  for i in 0 ..< Sha224DigestSize: result[i] = d[i]
+
+proc sha224*(message: string): Sha224Digest =
+  sha224(toBytes(message))
+
+proc sha224Hex*(message: openArray[byte]): string =
+  toHex(sha224(message))
+
+proc sha224Hex*(message: string): string =
+  toHex(sha224(message))
+
+# SHA-224 (streaming)
+type
+  Sha224State* = object
+    ctx: sha256Algo.Sha256Context
+    finalized: bool
+
+  Sha224HmacState* = object
+    ctx: sha224Algo.Sha224HmacContext
+    finalized: bool
+
+proc initSha224*(): Sha224State =
+  result.finalized = false
+  sha224Algo.init224(result.ctx)
+
+proc update*(state: var Sha224State, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "SHA-224 state already finalized")
+  sha256Algo.update(state.ctx, message)
+
+proc update*(state: var Sha224State, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha224State): Sha224Digest =
+  if state.finalized:
+    raise newException(ValueError, "SHA-224 state already finalized")
+  let full = sha256Algo.final(state.ctx)
+  for i in 0 ..< Sha224DigestSize: result[i] = full[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha224State): string =
+  toHex(finish(state))
+
+# HMAC-SHA-224 (one-shot + streaming)
+proc sha224Hmac*(key, message: openArray[byte]): Sha224Hmac =
+  let m = sha224Algo.sha224Hmac(key, message)
+  for i in 0 ..< Sha224DigestSize: result[i] = m[i]
+
+proc sha224Hmac*(key, message: string): Sha224Hmac =
+  sha224Hmac(toBytes(key), toBytes(message))
+
+proc sha224HmacHex*(key, message: openArray[byte]): string =
+  toHex(sha224Hmac(key, message))
+
+proc sha224HmacHex*(key, message: string): string =
+  toHex(sha224Hmac(key, message))
+
+proc initSha224Hmac*(key: openArray[byte]): Sha224HmacState =
+  result.finalized = false
+  sha224Algo.initHmac224(result.ctx, key)
+
+proc initSha224Hmac*(key: string): Sha224HmacState =
+  initSha224Hmac(toBytes(key))
+
+proc update*(state: var Sha224HmacState, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-224 state already finalized")
+  sha224Algo.update(state.ctx, message)
+
+proc update*(state: var Sha224HmacState, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha224HmacState): Sha224Hmac =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-224 state already finalized")
+  let m = sha224Algo.final(state.ctx)
+  for i in 0 ..< Sha224DigestSize: result[i] = m[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha224HmacState): string =
   toHex(finish(state))
 
 # SHA-384 (one-shot)
@@ -388,6 +558,176 @@ proc finish*(state: var Sha384HmacState): Sha384Hmac =
   state.finalized = true
 
 proc finishHex*(state: var Sha384HmacState): string =
+  toHex(finish(state))
+
+# SHA-512/224 (one-shot)
+proc sha512_224*(message: openArray[byte]): Sha512_224Digest =
+  let d = sha512_224Algo.sha512_224(message)
+  for i in 0 ..< Sha512_224DigestSize: result[i] = d[i]
+
+proc sha512_224*(message: string): Sha512_224Digest =
+  sha512_224(toBytes(message))
+
+proc sha512_224Hex*(message: openArray[byte]): string =
+  toHex(sha512_224(message))
+
+proc sha512_224Hex*(message: string): string =
+  toHex(sha512_224(message))
+
+# SHA-512/224 (streaming)
+type
+  Sha512_224State* = object
+    ctx: shaAlgo.Sha512Context
+    finalized: bool
+
+  Sha512_224HmacState* = object
+    ctx: sha512_224Algo.Sha512_224HmacContext
+    finalized: bool
+
+proc initSha512_224*(): Sha512_224State =
+  result.finalized = false
+  sha512_224Algo.init512_224(result.ctx)
+
+proc update*(state: var Sha512_224State, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "SHA-512/224 state already finalized")
+  shaAlgo.update(state.ctx, message)
+
+proc update*(state: var Sha512_224State, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha512_224State): Sha512_224Digest =
+  if state.finalized:
+    raise newException(ValueError, "SHA-512/224 state already finalized")
+  let full = shaAlgo.final(state.ctx)
+  for i in 0 ..< Sha512_224DigestSize: result[i] = full[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha512_224State): string =
+  toHex(finish(state))
+
+# HMAC-SHA-512/224 (one-shot + streaming)
+proc sha512_224Hmac*(key, message: openArray[byte]): Sha512_224Hmac =
+  let m = sha512_224Algo.sha512_224Hmac(key, message)
+  for i in 0 ..< Sha512_224DigestSize: result[i] = m[i]
+
+proc sha512_224Hmac*(key, message: string): Sha512_224Hmac =
+  sha512_224Hmac(toBytes(key), toBytes(message))
+
+proc sha512_224HmacHex*(key, message: openArray[byte]): string =
+  toHex(sha512_224Hmac(key, message))
+
+proc sha512_224HmacHex*(key, message: string): string =
+  toHex(sha512_224Hmac(key, message))
+
+proc initSha512_224Hmac*(key: openArray[byte]): Sha512_224HmacState =
+  result.finalized = false
+  sha512_224Algo.initHmac512_224(result.ctx, key)
+
+proc initSha512_224Hmac*(key: string): Sha512_224HmacState =
+  initSha512_224Hmac(toBytes(key))
+
+proc update*(state: var Sha512_224HmacState, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-512/224 state already finalized")
+  sha512_224Algo.update(state.ctx, message)
+
+proc update*(state: var Sha512_224HmacState, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha512_224HmacState): Sha512_224Hmac =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-512/224 state already finalized")
+  let m = sha512_224Algo.final(state.ctx)
+  for i in 0 ..< Sha512_224DigestSize: result[i] = m[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha512_224HmacState): string =
+  toHex(finish(state))
+
+# SHA-512/256 (one-shot)
+proc sha512_256*(message: openArray[byte]): Sha512_256Digest =
+  let d = sha512_256Algo.sha512_256(message)
+  for i in 0 ..< Sha512_256DigestSize: result[i] = d[i]
+
+proc sha512_256*(message: string): Sha512_256Digest =
+  sha512_256(toBytes(message))
+
+proc sha512_256Hex*(message: openArray[byte]): string =
+  toHex(sha512_256(message))
+
+proc sha512_256Hex*(message: string): string =
+  toHex(sha512_256(message))
+
+# SHA-512/256 (streaming)
+type
+  Sha512_256State* = object
+    ctx: shaAlgo.Sha512Context
+    finalized: bool
+
+  Sha512_256HmacState* = object
+    ctx: sha512_256Algo.Sha512_256HmacContext
+    finalized: bool
+
+proc initSha512_256*(): Sha512_256State =
+  result.finalized = false
+  sha512_256Algo.init512_256(result.ctx)
+
+proc update*(state: var Sha512_256State, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "SHA-512/256 state already finalized")
+  shaAlgo.update(state.ctx, message)
+
+proc update*(state: var Sha512_256State, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha512_256State): Sha512_256Digest =
+  if state.finalized:
+    raise newException(ValueError, "SHA-512/256 state already finalized")
+  let full = shaAlgo.final(state.ctx)
+  for i in 0 ..< Sha512_256DigestSize: result[i] = full[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha512_256State): string =
+  toHex(finish(state))
+
+# HMAC-SHA-512/256 (one-shot + streaming)
+proc sha512_256Hmac*(key, message: openArray[byte]): Sha512_256Hmac =
+  let m = sha512_256Algo.sha512_256Hmac(key, message)
+  for i in 0 ..< Sha512_256DigestSize: result[i] = m[i]
+
+proc sha512_256Hmac*(key, message: string): Sha512_256Hmac =
+  sha512_256Hmac(toBytes(key), toBytes(message))
+
+proc sha512_256HmacHex*(key, message: openArray[byte]): string =
+  toHex(sha512_256Hmac(key, message))
+
+proc sha512_256HmacHex*(key, message: string): string =
+  toHex(sha512_256Hmac(key, message))
+
+proc initSha512_256Hmac*(key: openArray[byte]): Sha512_256HmacState =
+  result.finalized = false
+  sha512_256Algo.initHmac512_256(result.ctx, key)
+
+proc initSha512_256Hmac*(key: string): Sha512_256HmacState =
+  initSha512_256Hmac(toBytes(key))
+
+proc update*(state: var Sha512_256HmacState, message: openArray[byte]) =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-512/256 state already finalized")
+  sha512_256Algo.update(state.ctx, message)
+
+proc update*(state: var Sha512_256HmacState, message: string) =
+  update(state, toBytes(message))
+
+proc finish*(state: var Sha512_256HmacState): Sha512_256Hmac =
+  if state.finalized:
+    raise newException(ValueError, "HMAC-SHA-512/256 state already finalized")
+  let m = sha512_256Algo.final(state.ctx)
+  for i in 0 ..< Sha512_256DigestSize: result[i] = m[i]
+  state.finalized = true
+
+proc finishHex*(state: var Sha512_256HmacState): string =
   toHex(finish(state))
 
 # HKDF-SHA-512

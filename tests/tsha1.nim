@@ -51,7 +51,67 @@ test "hmac-sha1 empty key equals zero-padded key":
   let zeroed = sha1Algo.sha1Hmac(zero64, msg)
   check empty == zeroed
 
-test "hmac-sha1 high-level api":
+test "sha1 streaming == one-shot incl split inside pad":
+  var input: seq[byte]
+  for j in 0 ..< 200:
+    input.add(byte(j * 3))
+  let whole = sha1Algo.sha1(input)
+  var ctx: sha1Algo.Sha1Context
+  sha1Algo.init(ctx)
+  sha1Algo.update(ctx, input[0 ..< 55])
+  sha1Algo.update(ctx, input[55 ..< 64])
+  sha1Algo.update(ctx, input[64 ..^ 1])
+  check sha1Algo.final(ctx) == whole
+  # single-byte chunks
+  var c2: sha1Algo.Sha1Context
+  sha1Algo.init(c2)
+  for b in input:
+    sha1Algo.update(c2, [b])
+  check sha1Algo.final(c2) == whole
+
+test "hmac-sha1 streaming == one-shot":
+  var key: seq[byte]
+  for j in 0 ..< 32:
+    key.add(byte(j + 1))
+  var input: seq[byte]
+  for j in 0 ..< 100:
+    input.add(byte(j * 5))
+  let whole = sha1Algo.sha1Hmac(key, input)
+  var ctx: sha1Algo.Sha1HmacContext
+  sha1Algo.initHmac(ctx, key)
+  sha1Algo.update(ctx, input[0 ..< 40])
+  sha1Algo.update(ctx, input[40 ..^ 1])
+  check sha1Algo.final(ctx) == whole
+  # long key path streams too
+  var k6 = newSeq[byte](80)
+  for i in 0 ..< 80: k6[i] = 0xaa
+  let d6 = hex("54657374205573696e67204c6172676572205468616e20426c6f636b2d53697a65204b6579202d2048617368204b6579204669727374")
+  var c6: sha1Algo.Sha1HmacContext
+  sha1Algo.initHmac(c6, k6)
+  sha1Algo.update(c6, d6[0 ..< 20])
+  sha1Algo.update(c6, d6[20 ..^ 1])
+  check sha1Algo.final(c6) == sha1Algo.sha1Hmac(k6, d6)
+
+test "sha1 high-level raw + streaming hmac api":
+  check hashApi.sha1("abc") == sha1Algo.sha1(hex("616263"))
+  check hashApi.sha1Hex("abc") == "A9993E364706816ABA3E25717850C26C9CD0D89D"
+  check hashApi.sha1Hex(@[]) == "DA39A3EE5E6B4B0D3255BFEF95601890AFD80709"
+  var st = hashApi.initSha1()
+  st.update("a")
+  st.update("bc")
+  check st.finish() == sha1Algo.sha1(hex("616263"))
+  var st2 = hashApi.initSha1()
+  st2.update("a")
+  st2.update("bc")
+  check st2.finishHex() == hashApi.sha1Hex("abc")
+  var hm = hashApi.initSha1Hmac("Jefe")
+  hm.update("what do ya want ")
+  hm.update("for nothing?")
+  check hm.finish() == sha1Algo.sha1Hmac(hex("4a656665"),
+    hex("7768617420646f2079612077616e7420666f72206e6f7468696e673f"))
+  var hm2 = hashApi.initSha1Hmac("Jefe")
+  hm2.update("what do ya want for nothing?")
+  check hm2.finishHex() == "EFFCDF6AE5EB2FA2D27416D5F184DF9C259A7C79"
   let h1 = hashApi.sha1Hmac("Jefe", "what do ya want for nothing?")
   let h2 = sha1Algo.sha1Hmac(hex("4a656665"), hex("7768617420646f2079612077616e7420666f72206e6f7468696e673f"))
   check h1 == h2
