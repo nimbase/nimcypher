@@ -1,6 +1,16 @@
 nimTitle	sha1	nimcypher/algos/sha1.html	module nimcypher/algos/sha1		0
-nim	Sha1BlockSize	nimcypher/algos/sha1.html#Sha1BlockSize	const Sha1BlockSize		18
-nim	Sha1DigestSize	nimcypher/algos/sha1.html#Sha1DigestSize	const Sha1DigestSize		19
-nim	Sha1Digest	nimcypher/algos/sha1.html#Sha1Digest	type Sha1Digest		22
-nim	sha1	nimcypher/algos/sha1.html#sha1,openArray[byte]	proc sha1(message: openArray[byte]): Sha1Digest		78
-nim	sha1Hmac	nimcypher/algos/sha1.html#sha1Hmac,openArray[byte],openArray[byte]	proc sha1Hmac(key, message: openArray[byte]): Sha1Digest		115
+nim	Sha1BlockSize	nimcypher/algos/sha1.html#Sha1BlockSize	const Sha1BlockSize		17
+nim	Sha1DigestSize	nimcypher/algos/sha1.html#Sha1DigestSize	const Sha1DigestSize		18
+nim	Sha1Digest	nimcypher/algos/sha1.html#Sha1Digest	type Sha1Digest		21
+nim	Sha1Context	nimcypher/algos/sha1.html#Sha1Context	object Sha1Context		23
+nim	Sha1HmacContext	nimcypher/algos/sha1.html#Sha1HmacContext	object Sha1HmacContext		29
+nim	init	nimcypher/algos/sha1.html#init,Sha1Context	proc init(ctx: var Sha1Context)		87
+nim	update	nimcypher/algos/sha1.html#update,Sha1Context,openArray[byte]	proc update(ctx: var Sha1Context; message: openArray[byte])		97
+nim	final	nimcypher/algos/sha1.html#final,Sha1Context	proc final(ctx: var Sha1Context): Sha1Digest		129
+nim	sha1	nimcypher/algos/sha1.html#sha1,openArray[byte]	proc sha1(message: openArray[byte]): Sha1Digest		153
+nim	initHmac	nimcypher/algos/sha1.html#initHmac,Sha1HmacContext,openArray[byte]	proc initHmac(ctx: var Sha1HmacContext; key: openArray[byte])		163
+nim	update	nimcypher/algos/sha1.html#update,Sha1HmacContext,openArray[byte]	proc update(ctx: var Sha1HmacContext; message: openArray[byte])		183
+nim	final	nimcypher/algos/sha1.html#final,Sha1HmacContext	proc final(ctx: var Sha1HmacContext): Sha1Digest		186
+nim	sha1Hmac	nimcypher/algos/sha1.html#sha1Hmac,openArray[byte],openArray[byte]	proc sha1Hmac(key, message: openArray[byte]): Sha1Digest		198
+nimgrp	final	nimcypher/algos/sha1.html#final-procs-all	proc		129
+nimgrp	update	nimcypher/algos/sha1.html#update-procs-all	proc		97

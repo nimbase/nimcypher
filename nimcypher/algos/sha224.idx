@@ -1,0 +1,13 @@
+nimTitle	sha224	nimcypher/algos/sha224.html	module nimcypher/algos/sha224		0
+nim	Sha224DigestSize	nimcypher/algos/sha224.html#Sha224DigestSize	const Sha224DigestSize		15
+nim	Sha224BlockSize	nimcypher/algos/sha224.html#Sha224BlockSize	const Sha224BlockSize		16
+nim	Sha224Digest	nimcypher/algos/sha224.html#Sha224Digest	type Sha224Digest		19
+nim	Sha224Hmac	nimcypher/algos/sha224.html#Sha224Hmac	type Sha224Hmac		20
+nim	Sha224Context	nimcypher/algos/sha224.html#Sha224Context	type Sha224Context		21
+nim	Sha224HmacContext	nimcypher/algos/sha224.html#Sha224HmacContext	object Sha224HmacContext		22
+nim	init224	nimcypher/algos/sha224.html#init224,Sha256Context	proc init224(ctx: var Sha256Context)		26
+nim	sha224	nimcypher/algos/sha224.html#sha224,openArray[byte]	proc sha224(message: openArray[byte]): Sha224Digest		39
+nim	initHmac224	nimcypher/algos/sha224.html#initHmac224,Sha224HmacContext,openArray[byte]	proc initHmac224(ctx: var Sha224HmacContext; key: openArray[byte])		48
+nim	update	nimcypher/algos/sha224.html#update,Sha224HmacContext,openArray[byte]	proc update(ctx: var Sha224HmacContext; message: openArray[byte])		67
+nim	final	nimcypher/algos/sha224.html#final,Sha224HmacContext	proc final(ctx: var Sha224HmacContext): Sha224Hmac		70
+nim	sha224Hmac	nimcypher/algos/sha224.html#sha224Hmac,openArray[byte],openArray[byte]	proc sha224Hmac(key, message: openArray[byte]): Sha224Hmac		85
