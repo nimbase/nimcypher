@@ -40,3 +40,13 @@ task bench, "Benchmark NimCypher (scalar vs SIMD) against C Monocypher and nimcr
   exec "nimble install -y nimsimd nimcrypto"
   exec "nim c -r --hints:off -d:danger --opt:speed --mm:arc " &
        "-d:features.nimcypher.nimsimd tests/bench.nim"
+
+task bench_tls, "Benchmark TLS handshakes + records: nimcypher vs OpenSSL":
+  exec "nim c -r --hints:off -d:ssl -d:danger --opt:speed " &
+       "--threads:on --mm:arc tests/bench_tls.nim"
+
+task bench_tls_simd, "Benchmark TLS with SIMD acceleration (AES-NI, AVX2, MULX)":
+  exec "nimble install -y nimsimd"
+  exec "nim c -r --hints:off -d:ssl -d:danger --opt:speed " &
+       "--threads:on --mm:arc " &
+       "-d:features.nimcypher.nimsimd tests/bench_tls.nim"
