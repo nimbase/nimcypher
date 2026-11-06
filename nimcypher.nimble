@@ -10,13 +10,26 @@ srcDir        = "src"
 
 requires "nim >= 2.2.10"
 requires "bigints >= 1.0.0"
+# JIT backend (replaces nimsimd). Resolved in develop mode to the local
+# dynasm checkout via clue.lock; all JIT code paths stay gated behind
+# `-d:features.nimcypher.nimdynasm` (off by default), so this does not
+# change default builds.
+requires "dynasm >= 0.1.0"
 
 # Optional SIMD acceleration (ChaCha20, AES-NI, PCLMULQDQ): activate with
-# `nimble --features:nimsimd install` or from a consumer via
-# `requires "nimcypher >= 0.1.0[nimsimd]"`. When active, Nimble installs
+# `clue install --features:nimsimd --depsOnly` or from a consumer via
+# `requires "nimcypher >= 0.1.0[nimsimd]"`. When active, clue installs
 # nimsimd and defines `features.nimcypher.nimsimd` for the build.
 feature "nimsimd":
   requires "nimsimd"
+
+# Optional dynasm JIT backend (replaces nimsimd): compile with
+# `clue build --features:nimdynasm` (or `clue test --features:nimdynasm`).
+# dynasm resolves in develop mode (local checkout carrying the P0-P3
+# encoder sets) via clue.lock; keep `requires "dynasm >= 0.1.0"` above
+# in sync. All JIT code stays gated behind the define (off by default).
+feature "nimdynasm":
+  requires "dynasm >= 0.1.0"
 
 # task test, "Run the test suite":
 #   for t in ["tcommon", "tchacha20", "tpoly1305", "tblake2b", "taead",

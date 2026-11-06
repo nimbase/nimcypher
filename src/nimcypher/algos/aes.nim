@@ -23,6 +23,9 @@ import ./common
 when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
   import ./internal/aes_simd
 
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./internal/aes_jit
+
 {.push checks: off.}
 
 const aesRcon = [0x01'u32, 0x02'u32, 0x04'u32, 0x08'u32, 0x10'u32,
@@ -33,7 +36,9 @@ type
     ## Expanded AES key schedule (constant-time bitsliced form).
     rounds*: int              # 10 (AES-128), 12 (AES-192) or 14 (AES-256)
     skey*: array[120, uint64] # expanded round keys, 8 words per round
-    when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+    when (defined(features.nimcypher.nimsimd) or
+        defined(features.nimcypher.nimdynasm)) and
+        (defined(amd64) or defined(arm64)):
       nrk*: array[240, byte]      # conventional schedule (hardware kernels)
       nrkInv*: array[240, byte]   # InvMixColumns form for decryption
 
@@ -563,7 +568,9 @@ proc initAes*(ctx: var AesContext, key: openArray[byte]) =
   var convWords: array[60, uint32]
   ctx.rounds = keysched(compSkey, convWords, key)
   expandSkey(ctx.skey, ctx.rounds, compSkey)
-  when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+  when (defined(features.nimcypher.nimsimd) or
+      defined(features.nimcypher.nimdynasm)) and
+      (defined(amd64) or defined(arm64)):
     # conventional byte-image schedule for the hardware kernels. Schedule
     # words are loaded little-endian, so the spec byte order is the LE
     # image of each word.
@@ -599,7 +606,9 @@ proc wipeAesContext*(ctx: var AesContext) =
   ## are wiped by their finish procs.
   for i in 0 ..< ctx.skey.len:
     ctx.skey[i] = 0
-  when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+  when (defined(features.nimcypher.nimsimd) or
+      defined(features.nimcypher.nimdynasm)) and
+      (defined(amd64) or defined(arm64)):
     wipe(ctx.nrk)
     wipe(ctx.nrkInv)
   ctx.rounds = 0
@@ -697,7 +706,30 @@ proc decryptBlocksScalar*(ctx: AesContext, dst, src: BytePtr, nb: int) =
     copyMem(dst + off * 16, addr buf[64], tailBytes)
     wipe(buf)
 
-when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  proc encryptBlocks*(ctx: AesContext, dst, src: BytePtr, nb: int) {.inline.} =
+    ## Encrypt `nb` blocks; JIT fast path when assembled, else the
+    ## nimsimd kernel (both flags) or scalar.
+    if aesJitAvailable():
+      encryptBlocksJit(ctx.rounds, addr ctx.nrk[0], dst, src, nb)
+    else:
+      when defined(features.nimcypher.nimsimd):
+        encryptBlocksSimd(ctx.rounds, addr ctx.nrk[0], dst, src, nb)
+      else:
+        encryptBlocksScalar(ctx, dst, src, nb)
+
+  proc decryptBlocks*(ctx: AesContext, dst, src: BytePtr, nb: int) {.inline.} =
+    ## Decrypt `nb` blocks (see `encryptBlocks`).
+    if aesJitAvailable():
+      decryptBlocksJit(ctx.rounds, addr ctx.nrk[0], addr ctx.nrkInv[0],
+                       dst, src, nb)
+    else:
+      when defined(features.nimcypher.nimsimd):
+        decryptBlocksSimd(ctx.rounds, addr ctx.nrk[0], addr ctx.nrkInv[0],
+                          dst, src, nb)
+      else:
+        decryptBlocksScalar(ctx, dst, src, nb)
+elif defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
   proc encryptBlocks*(ctx: AesContext, dst, src: BytePtr, nb: int) {.inline.} =
     ## Encrypt `nb` blocks; hardware batched kernel when enabled.
     encryptBlocksSimd(ctx.rounds, addr ctx.nrk[0], dst, src, nb)
