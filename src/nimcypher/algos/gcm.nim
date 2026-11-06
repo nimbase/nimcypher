@@ -180,6 +180,65 @@ proc fold(ctx: var GcmContext, p: BytePtr) {.inline.} =
   else:
     ghashFold(ctx.acc, ctx.hBlock, p)
 
+const gcmBatchBlocks = 32 # fused-loop chunk, multiple of the 8-block JIT batch
+
+proc fuseEncryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
+                       nbBlocks: int) =
+  ## Whole-block fused CTR-encrypt + GHASH-fold for the clean state
+  ## (`bufLen == 0`, `kused == 16`). Counter blocks are batched through
+  ## `encryptBlocks`, xored, and folded while the chunk is still hot.
+  var dp = dst
+  var sp = src
+  var left = nbBlocks
+  var cbs: array[gcmBatchBlocks * gcmBlockSize, byte]
+  var ks: array[gcmBatchBlocks * gcmBlockSize, byte]
+  while left > 0:
+    let nb = min(left, gcmBatchBlocks)
+    for b in 0 ..< nb:
+      copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+      inc32(ctx.ctr)
+    encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                  cast[BytePtr](addr cbs[0]), nb)
+    # Flat xor first so the C backend can vectorize it; the fold loop
+    # that follows still hits the same L1-resident chunk.
+    let full = nb shl 4
+    for i in 0 ..< full:
+      dp[i] = sp[i] xor ks[i]
+    for b in 0 ..< nb:
+      ctx.fold(dp + (b shl 4))
+    ctx.ctLen += uint64(nb shl 4)
+    dp = dp + (nb shl 4)
+    sp = sp + (nb shl 4)
+    left -= nb
+  wipe(ks)
+
+proc fuseDecryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
+                       nbBlocks: int) =
+  ## Whole-block fused GHASH-fold + CTR-decrypt for the clean state.
+  ## The fold reads the ciphertext before it is xored into plaintext.
+  var dp = dst
+  var sp = src
+  var left = nbBlocks
+  var cbs: array[gcmBatchBlocks * gcmBlockSize, byte]
+  var ks: array[gcmBatchBlocks * gcmBlockSize, byte]
+  while left > 0:
+    let nb = min(left, gcmBatchBlocks)
+    for b in 0 ..< nb:
+      copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+      inc32(ctx.ctr)
+    encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                  cast[BytePtr](addr cbs[0]), nb)
+    for b in 0 ..< nb:
+      ctx.fold(sp + (b shl 4))
+    let full = nb shl 4
+    for i in 0 ..< full:
+      dp[i] = sp[i] xor ks[i]
+    ctx.ctLen += uint64(nb shl 4)
+    dp = dp + (nb shl 4)
+    sp = sp + (nb shl 4)
+    left -= nb
+  wipe(ks)
+
 proc absorb(ctx: var GcmContext, p: BytePtr, n: int) =
   ## Feed whole/partial blocks into GHASH (zero-padding the final tail is
   ## done by `flushBuf`/the length block instead, per the spec).
@@ -278,15 +337,14 @@ proc gcmAddAad*(ctx: var GcmContext, ad: openArray[byte]) =
 proc gctrInto(ctx: var GcmContext, dst, src: BytePtr, n: int) =
   ## XOR `n` bytes with the AES-CTR keystream (counter starts at `ctr`),
   ## keeping a partially consumed keystream block in `kbuf`.
+  ## Fast path batches full blocks through `encryptBlocks` (JIT/SIMD 8-block
+  ## kernels when enabled); the counter uses GCM `inc32` semantics, so this
+  ## cannot reuse the generic 128-bit `ctrXorInto`.
   var dp = dst
   var sp = src
   var left = n
-  while left > 0:
-    if ctx.kused == 16:
-      encryptBlockRaw(ctx.aes, cast[BytePtr](addr ctx.kbuf[0]),
-                      cast[BytePtr](addr ctx.ctr[0]))
-      inc32(ctx.ctr)
-      ctx.kused = 0
+  # Drain any pending keystream from a previous partial call.
+  if ctx.kused != 16:
     let take = min(gcmBlockSize - ctx.kused, left)
     for i in 0 ..< take:
       dp[i] = sp[i] xor ctx.kbuf[ctx.kused + i]
@@ -294,6 +352,37 @@ proc gctrInto(ctx: var GcmContext, dst, src: BytePtr, n: int) =
     dp = dp + take
     sp = sp + take
     left -= take
+    if left == 0:
+      return
+  # Bulk: generate counter blocks, encrypt as a batch, xor.
+  const batchBlocks = 32 # multiple of the 8-block JIT batch
+  var cbs: array[batchBlocks * gcmBlockSize, byte]
+  var ks: array[batchBlocks * gcmBlockSize, byte]
+  while left >= gcmBlockSize:
+    let nb = min(left shr 4, batchBlocks)
+    for b in 0 ..< nb:
+      copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+      inc32(ctx.ctr)
+    encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                  cast[BytePtr](addr cbs[0]), nb)
+    let full = nb shl 4
+    for i in 0 ..< full:
+      dp[i] = sp[i] xor ks[i]
+    dp = dp + full
+    sp = sp + full
+    left -= full
+  # Partial tail: one fresh keystream block held in kbuf.
+  if left > 0:
+    encryptBlocks(ctx.aes, cast[BytePtr](addr ctx.kbuf[0]),
+                  cast[BytePtr](addr ctx.ctr[0]), 1)
+    inc32(ctx.ctr)
+    ctx.kused = 0
+    for i in 0 ..< left:
+      dp[i] = sp[i] xor ctx.kbuf[i]
+    ctx.kused = left
+  else:
+    ctx.kused = 16
+  wipe(ks)
 
 proc gcmEncryptUpdate*(ctx: var GcmContext, plaintext: openArray[byte]):
     seq[byte] =
@@ -303,9 +392,20 @@ proc gcmEncryptUpdate*(ctx: var GcmContext, plaintext: openArray[byte]):
   if plaintext.len > 0:
     var rp = cast[BytePtr](addr result[0])
     let pp = cast[BytePtr](unsafeAddr plaintext[0])
-    ctx.gctrInto(rp, pp, plaintext.len)
-    ctx.ctLen += uint64(plaintext.len)
-    ctx.absorb(rp, plaintext.len)
+    if ctx.bufLen == 0 and ctx.kused == 16:
+      let nbFull = plaintext.len shr 4
+      if nbFull > 0:
+        ctx.fuseEncryptBlocks(rp, pp, nbFull)
+      let tail = plaintext.len and 15
+      if tail > 0:
+        let off = nbFull shl 4
+        ctx.gctrInto(rp + off, pp + off, tail)
+        ctx.absorb(rp + off, tail)
+        ctx.ctLen += uint64(tail)
+    else:
+      ctx.gctrInto(rp, pp, plaintext.len)
+      ctx.ctLen += uint64(plaintext.len)
+      ctx.absorb(rp, plaintext.len)
 
 proc gcmDecryptUpdate*(ctx: var GcmContext, ciphertext: openArray[byte]):
     seq[byte] =
@@ -316,9 +416,20 @@ proc gcmDecryptUpdate*(ctx: var GcmContext, ciphertext: openArray[byte]):
   if ciphertext.len > 0:
     let cp = cast[BytePtr](unsafeAddr ciphertext[0])
     var rp = cast[BytePtr](addr result[0])
-    ctx.ctLen += uint64(ciphertext.len)
-    ctx.absorb(cp, ciphertext.len)
-    ctx.gctrInto(rp, cp, ciphertext.len)
+    if ctx.bufLen == 0 and ctx.kused == 16:
+      let nbFull = ciphertext.len shr 4
+      if nbFull > 0:
+        ctx.fuseDecryptBlocks(rp, cp, nbFull)
+      let tail = ciphertext.len and 15
+      if tail > 0:
+        let off = nbFull shl 4
+        ctx.absorb(cp + off, tail)
+        ctx.ctLen += uint64(tail)
+        ctx.gctrInto(rp + off, cp + off, tail)
+    else:
+      ctx.ctLen += uint64(ciphertext.len)
+      ctx.absorb(cp, ciphertext.len)
+      ctx.gctrInto(rp, cp, ciphertext.len)
 
 proc gcmFinishTag(ctx: var GcmContext): array[16, byte] =
   ## Fold the pending tail and lengths, produce E(K,J0) xor GHASH.
@@ -385,18 +496,12 @@ proc gcmUnlock*(key, iv: openArray[byte], ciphertext: openArray[byte],
   var ctx: GcmContext
   initGcm(ctx, key, iv)
   gcmAddAad(ctx, ad)
-  ctx.flushAad()
-  var plain = newSeqUninit[byte](ciphertext.len)
-  if ciphertext.len > 0:
-    var rp = cast[BytePtr](addr plain[0])
-    let cp = cast[BytePtr](unsafeAddr ciphertext[0])
-    ctx.ctLen += uint64(ciphertext.len)
-    ctx.absorb(cp, ciphertext.len)
-    ctx.gctrInto(rp, cp, ciphertext.len)
+  let plain = gcmDecryptUpdate(ctx, ciphertext)
   if gcmFinishDec(ctx, tag):
     result = some(plain)
   else:
-    wipe(plain)
+    var m = plain
+    wipe(m)
     result = none(seq[byte])
 
 proc gcmLockScalar*(key, iv: openArray[byte], plaintext: openArray[byte],
@@ -416,18 +521,12 @@ proc gcmUnlockScalar*(key, iv: openArray[byte], ciphertext: openArray[byte],
   var ctx: GcmContext
   initGcm(ctx, key, iv, forceScalar = true)
   gcmAddAad(ctx, ad)
-  ctx.flushAad()
-  var plain = newSeqUninit[byte](ciphertext.len)
-  if ciphertext.len > 0:
-    var rp = cast[BytePtr](addr plain[0])
-    let cp = cast[BytePtr](unsafeAddr ciphertext[0])
-    ctx.ctLen += uint64(ciphertext.len)
-    ctx.absorb(cp, ciphertext.len)
-    ctx.gctrInto(rp, cp, ciphertext.len)
+  let plain = gcmDecryptUpdate(ctx, ciphertext)
   if gcmFinishDec(ctx, tag):
     result = some(plain)
   else:
-    wipe(plain)
+    var m = plain
+    wipe(m)
     result = none(seq[byte])
 
 {.pop.}
