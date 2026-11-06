@@ -205,26 +205,29 @@ when defined(features.nimcypher.nimdynasm) and defined(amd64):
                           nonce: array[8, byte], ctr: uint64): uint64 =
     ## ChaCha20-DJB using the JIT AVX2 two-block kernel (amd64 JIT
     ## builds with OS YMM support only — caller checks cpuHasAvx2).
-    ## `din` holds two interleaved blocks (see `simdRounds2`).
-    var din: array[32, uint32]
+    ## `din` holds two interleaved blocks (see `simdRounds2`). Rows 0-2
+    ## never change within a message, so they are built once into a
+    ## template; each pair copies it and patches the four counter words.
+    var dinTmpl: array[32, uint32]
     for i in 0 ..< 4: # row 0: constants
       let c = load32Le(cast[BytePtr](unsafeAddr chacha20Constant[i * 4]))
-      din[i] = c
-      din[4 + i] = c
+      dinTmpl[i] = c
+      dinTmpl[4 + i] = c
     for i in 0 ..< 4: # row 1: key words 4..7
       let k = load32Le(cast[BytePtr](unsafeAddr key[i * 4]))
-      din[8 + i] = k
-      din[12 + i] = k
+      dinTmpl[8 + i] = k
+      dinTmpl[12 + i] = k
     for i in 0 ..< 4: # row 2: key words 8..11
       let k = load32Le(cast[BytePtr](unsafeAddr key[(4 + i) * 4]))
-      din[16 + i] = k
-      din[20 + i] = k
+      dinTmpl[16 + i] = k
+      dinTmpl[20 + i] = k
     # row 3: counter words 12..13 (per pair), nonce words 14..15
-    din[26] = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
-    din[27] = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
-    din[30] = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
-    din[31] = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
+    dinTmpl[26] = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
+    dinTmpl[27] = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
+    dinTmpl[30] = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
+    dinTmpl[31] = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
 
+    var din: array[32, uint32]
     var pool: array[32, uint32]
     var textSize2 = textSize
     var ct = cipherText
@@ -233,19 +236,15 @@ when defined(features.nimcypher.nimdynasm) and defined(amd64):
     let nbPairs = nbBlocks shr 1
     var c = ctr
     for _ in 0 ..< nbPairs:
+      copyMem(addr din[0], addr dinTmpl[0], 128)
       din[24] = uint32(c)
       din[25] = uint32(c shr 32)
       din[28] = uint32(c + 1)
       din[29] = uint32((c + 1) shr 32)
-      chacha20Rounds2Jit(pool, din)
       if pt != nil:
-        for w in 0 ..< 16:
-          let aIdx = (w shr 2) shl 3 + (w and 3)
-          let bIdx = aIdx + 4
-          let off = w shl 2
-          store32Le(ct + off, (pool[aIdx] + din[aIdx]) xor load32Le(pt + off))
-          store32Le(ct + 64 + off, (pool[bIdx] + din[bIdx]) xor load32Le(pt + 64 + off))
+        chacha20Crypt2Jit(ct, pt, pool, din)
       else:
+        chacha20Rounds2Jit(pool, din)
         for w in 0 ..< 16:
           let aIdx = (w shr 2) shl 3 + (w and 3)
           let bIdx = aIdx + 4

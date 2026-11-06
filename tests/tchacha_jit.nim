@@ -3,6 +3,7 @@ import std/random
 
 import nimcypher/algos/chacha20
 import nimcypher/algos/internal/chacha_jit
+import nimcypher/algos/common
 
 # Differential: JIT rounds vs scalar. Runs with
 # -d:features.nimcypher.nimdynasm on amd64.
@@ -28,6 +29,37 @@ suite "chacha jit vs scalar":
       chacha20RoundsScalar(o1, inp)
       chacha20RoundsJit(o2, inp)
       check o1 == o2
+
+  test "crypt2 equals scalar djb":
+    if cpuHasAvx2():
+      randomize(0xC2C4)
+      for msgLen in [0, 1, 63, 64, 65, 127, 128, 129, 191, 192, 1024, 1031]:
+        var key: array[32, byte]
+        var nonce: array[8, byte]
+        for i in 0 ..< 32: key[i] = byte(rand(255))
+        for i in 0 ..< 8: nonce[i] = byte(rand(255))
+        var pt = newSeq[byte](max(msgLen, 1))
+        for i in 0 ..< msgLen: pt[i] = byte(rand(255))
+        let ctr = uint64(rand(high(int)))
+        var ctJ = newSeq[byte](max(msgLen, 1))
+        var ctS = newSeq[byte](max(msgLen, 1))
+        let rJ = chacha20Djb(cast[BytePtr](addr ctJ[0]),
+                             cast[BytePtr](addr pt[0]), msgLen, key, nonce, ctr)
+        let rS = chacha20DjbScalar(cast[BytePtr](addr ctS[0]),
+                                   cast[BytePtr](addr pt[0]), msgLen, key,
+                                   nonce, ctr)
+        check rJ == rS
+        check ctJ[0 ..< msgLen] == ctS[0 ..< msgLen]
+        # keystream (nil plaintext) path
+        var ksJ = newSeq[byte](max(msgLen, 1))
+        var ksS = newSeq[byte](max(msgLen, 1))
+        discard chacha20Djb(cast[BytePtr](addr ksJ[0]), nil, msgLen, key,
+                            nonce, ctr)
+        discard chacha20DjbScalar(cast[BytePtr](addr ksS[0]), nil, msgLen,
+                                  key, nonce, ctr)
+        check ksJ[0 ..< msgLen] == ksS[0 ..< msgLen]
+    else:
+      skip()
 
   test "two-block avx2 agrees":
     if cpuHasAvx2():
