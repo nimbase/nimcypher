@@ -25,6 +25,7 @@ when defined(features.nimcypher.nimsimd) and defined(amd64):
 when defined(features.nimcypher.nimdynasm) and defined(amd64):
   import ./internal/ghash_jit
   import ./internal/aes_jit
+  import ./internal/gcm_jit
 
 {.push checks: off.}
 
@@ -153,9 +154,11 @@ type
   GcmContext* = object
     aes: AesContext
     hBlock: array[16, byte] # GHASH key block H = E_K(0^128)
-    hPow: array[8, array[16, byte]] # H^1..H^8 for the agg8 kernel
-    acc*: array[16, byte]   # GHASH accumulator (big-endian block)
+    # Contiguous fused-kernel block {ctr, acc, pow}: the JIT crypt
+    # kernel takes one pointer to ctr and advances/folds in place.
     ctr: array[16, byte]    # GCTR counter block (starts at inc32(J0))
+    acc*: array[16, byte]   # GHASH accumulator (big-endian block)
+    hPow: array[8, array[16, byte]] # H^1..H^8 for the agg8 kernel
     j0: array[16, byte]     # pre-counter block (tag mask source)
     kbuf: array[16, byte]   # partially consumed keystream block
     kused: int
@@ -277,6 +280,43 @@ proc fuseDecryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
     sp = sp + (nb shl 4)
     left -= nb
   wipe(ks)
+
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  proc fuseEncryptBlocksFused(ctx: var GcmContext, dst, src: BytePtr,
+                              nbBlocks: int) =
+    ## Whole-block path through the fused crypt kernel: one call per 8
+    ## blocks does counter-gen + AES + xor + GHASH. A sub-octet tail
+    ## uses the buffered path. Clean state only (caller guarantees
+    ## `bufLen == 0`, `kused == 16`).
+    var dp = dst
+    var sp = src
+    var left = nbBlocks
+    while left >= aesJitBatch:
+      gcmCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0], dp, sp,
+                   cast[BytePtr](addr ctx.ctr[0]))
+      dp = dp + 128
+      sp = sp + 128
+      left -= aesJitBatch
+      ctx.ctLen += 128
+    if left > 0:
+      ctx.fuseEncryptBlocks(dp, sp, left)
+
+  proc fuseDecryptBlocksFused(ctx: var GcmContext, dst, src: BytePtr,
+                              nbBlocks: int) =
+    ## Whole-block fused decrypt (same kernel; CTR mode decrypts with
+    ## the same keystream). Sub-octet tail uses the buffered path.
+    var dp = dst
+    var sp = src
+    var left = nbBlocks
+    while left >= aesJitBatch:
+      gcmCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0], dp, sp,
+                   cast[BytePtr](addr ctx.ctr[0]), decrypt = true)
+      dp = dp + 128
+      sp = sp + 128
+      left -= aesJitBatch
+      ctx.ctLen += 128
+    if left > 0:
+      ctx.fuseDecryptBlocks(dp, sp, left)
 
 proc absorb(ctx: var GcmContext, p: BytePtr, n: int) =
   ## Feed whole/partial blocks into GHASH (zero-padding the final tail is
@@ -445,7 +485,13 @@ proc gcmEncryptUpdate*(ctx: var GcmContext, plaintext: openArray[byte]):
     if ctx.bufLen == 0 and ctx.kused == 16:
       let nbFull = plaintext.len shr 4
       if nbFull > 0:
-        ctx.fuseEncryptBlocks(rp, pp, nbFull)
+        when defined(features.nimcypher.nimdynasm) and defined(amd64):
+          if not ctx.forceScalar and gcmCrypt8JitAvailable():
+            ctx.fuseEncryptBlocksFused(rp, pp, nbFull)
+          else:
+            ctx.fuseEncryptBlocks(rp, pp, nbFull)
+        else:
+          ctx.fuseEncryptBlocks(rp, pp, nbFull)
       let tail = plaintext.len and 15
       if tail > 0:
         let off = nbFull shl 4
@@ -469,7 +515,13 @@ proc gcmDecryptUpdate*(ctx: var GcmContext, ciphertext: openArray[byte]):
     if ctx.bufLen == 0 and ctx.kused == 16:
       let nbFull = ciphertext.len shr 4
       if nbFull > 0:
-        ctx.fuseDecryptBlocks(rp, cp, nbFull)
+        when defined(features.nimcypher.nimdynasm) and defined(amd64):
+          if not ctx.forceScalar and gcmCrypt8JitAvailable():
+            ctx.fuseDecryptBlocksFused(rp, cp, nbFull)
+          else:
+            ctx.fuseDecryptBlocks(rp, cp, nbFull)
+        else:
+          ctx.fuseDecryptBlocks(rp, cp, nbFull)
       let tail = ciphertext.len and 15
       if tail > 0:
         let off = nbFull shl 4

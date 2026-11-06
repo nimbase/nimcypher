@@ -24,21 +24,15 @@ type
   AesJitDecFn* = proc(nrk, nrkInv, dst, src: pointer) {.cdecl, gcsafe.}
   AesJitCtrFn* = proc(nrk, dst, src, ctrp: pointer) {.cdecl, gcsafe.}
 
-proc assembleCtrCryptBatch8(R: int): ExecutableBuffer =
-  ## CTR-crypt exactly 8 blocks for GCM: build counters base..base+7
-  ## (GCM inc32 order, low dword big-endian at [ctrp+12]) on a stack
-  ## scratch area, AES-encrypt them, xor with 128 bytes at [srcp],
-  ## store at [dstp]. Advances the dword at [ctrp+12] by 8 (mod 2^32).
-  ## Same round-key layout as the encrypt batches.
-  var a = newAssembler(akX64)
-  # Scratch GP regs: r10d holds the base counter, r11d the per-block
-  # counter, eax the shift temp. All caller-saved and arg-free on both
-  # ABIs (SysV: rdi/rsi/rdx/rcx live; Win: rcx/rdx/r8/r9 live), so no
-  # saves needed. Stack slots hold the 8 counter blocks.
+proc emitAesCtrHead8*(a: var Assembler) =
+  ## Build 8 GCM counter blocks at [rsp .. rsp+127] from the base block
+  ## at [ctrp] (low dword big-endian at [ctrp+12]), advance that dword
+  ## by 8 (mod 2^32). Caller must have reserved 128 stack bytes and
+  ## declare the `ctrp` alias. Clobbers rax/r10/r11/xmm9. Scratch regs
+  ## avoid all arg registers on both ABIs (see ctrCrypt prologue).
   dynasm a:
     arch x64
     alias ctrp, rcx, r9
-    sub rsp, 128
     movdqu xmm9, [ctrp]
   for i in 0 ..< aesJitBatch:
     let d = i * 16
@@ -95,12 +89,11 @@ proc assembleCtrCryptBatch8(R: int): ExecutableBuffer =
     mov [ctrp + 13], al
     `shr` eax, 8
     mov [ctrp + 12], al
-  for i in 0 ..< aesJitBatch:
-    let s = i
-    let d = i * 16
-    dynasm a:
-      arch x64
-      movdqu Rx(s), [rsp + d]
+
+proc emitAesEncRounds8*(a: var Assembler, R: int) =
+  ## AES-ENC key0 xor + middle rounds over the 8 states in xmm0..7
+  ## (no final round; caller emits aesenclast + store). Caller declares
+  ## the `nrkp` alias. Clobbers xmm8.
   dynasm a:
     arch x64
     alias nrkp, rdi, rcx
@@ -121,6 +114,29 @@ proc assembleCtrCryptBatch8(R: int): ExecutableBuffer =
       dynasm a:
         arch x64
         aesenc Rx(s), xmm8
+
+proc assembleCtrCryptBatch8(R: int): ExecutableBuffer =
+  ## CTR-crypt exactly 8 blocks for GCM: build counters base..base+7
+  ## (GCM inc32 order, low dword big-endian at [ctrp+12]) on a stack
+  ## scratch area, AES-encrypt them, xor with 128 bytes at [srcp],
+  ## store at [dstp]. Advances the dword at [ctrp+12] by 8 (mod 2^32).
+  ## Same round-key layout as the encrypt batches.
+  var a = newAssembler(akX64)
+  # Scratch GP regs: r10d holds the base counter, r11d the per-block
+  # counter, eax the shift temp. All caller-saved and arg-free on both
+  # ABIs (SysV: rdi/rsi/rdx/rcx live; Win: rcx/rdx/r8/r9 live), so no
+  # saves needed. Stack slots hold the 8 counter blocks.
+  dynasm a:
+    arch x64
+    sub rsp, 128
+  emitAesCtrHead8(a)
+  for i in 0 ..< aesJitBatch:
+    let s = i
+    let d = i * 16
+    dynasm a:
+      arch x64
+      movdqu Rx(s), [rsp + d]
+  emitAesEncRounds8(a, R)
   let kd = R * 16
   dynasm a:
     arch x64
@@ -153,26 +169,7 @@ proc assembleEncBatch8(R: int): ExecutableBuffer =
       arch x64
       alias srcp, rdx, r8
       movdqu Rx(s), [srcp + d]
-  dynasm a:
-    arch x64
-    alias nrkp, rdi, rcx
-    movdqu xmm8, [nrkp]
-  for i in 0 ..< aesJitBatch:
-    let s = i
-    dynasm a:
-      arch x64
-      pxor Rx(s), xmm8
-  for r in 1 ..< R:
-    let d = r * 16
-    dynasm a:
-      arch x64
-      alias nrkp, rdi, rcx
-      movdqu xmm8, [nrkp + d]
-    for i in 0 ..< aesJitBatch:
-      let s = i
-      dynasm a:
-        arch x64
-        aesenc Rx(s), xmm8
+  emitAesEncRounds8(a, R)
   let kd = R * 16
   dynasm a:
     arch x64

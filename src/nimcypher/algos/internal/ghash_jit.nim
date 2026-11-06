@@ -133,8 +133,11 @@ type GhashFoldFn* = proc(acc, h, src: pointer) {.cdecl, gcsafe.}
 #   xmm3 bx                         xmm8 shufd tmp
 #   xmm4 t_hi -> t1                 xmm5 t_lo -> t3
 #   xmm7 t0                         xmm11..14 ACC0..3 (unreduced sum)
-proc assembleGhashAgg8(): ExecutableBuffer =
-  var a = newAssembler(akX64)
+proc emitGhashAgg8*(a: var Assembler) =
+  ## Fold 8 blocks at [srcp] into [accp] with one reduction (see
+  ## assembleGhashAgg8). Caller declares the `accp`/`powp`/`srcp`
+  ## aliases; loads the bswap table from `[glob("bswapidx")]` (caller
+  ## emits that pool before finalizing). Uses xmm0-8, xmm11-15.
   dynasm a:
     arch x64
     alias accp, rdi, rcx
@@ -248,6 +251,12 @@ proc assembleGhashAgg8(): ExecutableBuffer =
     punpcklqdq xmm12, xmm11
     pshufb xmm12, xmm15
     movdqu [accp], xmm12
+
+proc assembleGhashAgg8(): ExecutableBuffer =
+  var a = newAssembler(akX64)
+  emitGhashAgg8(a)
+  dynasm a:
+    arch x64
     ret()
     global bswapidx
     u8 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
