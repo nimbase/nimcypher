@@ -8,13 +8,13 @@ import ./common
 
 when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
   import ./internal/chacha20_simd
-
-when defined(features.nimcypher.nimdynasm) and defined(amd64):
-  import ./internal/chacha_jit
   when defined(amd64):
     # The AVX2 two-block kernel requires AVX2 on x86_64. The SIMD build is
     # opt-in, so the whole binary is built for AVX2 in that case.
     {.passC: "-mavx2".}
+
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./internal/chacha_jit
 
 {.push checks: off.}
 
