@@ -11,6 +11,7 @@ when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
 
 when defined(features.nimcypher.nimdynasm) and defined(amd64):
   import ./internal/blake2b_jit
+  import ./internal/cpu_jit
 
 {.push checks: off.}
 
@@ -244,7 +245,7 @@ when (defined(features.nimcypher.nimsimd) and
                       cast[BytePtr](unsafeAddr messages[k][offsets[k]]), 16)
           offsets[k] += 128
       when defined(features.nimcypher.nimdynasm) and defined(amd64):
-        if blake2bJitAvailable():
+        if cpuHasAvx2() and blake2bJitAvailable():
           compress4Jit(hashes, offs, blocks, laneMask)
         else:
           when defined(features.nimcypher.nimsimd):
