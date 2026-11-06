@@ -8,6 +8,9 @@ import ./common
 
 when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
   import ./internal/chacha20_simd
+
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./internal/chacha_jit
   when defined(amd64):
     # The AVX2 two-block kernel requires AVX2 on x86_64. The SIMD build is
     # opt-in, so the whole binary is built for AVX2 in that case.
@@ -51,9 +54,18 @@ proc chacha20RoundsScalar*(outp: var array[16, uint32], inp: array[16, uint32]) 
   outp[12] = t12; outp[13] = t13; outp[14] = t14; outp[15] = t15
 
 proc chacha20Rounds*(outp: var array[16, uint32], inp: array[16, uint32]) {.inline.} =
-  ## 20 rounds of ChaCha20. Uses the SIMD kernel when built with
+  ## 20 rounds of ChaCha20. Uses the JIT kernel when built with
+  ## `features.nimcypher.nimdynasm` (amd64), else the SIMD kernel with
   ## `features.nimcypher.nimsimd`, otherwise the scalar kernel.
-  when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    if chachaJitAvailable():
+      chacha20RoundsJit(outp, inp)
+    else:
+      when defined(features.nimcypher.nimsimd):
+        simdRounds(outp, inp)
+      else:
+        chacha20RoundsScalar(outp, inp)
+  elif defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
     simdRounds(outp, inp)
   else:
     chacha20RoundsScalar(outp, inp)
