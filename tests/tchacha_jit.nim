@@ -8,7 +8,8 @@ import nimcypher/algos/common
 # -d:features.nimcypher.nimdynasm on amd64.
 
 
-when defined(amd64):
+when defined(features.nimcypher.nimdynasm) and
+    (defined(amd64)):
   import nimcypher/algos/internal/chacha_jit
 
   suite "chacha jit vs scalar":
@@ -90,6 +91,6 @@ when defined(amd64):
       else:
         skip()
 else:
-  suite "chacha jit vs scalar (requires amd64)":
-    test "skipped on non-amd64":
+  suite "chacha jit vs scalar (requires nimdynasm)":
+    test "skipped (no JIT)":
       skip()

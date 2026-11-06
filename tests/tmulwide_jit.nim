@@ -9,7 +9,8 @@ import nimcypher/algos/internal/montgomery64 except mulWide
 # clang-identical bytes, so the test skips there with a NOTE).
 
 
-when defined(amd64):
+when defined(features.nimcypher.nimdynasm) and
+    (defined(amd64)):
   import nimcypher/algos/internal/mulwide_jit
 
   suite "mulwide jit vs splitting":
@@ -31,6 +32,6 @@ when defined(amd64):
           "mulwide execution checks (splitting fallback active)"
         skip()
 else:
-  suite "mulwide jit vs splitting (requires amd64)":
-    test "skipped on non-amd64":
+  suite "mulwide jit vs splitting (requires nimdynasm)":
+    test "skipped (no JIT)":
       skip()

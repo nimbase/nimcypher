@@ -8,7 +8,8 @@ import nimcypher/algos/common
 # Runs with -d:features.nimcypher.nimdynasm on amd64.
 
 
-when defined(amd64):
+when defined(features.nimcypher.nimdynasm) and
+    (defined(amd64)):
   import nimcypher/algos/internal/blake2b_jit
   import nimcypher/algos/internal/cpu_jit
 
@@ -76,6 +77,6 @@ when defined(amd64):
       else:
         skip()
 else:
-  suite "blake2b jit vs scalar (requires amd64)":
-    test "skipped on non-amd64":
+  suite "blake2b jit vs scalar (requires nimdynasm)":
+    test "skipped (no JIT)":
       skip()

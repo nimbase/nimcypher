@@ -8,7 +8,8 @@ import nimcypher/algos/common
 # -d:features.nimcypher.nimdynasm on amd64 or arm64.
 
 
-when defined(amd64) or defined(arm64):
+when defined(features.nimcypher.nimdynasm) and
+    (defined(amd64) or defined(arm64)):
   import nimcypher/algos/internal/aes_jit
 
   suite "aes jit vs scalar":
@@ -124,6 +125,6 @@ when defined(amd64) or defined(arm64):
     check armEorVWord(0, 1, 2) == 0x6E221C20'u32
     check armEorVWord(0, 0, 31) == 0x6E3F1C00'u32
 else:
-  suite "aes jit vs scalar (requires amd64 or arm64)":
-    test "skipped elsewhere":
+  suite "aes jit vs scalar (requires nimdynasm, amd64 or arm64)":
+    test "skipped (no JIT)":
       skip()

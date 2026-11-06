@@ -9,7 +9,8 @@ import nimcypher/algos/common
 # otherwise, mirroring ghash_simd's arch gate).
 
 
-when defined(amd64):
+when defined(features.nimcypher.nimdynasm) and
+    (defined(amd64)):
   import nimcypher/algos/internal/ghash_jit
 
   suite "ghash jit vs scalar":
@@ -90,6 +91,6 @@ when defined(amd64):
                      cast[BytePtr](addr blks[0]))
         check e == g
 else:
-  suite "ghash jit vs scalar (requires amd64)":
-    test "skipped on non-amd64":
+  suite "ghash jit vs scalar (requires nimdynasm)":
+    test "skipped (no JIT)":
       skip()
