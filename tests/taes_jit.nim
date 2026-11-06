@@ -5,10 +5,10 @@ import nimcypher/algos/aes
 import nimcypher/algos/common
 
 # Differential: JIT batched kernels vs scalar reference. Runs with
-# -d:features.nimcypher.nimdynasm on amd64.
+# -d:features.nimcypher.nimdynasm on amd64 or arm64.
 
 
-when defined(amd64):
+when defined(amd64) or defined(arm64):
   import nimcypher/algos/internal/aes_jit
 
   suite "aes jit vs scalar":
@@ -101,7 +101,29 @@ when defined(amd64):
                      0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA,
                      0x00, 0x00, 0x00, 0x06]
       wipeAesContext(ctx2)
+
+  test "arm64 crypto word goldens":
+    ## Every word the arm64 backend emits, pinned against
+    ## `clang --target=aarch64` (`.arch armv8-a+crypto`). Pure
+    ## encoding checks: run on any host, no execution.
+    check armCryptoWord(armAeseBase, 0, 1) == 0x4E284820'u32
+    check armCryptoWord(armAeseBase, 5, 7) == 0x4E2848E5'u32
+    check armCryptoWord(armAeseBase, 31, 30) == 0x4E284BDF'u32
+    check armCryptoWord(armAesdBase, 0, 1) == 0x4E285820'u32
+    check armCryptoWord(armAesdBase, 5, 7) == 0x4E2858E5'u32
+    check armCryptoWord(armAesmcBase, 0, 0) == 0x4E286800'u32
+    check armCryptoWord(armAesmcBase, 5, 7) == 0x4E2868E5'u32
+    check armCryptoWord(armAesimcBase, 0, 0) == 0x4E287800'u32
+    check armCryptoWord(armAesimcBase, 5, 7) == 0x4E2878E5'u32
+    check armLdrQWord(0, 0, 0) == 0x3DC00000'u32
+    check armLdrQWord(0, 2, 112) == 0x3DC01C40'u32
+    check armLdrQWord(31, 0, 160) == 0x3DC0281F'u32
+    check armLdrQWord(0, 31, 0) == 0x3DC003E0'u32
+    check armStrQWord(1, 0, 16) == 0x3D800401'u32
+    check armStrQWord(7, 1, 112) == 0x3D801C27'u32
+    check armEorVWord(0, 1, 2) == 0x6E221C20'u32
+    check armEorVWord(0, 0, 31) == 0x6E3F1C00'u32
 else:
-  suite "aes jit vs scalar (requires amd64)":
-    test "skipped on non-amd64":
+  suite "aes jit vs scalar (requires amd64 or arm64)":
+    test "skipped elsewhere":
       skip()

@@ -69,6 +69,16 @@
   and uses it for AES-GCM suites. Micro 16 KiB: 2187 -> 2519-2584
   MB/s (+15-18%), matching the 1.3 us fixed-cost removal. ChaCha
   path untouched (its per-record setup is trivial).
+- ARM64 AES JIT done 2026-11-07 (no ARM hardware; x64-built, CI-run):
+  `aes_jit` gains an AArch64 backend (enc/dec/ctr batch-8, states
+  v0-v7, key v31, AAPCS64 args). dynasm has no crypto mnemonics, so
+  aese/aesd/aesmc/aesimc (+ dynamic-index ldr/str/eor) emit raw
+  words; every word pinned against `clang --target=aarch64`
+  ("arm64 crypto word goldens", run on all hosts), full kernels
+  disassembled via otool to verify sequence/offsets/ABI. `aes.nim`
+  + GCM ctrCrypt sites enabled for arm64 (GHASH/fused stay amd64).
+  `taes_jit` gate widened to amd64-or-arm64. Execution proof is the
+  ARM CI differential (macos-15, ubuntu-24.04-arm).
 
 ## Gates
 

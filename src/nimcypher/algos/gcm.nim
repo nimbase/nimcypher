@@ -22,9 +22,12 @@ import ./aes
 when defined(features.nimcypher.nimsimd) and defined(amd64):
   import ./internal/ghash_simd
 
+when defined(features.nimcypher.nimdynasm) and
+    (defined(amd64) or defined(arm64)):
+  import ./internal/aes_jit
+
 when defined(features.nimcypher.nimdynasm) and defined(amd64):
   import ./internal/ghash_jit
-  import ./internal/aes_jit
   import ./internal/gcm_jit
 
 {.push checks: off.}
@@ -219,7 +222,8 @@ proc fuseEncryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
   while left > 0:
     let nb = min(left, gcmBatchBlocks)
     var produced = 0
-    when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    when defined(features.nimcypher.nimdynasm) and
+      (defined(amd64) or defined(arm64)):
       if aesJitAvailable():
         while produced + aesJitBatch <= nb:
           ctrCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0],
@@ -257,7 +261,8 @@ proc fuseDecryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
     let nb = min(left, gcmBatchBlocks)
     ctx.foldBlocks(sp, nb)
     var produced = 0
-    when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    when defined(features.nimcypher.nimdynasm) and
+      (defined(amd64) or defined(arm64)):
       if aesJitAvailable():
         while produced + aesJitBatch <= nb:
           ctrCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0],
