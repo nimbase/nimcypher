@@ -45,6 +45,25 @@
 - D (system): hoist feature checks out of per-block path, avoid per-update
   allocs and tail-copy replication, reuse contexts and H powers.
 
+## ChaCha follow-ups
+
+- Poly1305 vectorization investigated 2026-11-06, NOT pursued: the fast
+  form (4-lane AVX2, radix 2^26, needs VEX `vpmuludq`) misexecutes on
+  this host — VEX.128 and VEX.256 `0F38 0x40` both behave as `vpmulld`
+  (high halves zeroed), verified with raw-byte probes against the
+  correct legacy-SSE2 `pmuludq` (host quirk #4, same class as MULX /
+  VEX shufd-ymm / VEX shufb-mem). Verified-form alternatives cap out
+  below scalar: 2-lane legacy SSE ~1.2 cyc/B (reduction-bound, +3%
+  bulk), 13/16-bit radices need 4x the mults (slower than scalar).
+  Bulk sits exactly on the Poly bound (1/(1/1190+1/1976) = 742 =
+  measured 731-746), so revisit only with a host that executes VEX
+  integer multiply (gate with a functional probe like `cpu_jit`).
+- Chunked seal tried 2026-11-06, reverted: measured flat (740/743 vs
+  731/746, within run-to-run noise on a thermally saturated box).
+  Theory says why: the second pass is L2-resident, saving it is worth
+  ~0.7%, not the 7% first estimated (no DRAM traffic involved).
+  Open stays two-pass by construction (verify-then-decrypt).
+
 ## Gates
 
 - Differential tests vs scalar for every new kernel, KATs for GCM/ChaCha.
