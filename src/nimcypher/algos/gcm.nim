@@ -22,6 +22,9 @@ import ./aes
 when defined(features.nimcypher.nimsimd) and defined(amd64):
   import ./internal/ghash_simd
 
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./internal/ghash_jit
+
 {.push checks: off.}
 
 const gcmBlockSize = 16
@@ -119,7 +122,20 @@ proc ghashFoldScalar*(acc: var array[16, byte], hBlock: array[16, byte],
   store64Be(cast[BytePtr](addr acc[0]), v3)
   store64Be(cast[BytePtr](addr acc[8]), v2)
 
-when defined(features.nimcypher.nimsimd) and defined(amd64):
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  proc ghashFold*(acc: var array[16, byte], h: array[16, byte],
+                  src: BytePtr) {.inline.} =
+    ## JIT fast path, assembled once by dynasm; falls back when exec
+    ## memory is unavailable (or to the nimsimd kernel when both
+    ## features are on), then to scalar.
+    if ghashFoldJitAvailable():
+      ghashFoldJit(acc, h, src)
+    else:
+      when defined(features.nimcypher.nimsimd):
+        ghashFoldClmul(acc, h, src)
+      else:
+        ghashFoldScalar(acc, h, src)
+elif defined(features.nimcypher.nimsimd) and defined(amd64):
   proc ghashFold*(acc: var array[16, byte], h: array[16, byte],
                   src: BytePtr) {.inline.} =
     ghashFoldClmul(acc, h, src)
