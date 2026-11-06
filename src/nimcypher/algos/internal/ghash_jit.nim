@@ -126,6 +126,133 @@ proc assembleGhashFold(): ExecutableBuffer =
 
 type GhashFoldFn* = proc(acc, h, src: pointer) {.cdecl, gcsafe.}
 
+# Register plan for the 8-block aggregated kernel (needs REX for
+# xmm8..xmm15, all supported by the emitter):
+#   xmm15 bswapIdx (pool)          xmm0 aw / scratch
+#   xmm1 ax -> t2                   xmm2 bw
+#   xmm3 bx                         xmm8 shufd tmp
+#   xmm4 t_hi -> t1                 xmm5 t_lo -> t3
+#   xmm7 t0                         xmm11..14 ACC0..3 (unreduced sum)
+proc assembleGhashAgg8(): ExecutableBuffer =
+  var a = newAssembler(akX64)
+  dynasm a:
+    arch x64
+    alias accp, rdi, rcx
+    alias powp, rsi, rdx
+    alias srcp, rdx, r8
+    movdqu xmm15, [glob("bswapidx")]
+    pxor xmm11, xmm11
+    pxor xmm12, xmm12
+    pxor xmm13, xmm13
+    pxor xmm14, xmm14
+  # 9 pairs: acc*P8, X1*P8, X2*P7, .., X8*P1. P_i lives at
+  # powp + (i-1)*16. Products accumulate unreduced; shift+reduce run
+  # once below (both are XOR-linear, so this equals 8 serial folds).
+  for k in 0 ..< 9:
+    let powOff = if k == 0: 7 * 16 else: (8 - k) * 16
+    if k == 0:
+      dynasm a:
+        arch x64
+        alias accp, rdi, rcx
+        movdqu xmm0, [accp]
+    else:
+      let srcOff = (k - 1) * 16
+      dynasm a:
+        arch x64
+        alias srcp, rdx, r8
+        movdqu xmm0, [srcp + srcOff]
+    dynasm a:
+      arch x64
+      alias powp, rsi, rdx
+      pshufb xmm0, xmm15
+      movdqu xmm2, [powp + powOff]
+      pshufb xmm2, xmm15
+      movdqu xmm1, xmm0
+      pshufd xmm8, xmm0, 0x0E
+      pxor xmm1, xmm8
+      movdqu xmm3, xmm2
+      pshufd xmm8, xmm2, 0x0E
+      pxor xmm3, xmm8
+      movdqu xmm4, xmm0
+      pclmulqdq xmm4, xmm2, 0x11
+      movdqu xmm5, xmm0
+      pclmulqdq xmm5, xmm2, 0x00
+      pclmulqdq xmm1, xmm3, 0x00
+      pxor xmm1, xmm4
+      pxor xmm1, xmm5
+      pshufd xmm7, xmm4, 0x0E
+      pshufd xmm8, xmm1, 0x0E
+      pxor xmm4, xmm8
+      pshufd xmm8, xmm5, 0x0E
+      pxor xmm1, xmm8
+      pxor xmm11, xmm7
+      pxor xmm12, xmm4
+      pxor xmm13, xmm1
+      pxor xmm14, xmm5
+  dynasm a:
+    arch x64
+    alias accp, rdi, rcx
+    # sl256 by 1 over (t0..t3 = xmm11..xmm14)
+    psllq xmm11, 1
+    movdqu xmm0, xmm12
+    psrlq xmm0, 63
+    por xmm11, xmm0
+    psllq xmm12, 1
+    movdqu xmm0, xmm13
+    psrlq xmm0, 63
+    por xmm12, xmm0
+    psllq xmm13, 1
+    movdqu xmm0, xmm14
+    psrlq xmm0, 63
+    por xmm13, xmm0
+    psllq xmm14, 1
+    # reduce; result in xmm11..xmm12
+    movdqu xmm0, xmm14
+    psrlq xmm0, 1
+    pxor xmm12, xmm0
+    movdqu xmm0, xmm14
+    psrlq xmm0, 2
+    pxor xmm12, xmm0
+    movdqu xmm0, xmm14
+    psrlq xmm0, 7
+    pxor xmm12, xmm0
+    pxor xmm12, xmm14
+    movdqu xmm0, xmm14
+    psllq xmm0, 63
+    pxor xmm13, xmm0
+    movdqu xmm0, xmm14
+    psllq xmm0, 62
+    pxor xmm13, xmm0
+    movdqu xmm0, xmm14
+    psllq xmm0, 57
+    pxor xmm13, xmm0
+    pxor xmm11, xmm13
+    movdqu xmm0, xmm13
+    psrlq xmm0, 1
+    pxor xmm11, xmm0
+    movdqu xmm0, xmm13
+    psrlq xmm0, 2
+    pxor xmm11, xmm0
+    movdqu xmm0, xmm13
+    psrlq xmm0, 7
+    pxor xmm11, xmm0
+    movdqu xmm0, xmm13
+    psllq xmm0, 63
+    pxor xmm12, xmm0
+    movdqu xmm0, xmm13
+    psllq xmm0, 62
+    pxor xmm12, xmm0
+    movdqu xmm0, xmm13
+    psllq xmm0, 57
+    pxor xmm12, xmm0
+    punpcklqdq xmm12, xmm11
+    pshufb xmm12, xmm15
+    movdqu [accp], xmm12
+    ret()
+    global bswapidx
+    u8 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+  result = a.finalize()
+
 var gGhashLock: Lock
 initLock(gGhashLock) # module init runs single-threaded before main
 var gGhashBuf: ExecutableBuffer
@@ -159,3 +286,36 @@ proc ghashFoldJit*(acc: var array[16, byte], h: array[16, byte],
   ensureGhashJit()
   let f = cast[GhashFoldFn](gGhashBuf.ptrAt(AssemblyOffset(0)))
   f(addr acc[0], unsafeAddr h[0], cast[pointer](src))
+
+type GhashAgg8Fn* = proc(acc, pow, src: pointer) {.cdecl, gcsafe.}
+
+var gGhashAggBuf: ExecutableBuffer
+var gGhashAggReady: Atomic[bool]
+
+proc ensureGhashAggJit() =
+  if gGhashAggReady.load(moAcquire):
+    return
+  withLock(gGhashLock):
+    if gGhashAggReady.load(moRelaxed):
+      return
+    gGhashAggBuf = assembleGhashAgg8()
+    gGhashAggReady.store(true, moRelease)
+
+proc ghashAgg8JitAvailable*(): bool =
+  ## True once the 8-block kernel assembled (false only if exec memory
+  ## is unavailable — caller falls back to serial folds).
+  try:
+    ensureGhashAggJit()
+  except CatchableError:
+    return false
+  true
+
+proc ghashAgg8Jit*(acc: var array[16, byte], hpow: BytePtr, src: BytePtr) =
+  ## Fold 8 blocks at `src` (128 bytes) into `acc` in one shot:
+  ## acc = acc*H^8 xor X1*H^8 xor X2*H^7 .. xor X8*H, with a single
+  ## reduction. `hpow` points at 8 consecutive powers P1..P8 (16 bytes
+  ## each, same block format as the H key). Raises on assembly failure;
+  ## check ghashAgg8JitAvailable first.
+  ensureGhashAggJit()
+  let f = cast[GhashAgg8Fn](gGhashAggBuf.ptrAt(AssemblyOffset(0)))
+  f(addr acc[0], cast[pointer](hpow), cast[pointer](src))

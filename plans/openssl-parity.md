@@ -92,3 +92,14 @@ fused 8-block encrypt+xor+fold.
   `gcmDecryptUpdate` instead of duplicating absorb+decrypt.
 - Remaining bulk cost is GHASH serial folds (~10 us of ~18 us):
   next is aggregated GHASH with precomputed H powers.
+- Aggregated GHASH done: `assembleGhashAgg8` in `ghash_jit` folds 8
+  blocks with one reduction (9 Karatsuba pairs: acc*P8, X1*P8 ..
+  X8*P1, accumulated unreduced since shift+reduce are XOR-linear,
+  single tail lifted from the fold kernel by register substitution).
+  Powers P1..P8 precomputed in `initGcm` via dispatched folds;
+  `foldBlocks` uses agg8 for groups of 8, serial tail otherwise, and
+  backs `absorb` plus both fused loops. Alias re-declaration per
+  dynasm block required inside the codegen loop (as in `aes_jit`).
+  Micro `gcmLock` 16 KiB 887 -> 1411-1431 MB/s (+59%). Permanent
+  `agg8 equals serial folds` differential in `tghash_jit` (60 random
+  + zero/0xFF edges). Scalar path unchanged (115 MB/s).

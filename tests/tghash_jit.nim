@@ -38,3 +38,51 @@ suite "ghash jit vs scalar":
       ghashFoldScalar(a1, h, cast[BytePtr](addr blk[0]))
       ghashFoldJit(a2, h, cast[BytePtr](addr blk[0]))
       check a1 == a2
+
+  test "agg8 equals serial folds":
+    discard ghashAgg8JitAvailable()
+    randomize(0xA668)
+    for _ in 0 ..< 60:
+      var acc, h: array[16, byte]
+      for i in 0 ..< 16:
+        acc[i] = byte(rand(255))
+        h[i] = byte(rand(255))
+      var hpow: array[8, array[16, byte]]
+      hpow[0] = h
+      for i in 1 ..< 8:
+        var z: array[16, byte]
+        ghashFoldScalar(z, h, cast[BytePtr](addr hpow[i - 1][0]))
+        hpow[i] = z
+      var blks: array[8, array[16, byte]]
+      for b in 0 ..< 8:
+        for i in 0 ..< 16:
+          blks[b][i] = byte(rand(255))
+      var e = acc
+      for b in 0 ..< 8:
+        ghashFoldScalar(e, h, cast[BytePtr](addr blks[b][0]))
+      var g = acc
+      ghashAgg8Jit(g, cast[BytePtr](addr hpow[0]),
+                   cast[BytePtr](addr blks[0]))
+      check e == g
+    for v in [0'u8, 0xFF]:
+      var acc, h: array[16, byte]
+      for i in 0 ..< 16:
+        acc[i] = v
+        h[i] = v
+      var hpow: array[8, array[16, byte]]
+      hpow[0] = h
+      for i in 1 ..< 8:
+        var z: array[16, byte]
+        ghashFoldScalar(z, h, cast[BytePtr](addr hpow[i - 1][0]))
+        hpow[i] = z
+      var blks: array[8, array[16, byte]]
+      for b in 0 ..< 8:
+        for i in 0 ..< 16:
+          blks[b][i] = byte(b xor int(v))
+      var e = acc
+      for b in 0 ..< 8:
+        ghashFoldScalar(e, h, cast[BytePtr](addr blks[b][0]))
+      var g = acc
+      ghashAgg8Jit(g, cast[BytePtr](addr hpow[0]),
+                   cast[BytePtr](addr blks[0]))
+      check e == g

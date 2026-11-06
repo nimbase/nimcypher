@@ -152,6 +152,7 @@ type
   GcmContext* = object
     aes: AesContext
     hBlock: array[16, byte] # GHASH key block H = E_K(0^128)
+    hPow: array[8, array[16, byte]] # H^1..H^8 for the agg8 kernel
     acc*: array[16, byte]   # GHASH accumulator (big-endian block)
     ctr: array[16, byte]    # GCTR counter block (starts at inc32(J0))
     j0: array[16, byte]     # pre-counter block (tag mask source)
@@ -180,6 +181,24 @@ proc fold(ctx: var GcmContext, p: BytePtr) {.inline.} =
   else:
     ghashFold(ctx.acc, ctx.hBlock, p)
 
+proc foldBlocks(ctx: var GcmContext, p: BytePtr, nb: int) =
+  ## Fold `nb` whole blocks; 8-at-a-time through the aggregated JIT
+  ## kernel when available, serial dispatch for the tail (or everywhere
+  ## when forced scalar / exec memory is unavailable).
+  var pp = p
+  var left = nb
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    if not ctx.forceScalar and left >= 8:
+      if ghashAgg8JitAvailable():
+        while left >= 8:
+          ghashAgg8Jit(ctx.acc, cast[BytePtr](addr ctx.hPow[0]), pp)
+          pp = pp + 128
+          left -= 8
+  while left > 0:
+    ctx.fold(pp)
+    pp = pp + gcmBlockSize
+    left -= 1
+
 const gcmBatchBlocks = 32 # fused-loop chunk, multiple of the 8-block JIT batch
 
 proc fuseEncryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
@@ -204,8 +223,7 @@ proc fuseEncryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
     let full = nb shl 4
     for i in 0 ..< full:
       dp[i] = sp[i] xor ks[i]
-    for b in 0 ..< nb:
-      ctx.fold(dp + (b shl 4))
+    ctx.foldBlocks(dp, nb)
     ctx.ctLen += uint64(nb shl 4)
     dp = dp + (nb shl 4)
     sp = sp + (nb shl 4)
@@ -228,8 +246,7 @@ proc fuseDecryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
       inc32(ctx.ctr)
     encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
                   cast[BytePtr](addr cbs[0]), nb)
-    for b in 0 ..< nb:
-      ctx.fold(sp + (b shl 4))
+    ctx.foldBlocks(sp, nb)
     let full = nb shl 4
     for i in 0 ..< full:
       dp[i] = sp[i] xor ks[i]
@@ -255,10 +272,11 @@ proc absorb(ctx: var GcmContext, p: BytePtr, n: int) =
         ctx.fold(cast[BytePtr](addr ctx.buf[0]))
         ctx.bufLen = 0
     else:
-      while left >= gcmBlockSize:
-        ctx.fold(pp)
-        pp = pp + gcmBlockSize
-        left -= gcmBlockSize
+      let nb = left shr 4
+      if nb > 0:
+        ctx.foldBlocks(pp, nb)
+        pp = pp + (nb shl 4)
+        left -= nb shl 4
       if left > 0:
         copyMem(addr ctx.buf[0], pp, left)
         ctx.bufLen = left
@@ -306,6 +324,16 @@ proc initGcm*(ctx: var GcmContext, key: openArray[byte],
                   cast[BytePtr](addr zero[0]))
   ctx.hBlock = h
   wipe(h)
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    if not forceScalar:
+      # Powers P1..P8 for the aggregated kernel: P[i+1] = P[i] * H.
+      ctx.hPow[0] = ctx.hBlock
+      var z: array[16, byte]
+      for i in 1 ..< 8:
+        zeroMem(addr z[0], 16)
+        ghashFold(z, ctx.hBlock, cast[BytePtr](addr ctx.hPow[i - 1][0]))
+        ctx.hPow[i] = z
+      wipe(z)
   zeroMem(addr ctx.acc[0], 16)
   ctx.bufLen = 0
   ctx.kused = 16 # force keystream generation on first update
