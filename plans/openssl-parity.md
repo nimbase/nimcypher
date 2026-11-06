@@ -103,3 +103,15 @@ fused 8-block encrypt+xor+fold.
   Micro `gcmLock` 16 KiB 887 -> 1411-1431 MB/s (+59%). Permanent
   `agg8 equals serial folds` differential in `tghash_jit` (60 random
   + zero/0xFF edges). Scalar path unchanged (115 MB/s).
+- CTR kernel done: `assembleCtrCryptBatch8` (10/12/14 rounds) builds
+  8 GCM counters in-kernel on a 128 B stack scratch area (GP-composed
+  BE dword, no `bswap` mnemonic in the emitter), AES-encrypts, xors
+  128 B plaintext, advances `[ctrp]` by 8. Scratch is rax/r10d/r11d
+  only (an early version clobbered rdx=`srcp`, caught by the
+  differential before wiring). Fused loops use it per octet with
+  buffered fallback for sub-octet remainders and non-JIT builds.
+  Micro 1411 -> 1850 (+31%); bulk AES-128-GCM 1428/1384 -> 2051/2071,
+  AES-256 1229/1276 -> 1811/1827 (OpenSSL ~3170/3430, ~2990/3430:
+  gap 1.5x, was 12x at the start). Permanent `ctr crypt kernel`
+  differential in `taes_jit` (all key sizes + FFFFFFFE wrap).
+  Scalar path unchanged.

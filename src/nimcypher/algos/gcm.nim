@@ -24,6 +24,7 @@ when defined(features.nimcypher.nimsimd) and defined(amd64):
 
 when defined(features.nimcypher.nimdynasm) and defined(amd64):
   import ./internal/ghash_jit
+  import ./internal/aes_jit
 
 {.push checks: off.}
 
@@ -204,8 +205,9 @@ const gcmBatchBlocks = 32 # fused-loop chunk, multiple of the 8-block JIT batch
 proc fuseEncryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
                        nbBlocks: int) =
   ## Whole-block fused CTR-encrypt + GHASH-fold for the clean state
-  ## (`bufLen == 0`, `kused == 16`). Counter blocks are batched through
-  ## `encryptBlocks`, xored, and folded while the chunk is still hot.
+  ## (`bufLen == 0`, `kused == 16`). Octets go through the CTR kernel
+  ## (in-kernel counter gen + xor); a sub-octet remainder uses the
+  ## buffered path. The chunk is folded while still hot.
   var dp = dst
   var sp = src
   var left = nbBlocks
@@ -213,16 +215,25 @@ proc fuseEncryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
   var ks: array[gcmBatchBlocks * gcmBlockSize, byte]
   while left > 0:
     let nb = min(left, gcmBatchBlocks)
-    for b in 0 ..< nb:
-      copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
-      inc32(ctx.ctr)
-    encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
-                  cast[BytePtr](addr cbs[0]), nb)
-    # Flat xor first so the C backend can vectorize it; the fold loop
-    # that follows still hits the same L1-resident chunk.
-    let full = nb shl 4
-    for i in 0 ..< full:
-      dp[i] = sp[i] xor ks[i]
+    var produced = 0
+    when defined(features.nimcypher.nimdynasm) and defined(amd64):
+      if aesJitAvailable():
+        while produced + aesJitBatch <= nb:
+          ctrCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0],
+                       dp + (produced shl 4), sp + (produced shl 4),
+                       cast[BytePtr](addr ctx.ctr[0]))
+          produced += aesJitBatch
+    if produced < nb:
+      let rn = nb - produced
+      let ro = produced shl 4
+      for b in 0 ..< rn:
+        copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+        inc32(ctx.ctr)
+      encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                    cast[BytePtr](addr cbs[0]), rn)
+      let rfull = rn shl 4
+      for i in 0 ..< rfull:
+        dp[ro + i] = sp[ro + i] xor ks[i]
     ctx.foldBlocks(dp, nb)
     ctx.ctLen += uint64(nb shl 4)
     dp = dp + (nb shl 4)
@@ -241,15 +252,26 @@ proc fuseDecryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
   var ks: array[gcmBatchBlocks * gcmBlockSize, byte]
   while left > 0:
     let nb = min(left, gcmBatchBlocks)
-    for b in 0 ..< nb:
-      copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
-      inc32(ctx.ctr)
-    encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
-                  cast[BytePtr](addr cbs[0]), nb)
     ctx.foldBlocks(sp, nb)
-    let full = nb shl 4
-    for i in 0 ..< full:
-      dp[i] = sp[i] xor ks[i]
+    var produced = 0
+    when defined(features.nimcypher.nimdynasm) and defined(amd64):
+      if aesJitAvailable():
+        while produced + aesJitBatch <= nb:
+          ctrCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0],
+                       dp + (produced shl 4), sp + (produced shl 4),
+                       cast[BytePtr](addr ctx.ctr[0]))
+          produced += aesJitBatch
+    if produced < nb:
+      let rn = nb - produced
+      let ro = produced shl 4
+      for b in 0 ..< rn:
+        copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+        inc32(ctx.ctr)
+      encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                    cast[BytePtr](addr cbs[0]), rn)
+      let rfull = rn shl 4
+      for i in 0 ..< rfull:
+        dp[ro + i] = sp[ro + i] xor ks[i]
     ctx.ctLen += uint64(nb shl 4)
     dp = dp + (nb shl 4)
     sp = sp + (nb shl 4)
