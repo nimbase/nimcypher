@@ -23,6 +23,31 @@ func le64*(v: uint64): array[8, byte] =
   for i in 0 ..< 8:
     result[i] = byte((v shr (8 * i)) and 0xFF)
 
+proc polyMac(key: array[32, byte], ad, ciphertext: openArray[byte]): array[16, byte] =
+  ## RFC 8439 S2.8 MAC over ad || pad16(ad) || ciphertext || pad16(ct) ||
+  ## le64(ad.len) || le64(ct.len), streamed without materializing the
+  ## concatenation (the old per-byte `macData` build cost a full extra
+  ## 16 KiB pass plus reallocations on every record).
+  var zeros: array[16, byte] # zero-init
+  var lens: array[16, byte]
+  let aadLen = le64(uint64(ad.len))
+  let ctLen = le64(uint64(ciphertext.len))
+  for i in 0 ..< 8:
+    lens[i] = aadLen[i]
+    lens[8 + i] = ctLen[i]
+  var polyCtx: polyAlgo.Poly1305Context
+  polyAlgo.initPoly1305(polyCtx, key)
+  let adPad = (16 - (ad.len mod 16)) mod 16
+  let ctPad = (16 - (ciphertext.len mod 16)) mod 16
+  polyAlgo.update(polyCtx, ad)
+  if adPad > 0:
+    polyAlgo.update(polyCtx, zeros.toOpenArray(0, adPad - 1))
+  polyAlgo.update(polyCtx, ciphertext)
+  if ctPad > 0:
+    polyAlgo.update(polyCtx, zeros.toOpenArray(0, ctPad - 1))
+  polyAlgo.update(polyCtx, lens)
+  result = polyAlgo.final(polyCtx)
+
 proc chacha20Poly1305Seal*(key: array[32, byte], nonce: array[12, byte],
                            plaintext, ad: openArray[byte]): (seq[byte],
     array[16, byte]) =
@@ -32,21 +57,7 @@ proc chacha20Poly1305Seal*(key: array[32, byte], nonce: array[12, byte],
   var polyKey: array[32, byte]
   for i in 0 ..< 32: polyKey[i] = block0[i]
   let cipher = chachaAlgo.chacha20Ietf(plaintext, key, nonce, 1)
-  var macData = newSeq[byte]()
-  for b in ad: macData.add(b)
-  let adPad = (16 - (ad.len mod 16)) mod 16
-  for _ in 0 ..< adPad: macData.add(0)
-  for b in cipher: macData.add(b)
-  let ctPad = (16 - (cipher.len mod 16)) mod 16
-  for _ in 0 ..< ctPad: macData.add(0)
-  let aadLen = le64(uint64(ad.len))
-  let ctLen = le64(uint64(cipher.len))
-  for b in aadLen: macData.add(b)
-  for b in ctLen: macData.add(b)
-  var polyCtx: polyAlgo.Poly1305Context
-  polyAlgo.initPoly1305(polyCtx, polyKey)
-  polyAlgo.update(polyCtx, macData)
-  let tag = polyAlgo.final(polyCtx)
+  let tag = polyMac(polyKey, ad, cipher)
   commonAlgo.wipe(polyKey)
   result = (cipher, tag)
 
@@ -60,21 +71,7 @@ proc chacha20Poly1305Open*(key: array[32, byte], nonce: array[12, byte],
   let block0 = chachaAlgo.chacha20Ietf(zeroBlock, key, nonce, 0)
   var polyKey: array[32, byte]
   for i in 0 ..< 32: polyKey[i] = block0[i]
-  var macData = newSeq[byte]()
-  for b in ad: macData.add(b)
-  let adPad = (16 - (ad.len mod 16)) mod 16
-  for _ in 0 ..< adPad: macData.add(0)
-  for b in ciphertext: macData.add(b)
-  let ctPad = (16 - (ciphertext.len mod 16)) mod 16
-  for _ in 0 ..< ctPad: macData.add(0)
-  let aadLen = le64(uint64(ad.len))
-  let ctLen = le64(uint64(ciphertext.len))
-  for b in aadLen: macData.add(b)
-  for b in ctLen: macData.add(b)
-  var polyCtx: polyAlgo.Poly1305Context
-  polyAlgo.initPoly1305(polyCtx, polyKey)
-  polyAlgo.update(polyCtx, macData)
-  let realTag = polyAlgo.final(polyCtx)
+  let realTag = polyMac(polyKey, ad, ciphertext)
   commonAlgo.wipe(polyKey)
   if not commonAlgo.constantTimeEqual(tag, realTag):
     return none(seq[byte])
