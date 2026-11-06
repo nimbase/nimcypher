@@ -60,3 +60,29 @@ suite "gcm fused vs scalar":
       let (whole, tagO) = gcmLock(key, iv, pt, ad)
       check parts == whole
       check tag == tagO
+
+  test "session matches one-shot":
+    randomize(0x5E55)
+    for t in 0 ..< 30:
+      let kl = [16, 24, 32][rand(2)]
+      var key = newSeq[byte](kl)
+      for i in 0 ..< kl: key[i] = byte(rand(255))
+      let ivLen = [12, 12, 16, 8][rand(3)]
+      var iv = newSeq[byte](ivLen)
+      for i in 0 ..< ivLen: iv[i] = byte(rand(255))
+      let msgLen = rand(3000)
+      var pt = newSeq[byte](msgLen)
+      for i in 0 ..< msgLen: pt[i] = byte(rand(255))
+      var ad = newSeq[byte](rand(40))
+      for i in 0 ..< ad.len: ad[i] = byte(rand(255))
+      let sess = initGcmSession(key)
+      let (c1, t1) = gcmLockWithSession(sess, iv, pt, ad)
+      let (cS, tS) = gcmLockScalar(key, iv, pt, ad)
+      check c1 == cS
+      check t1 == tS
+      check gcmUnlockWithSession(sess, iv, c1, t1, ad) == some(pt)
+      # wrong key session must not verify
+      var bad = key
+      bad[0] = bad[0] xor 1
+      let sessBad = initGcmSession(bad)
+      check gcmUnlockWithSession(sessBad, iv, c1, t1, ad).isNone

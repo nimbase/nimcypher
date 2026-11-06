@@ -11,6 +11,7 @@ import ./enums
 import ./codec
 import ./aead
 import ./key_schedule
+import nimcypher/algos/gcm as gcmAlgo
 
 const
   TlsLegacyVersion*: uint16 = 0x0303
@@ -24,6 +25,11 @@ type
     iv*: array[12, byte]
     seqNum*: uint64
     secret*: seq[byte] # empty when built from raw key/iv (no ratchet)
+    gcmSession*: gcmAlgo.GcmSession # valid iff suite is AES-GCM; avoids
+      # per-record key expansion + GHASH power precompute (~1.2 us)
+
+func isGcmSuite*(suite: CipherSuiteId): bool =
+  suite == TlsAes128GcmSha256 or suite == TlsAes256GcmSha384
 
 proc initTrafficKeys*(suite: CipherSuiteId, key: openArray[byte],
                       iv: openArray[byte]): TlsTrafficKeys =
@@ -35,6 +41,8 @@ proc initTrafficKeys*(suite: CipherSuiteId, key: openArray[byte],
   result.key = @key
   for i in 0 ..< 12: result.iv[i] = iv[i]
   result.seqNum = 0
+  if suite.isGcmSuite:
+    result.gcmSession = gcmAlgo.initGcmSession(key)
 
 proc initTrafficKeysFromSecret*(suite: CipherSuiteId,
                                 secret: openArray[byte]): TlsTrafficKeys =
@@ -45,6 +53,8 @@ proc initTrafficKeysFromSecret*(suite: CipherSuiteId,
   for i in 0 ..< 12: result.iv[i] = iv[i]
   result.seqNum = 0
   result.secret = @secret
+  if suite.isGcmSuite:
+    result.gcmSession = gcmAlgo.initGcmSession(key)
 
 proc ratchet*(keys: var TlsTrafficKeys) =
   ## KeyUpdate rollover: secret <- Expand-Label(secret, "traffic upd"),
@@ -59,6 +69,8 @@ proc ratchet*(keys: var TlsTrafficKeys) =
   keys.key = key
   for i in 0 ..< 12: keys.iv[i] = iv[i]
   keys.seqNum = 0
+  if keys.suite.isGcmSuite:
+    keys.gcmSession = gcmAlgo.initGcmSession(key)
 
 proc encodePlaintext*(outerType: ContentType,
                       fragment: openArray[byte]): seq[byte] =
@@ -107,7 +119,11 @@ proc sealRecord*(keys: var TlsTrafficKeys, content: openArray[byte],
   ad[2] = byte(TlsLegacyVersion and 0xFF)
   ad[3] = byte(ctLen shr 8)
   ad[4] = byte(ctLen and 0xFF)
-  let (ct, tag) = tlsSeal(keys.suite, keys.key, nonce, inner, ad)
+  let (ct, tag) =
+    if keys.suite.isGcmSuite:
+      gcmAlgo.gcmLockWithSession(keys.gcmSession, nonce, inner, ad)
+    else:
+      tlsSeal(keys.suite, keys.key, nonce, inner, ad)
   result = newSeq[byte](5 + ct.len + TlsTagLen)
   result[0] = ad[0]; result[1] = ad[1]; result[2] = ad[2]
   result[3] = ad[3]; result[4] = ad[4]
@@ -135,9 +151,15 @@ proc openRecord*(keys: var TlsTrafficKeys,
   let nonce = tlsNonce(keys.iv, keys.seqNum)
   var ad: array[5, byte]
   for i in 0 ..< 5: ad[i] = packet[i]
-  let plainOpt = tlsOpen(keys.suite, keys.key, nonce,
-    packet.toOpenArray(5, 5 + ctLen - 1),
-    packet.toOpenArray(5 + ctLen, packet.len - 1), ad)
+  let plainOpt =
+    if keys.suite.isGcmSuite:
+      gcmAlgo.gcmUnlockWithSession(keys.gcmSession, nonce,
+        packet.toOpenArray(5, 5 + ctLen - 1),
+        packet.toOpenArray(5 + ctLen, packet.len - 1), ad)
+    else:
+      tlsOpen(keys.suite, keys.key, nonce,
+        packet.toOpenArray(5, 5 + ctLen - 1),
+        packet.toOpenArray(5 + ctLen, packet.len - 1), ad)
   if plainOpt.isNone:
     raise newException(ValueError, "TLS bad record MAC")
   let inner = plainOpt.get

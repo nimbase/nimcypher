@@ -414,6 +414,63 @@ proc initGcm*(ctx: var GcmContext, key: openArray[byte],
   ctx.ctr = ctx.j0
   inc32(ctx.ctr) # GCTR starts at inc32(J0); the tag mask uses J0 itself
 
+# ---------------------------------------------------------------------------
+# Key sessions: cache the per-key schedule + GHASH powers across records.
+# initGcm above re-expands the key and recomputes H^1..H^8 on every call
+# (~1.2 us); a session pays that once per key and each record only
+# copies the schedule in (~50 ns) plus its own J0/counter setup.
+# ---------------------------------------------------------------------------
+
+type
+  GcmSession* = object
+    aes: AesContext
+    hBlock: array[16, byte]
+    hPow: array[8, array[16, byte]]
+
+proc initGcmSession*(key: openArray[byte]): GcmSession =
+  ## Expand the AES schedule, H = E_K(0^128) and H^1..H^8 once.
+  ## Raises ValueError on an invalid key length.
+  initAes(result.aes, key)
+  var zero: array[16, byte]
+  encryptBlockRaw(result.aes, cast[BytePtr](addr result.hBlock[0]),
+                  cast[BytePtr](addr zero[0]))
+  wipe(zero)
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    result.hPow[0] = result.hBlock
+    var z: array[16, byte]
+    for i in 1 ..< 8:
+      zeroMem(addr z[0], 16)
+      ghashFold(z, result.hBlock, cast[BytePtr](addr result.hPow[i - 1][0]))
+      result.hPow[i] = z
+    wipe(z)
+
+proc initGcmWithSession*(ctx: var GcmContext, s: GcmSession,
+                         iv: openArray[byte], forceScalar = false) =
+  ## Per-record init from a cached session: copies the schedule (no key
+  ## expansion, no power precompute), then J0/counter setup as usual.
+  if iv.len == 0:
+    raise newException(ValueError, "GCM IV must not be empty")
+  ctx.aes = s.aes
+  ctx.hBlock = s.hBlock
+  ctx.hPow = s.hPow
+  zeroMem(addr ctx.acc[0], 16)
+  ctx.bufLen = 0
+  ctx.kused = 16
+  ctx.aadLen = 0
+  ctx.ctLen = 0
+  ctx.inAad = true
+  ctx.forceScalar = forceScalar
+  if iv.len == 12:
+    copyMem(addr ctx.j0[0], unsafeAddr iv[0], 12)
+    ctx.j0[12] = 0
+    ctx.j0[13] = 0
+    ctx.j0[14] = 0
+    ctx.j0[15] = 1
+  else:
+    ctx.j0 = computeJ0(ctx, iv)
+  ctx.ctr = ctx.j0
+  inc32(ctx.ctr)
+
 proc gcmAddAad*(ctx: var GcmContext, ad: openArray[byte]) =
   ## Absorb associated data. Must be called before the first data update.
   if not ctx.inAad:
@@ -590,6 +647,18 @@ proc gcmLock*(key, iv: openArray[byte], plaintext: openArray[byte],
   result[0] = gcmEncryptUpdate(ctx, plaintext)
   result[1] = gcmFinishEnc(ctx)
 
+proc gcmLockWithSession*(s: GcmSession, iv: openArray[byte],
+                         plaintext: openArray[byte],
+                         ad: openArray[byte] = []): (seq[byte],
+    array[16, byte]) =
+  ## Like `gcmLock` but reuses a cached session: no key expansion, no
+  ## power precompute, just the per-record J0/counter setup.
+  var ctx: GcmContext
+  initGcmWithSession(ctx, s, iv)
+  gcmAddAad(ctx, ad)
+  result[0] = gcmEncryptUpdate(ctx, plaintext)
+  result[1] = gcmFinishEnc(ctx)
+
 proc gcmUnlock*(key, iv: openArray[byte], ciphertext: openArray[byte],
                 tag: openArray[byte], ad: openArray[byte] = []):
     Option[seq[byte]] =
@@ -597,6 +666,23 @@ proc gcmUnlock*(key, iv: openArray[byte], ciphertext: openArray[byte],
   ## the tag verifies, `none` otherwise (never partial plaintext).
   var ctx: GcmContext
   initGcm(ctx, key, iv)
+  gcmAddAad(ctx, ad)
+  let plain = gcmDecryptUpdate(ctx, ciphertext)
+  if gcmFinishDec(ctx, tag):
+    result = some(plain)
+  else:
+    var m = plain
+    wipe(m)
+    result = none(seq[byte])
+
+proc gcmUnlockWithSession*(s: GcmSession, iv: openArray[byte],
+                           ciphertext: openArray[byte],
+                           tag: openArray[byte], ad: openArray[byte] = []):
+    Option[seq[byte]] =
+  ## Like `gcmUnlock` but reuses a cached session (see
+  ## `gcmLockWithSession`).
+  var ctx: GcmContext
+  initGcmWithSession(ctx, s, iv)
   gcmAddAad(ctx, ad)
   let plain = gcmDecryptUpdate(ctx, ciphertext)
   if gcmFinishDec(ctx, tag):

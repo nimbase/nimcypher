@@ -63,6 +63,12 @@
   Theory says why: the second pass is L2-resident, saving it is worth
   ~0.7%, not the 7% first estimated (no DRAM traffic involved).
   Open stays two-pass by construction (verify-then-decrypt).
+- Context caching done 2026-11-07: `GcmSession` (key schedule + H +
+  H^1..H^8, expanded once) with `gcmLock/UnlockWithSession`; the
+  record layer caches it in `TlsTrafficKeys` (constructors + ratchet)
+  and uses it for AES-GCM suites. Micro 16 KiB: 2187 -> 2519-2584
+  MB/s (+15-18%), matching the 1.3 us fixed-cost removal. ChaCha
+  path untouched (its per-record setup is trivial).
 
 ## Gates
 
