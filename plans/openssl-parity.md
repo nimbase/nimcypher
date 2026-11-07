@@ -1,0 +1,211 @@
+# OpenSSL parity plan: why JIT bulk is 7-12x behind and how to close it.
+#
+# Status 2026-11-06: AES-128-GCM 242 vs 2860 MB/s, AES-256-GCM 232 vs 3000,
+# ChaCha20-Poly1305 382 vs 2040. Kernels are fast in isolation, bulk path
+# does not use them the way OpenSSL does.
+
+## Where time goes (hypotheses for phase A to confirm)
+
+1. AES-CTR is single-block. `gcm.nim gctrInto` calls `encryptBlockRaw`
+   once per 16 B. The 8-block `AESENC` JIT batches in `aes_jit` exist but
+   the GCM hot path never calls them. Cost: one Nim call + keystream xor
+   loop per block, no AES pipelining.
+2. GHASH is single-block serial. `absorb` calls `ghashFoldJit` once per
+   16 B: one PCLMULQDQ dependency chain + one indirect call per block.
+   No H^2..H^8 precompute, no 4x/8x aggregation, so PCLMUL latency is
+   fully exposed.
+3. Two passes over the data. `gcmEncryptUpdate` runs CTR over 16 KiB,
+   then `absorb` runs GHASH over the ciphertext. OpenSSL does one fused
+   pass with AES and GHASH interleaved, hiding both latencies and halving
+   memory traffic.
+4. ChaCha loop overhead. The 8-lane kernel does 89 ns/128 B vs 178 ns for
+   2x 4-lane (2x per byte), but `chacha20DjbJitAvx2` still does per-word
+   loads/xor/stores in Nim around it. Poly1305 (`polyBlocks`) is scalar
+   32-bit with a serial dependency, so ChaCha+Poly stays Poly-bound.
+
+## What OpenSSL does
+
+- AES-CTR 6-8x interleaved AESENC, counters bumped in registers.
+- GHASH 4-8x aggregated with precomputed H powers, one reduction per group.
+- One loop: AES batch -> xor -> GHASH aggregate, data stays in regs/cache.
+- ChaCha AVX2 4-8x plus vector Poly1305, fused add/xor/store.
+- Zero alloc in steady state, schedule expanded once.
+
+## Plan
+
+- A (measure): bench AES batch vs single-block, GHASH fold alone, GCM
+  one-shot, ChaCha DJB scalar vs JIT, Poly1305 alone, all on 16 KiB.
+  Decides the CTR vs GHASH split before writing kernels.
+- B (AES-GCM fused fast path, biggest win): `ctr8Jit` with in-reg counter
+  increment, `ghashAgg8Jit` with H powers precomputed in `initGcm`,
+  combined 8-block encrypt+xor+fold loop, one-block fallback for tails.
+  Target 1.5-2.5 GB/s.
+- C (ChaCha-Poly fast path): fused rounds+add+xor+store for 2 then 4
+  blocks, vectorized Poly1305. Needed to move 382 MB/s toward 2 GB/s.
+- D (system): hoist feature checks out of per-block path, avoid per-update
+  allocs and tail-copy replication, reuse contexts and H powers.
+
+## ChaCha follow-ups
+
+- Poly1305 vectorization investigated 2026-11-06, NOT pursued: the fast
+  form (4-lane AVX2, radix 2^26, needs VEX `vpmuludq`) misexecutes on
+  this host — VEX.128 and VEX.256 `0F38 0x40` both behave as `vpmulld`
+  (high halves zeroed), verified with raw-byte probes against the
+  correct legacy-SSE2 `pmuludq` (host quirk #4, same class as MULX /
+  VEX shufd-ymm / VEX shufb-mem). Verified-form alternatives cap out
+  below scalar: 2-lane legacy SSE ~1.2 cyc/B (reduction-bound, +3%
+  bulk), 13/16-bit radices need 4x the mults (slower than scalar).
+  Bulk sits exactly on the Poly bound (1/(1/1190+1/1976) = 742 =
+  measured 731-746), so revisit only with a host that executes VEX
+  integer multiply (gate with a functional probe like `cpu_jit`).
+- Chunked seal tried 2026-11-06, reverted: measured flat (740/743 vs
+  731/746, within run-to-run noise on a thermally saturated box).
+  Theory says why: the second pass is L2-resident, saving it is worth
+  ~0.7%, not the 7% first estimated (no DRAM traffic involved).
+  Open stays two-pass by construction (verify-then-decrypt).
+- Context caching done 2026-11-07: `GcmSession` (key schedule + H +
+  H^1..H^8, expanded once) with `gcmLock/UnlockWithSession`; the
+  record layer caches it in `TlsTrafficKeys` (constructors + ratchet)
+  and uses it for AES-GCM suites. Micro 16 KiB: 2187 -> 2519-2584
+  MB/s (+15-18%), matching the 1.3 us fixed-cost removal. ChaCha
+  path untouched (its per-record setup is trivial).
+- ARM64 AES JIT done 2026-11-07 (no ARM hardware; x64-built, CI-run):
+  `aes_jit` gains an AArch64 backend (enc/dec/ctr batch-8, states
+  v0-v7, key v31, AAPCS64 args). dynasm has no crypto mnemonics, so
+  aese/aesd/aesmc/aesimc (+ dynamic-index ldr/str/eor) emit raw
+  words; every word pinned against `clang --target=aarch64`
+  ("arm64 crypto word goldens", run on all hosts), full kernels
+  disassembled via otool to verify sequence/offsets/ABI. `aes.nim`
+  + GCM ctrCrypt sites enabled for arm64 (GHASH/fused stay amd64).
+  `taes_jit` gate widened to amd64-or-arm64. Execution proof is the
+  ARM CI differential (macos-15, ubuntu-24.04-arm).
+- ChaCha 4-block crypt done 2026-11-07: `chacha_jit` gains
+  `assembleChachaCrypt4`/`chacha20Crypt4Jit` (two 2-block groups in
+  flight, A ymm0-3, B ymm8-11, shared tables; same verified VEX/SSE
+  forms, pool round-trip for uniform regs); DJB bulk loops 256 B
+  quads with a once-per-message template, leftover pair/odd/tail on
+  the old paths. Bulk 712/738 -> 991/999 MB/s (+38%/+35%); gap to
+  OpenSSL 2.6x/2.9x -> 2.0x/2.2x. Proven on all CI runners.
+- Poly step 3 closed 2026-11-07, NOT pursued: scalar 2-way with r^2
+  is arithmetically dead (reduced r^2 limbs need 67-bit accumulators,
+  the masked-r headroom is exactly 64 bits — proven, not tunable);
+  4-lane SSE2 radix-2^26 estimated at only ~1.3x Poly (the transpose
+  tax eats the mult win on this host) for ~600 lines. Legs measured
+  separately: stream 1739, Poly 2046 MB/s. Both legs would need ~2x
+  for OpenSSL parity; banked at 991/999.
+
+## Phase E (2026-11-07): measured split, three fixes, AES-128-GCM near parity
+
+Measured with the JIT build on 16 KiB, call granularity included:
+
+| component | MB/s | note |
+|---|---|---|
+| CTR batch (counter gen + AES + xor + store), 8 blk/call | 5083 | |
+| GHASH agg8 (8 blk/call) | 5573 | |
+| same two kernels as two calls | 2743 | serial, little overlap |
+| fused 8-block kernel | 2791 | |
+| fused 32-block kernel (4 inlined stages) | 2933 | |
+| OpenSSL seal, whole one-shot op | 2974 | |
+
+So the kernel was within ~10% of OpenSSL's *entire* operation; the rest was
+per-record overhead. Three fixes, each independently measured:
+
+1. **Wide fused kernel** (`assembleGcmCrypt32`): four 8-block stages inlined
+   in one call, pointer parking in rbx/r12-r14 (callee-saved on both ABIs)
+   because GHASH needs rdi/rsi/rdx while the next stage's AES needs them
+   back. 2682 -> 2933 (+9%). 64-block calls measured no better (2830).
+2. **`initAes` InvMixColumns via straight-line constant-time multiplies**
+   instead of the data-dependent `gmul` loop: `initGcm` 1.12 -> 0.49 us.
+   The old loop ran ~576 times per key schedule and dominated one-shot
+   fixed cost for encrypt-only users that never touch `nrkInv`.
+3. **Precomputed GHASH power forms** (`buildGhashPowers`): the byte-swap
+   and Karatsuba fold of each H^i were recomputed per pair per call,
+   putting a shuffle+xor chain on every PCLMUL's critical path. Stored
+   once per key (16 slots). GHASH alone +4%, fused kernel +3%.
+4. **Hoisted kernel dispatch** (`gcmCrypt32Fn`): the per-chunk
+   `ensureGcmJit` + round dispatch cost ~20 cycles x 32 calls per record;
+   resolving once per message moved the session path 2774 -> 2879.
+
+Result (one-shot, same flags): AES-128-GCM 2215/2211 -> 2638/2638
+(+19%), gap to OpenSSL 1.36x/1.61x -> 1.13x/1.35x. With the record-layer
+`GcmSession` (what TLS actually uses) it is 2879/2881 vs OpenSSL
+2974/3548, i.e. 1.03x on seal. AES-256-GCM 1925/1955 -> 2346/2262.
+
+Open stays behind because OpenSSL's *open* is consistently ~20% faster
+than its own seal (3548 vs 2974) while ours is symmetric; not explained
+yet. The remaining one-shot gap is the software AES key schedule
+(0.35 us vs ~0.03 us for an AESKEYGENASSIST-based one) — `skey` (the
+bitsliced schedule) is built eagerly even though JIT builds only use
+`nrk`. Making it lazy needs mutable access from `decryptBlocks`, whose
+callers hold `let` contexts, so it was left alone.
+
+## Gates
+
+- Differential tests vs scalar for every new kernel, KATs for GCM/ChaCha.
+- Host-verified encodings only (no VEX shufd-mem, no VEX shufb-mem, no
+  MULX on the bad host class; functional smoke tests gate AVX2).
+- Bench rule: Nim-level timing, `-d:ssl --threads:on --mm:arc -d:danger
+  --opt:speed`, no `--release`, no CLI in timing path.
+
+## Phase A results (2026-11-06, 16 KiB, JIT build, cpuTime)
+
+| component | MB/s | note |
+|---|---|---|
+| AES-128 `encryptBlocks` batch ECB | 11787 | kernel ceiling, 8-block JIT |
+| AES-128 `encryptBlockRaw` single loop | 352 | what `gctrInto`/`aesCtrUpdate` do today, 33x slower |
+| GHASH JIT fold loop | 1646 | single-fold loop, serial |
+| GHASH scalar fold loop | 343 | reference |
+| `gcmLock` 16 KiB one-shot | 251 | matches bench_tls bulk, slower than either part alone |
+| ChaCha `djbScalar` 16 KiB | 572 | raw stream, no Poly |
+| ChaCha `djb` dispatched JIT | 678 | 8-lane DJB path, still Nim-loop bound |
+| Poly1305 `update` 16 KiB | 1976 | scalar Poly alone is fast |
+
+Math: 16 KiB = 1024 blocks. Batch AES takes ~1.4 us, GHASH ~10 us,
+sum ~11 us = ~1.4 GB/s ceiling with current kernels. Single-block CTR
+alone costs ~46 us, plus GHASH 10 us, plus two passes and per-block
+calls = ~65 us = 251 MB/s observed. Conclusion: the gap is the path,
+not the kernels. Using `encryptBlocks` for CTR closes ~45 us before
+any new crypto is written. Same story on ChaCha: DJB 678 + Poly 1976
+alone, 382 combined, so framing and sequential passes dominate.
+
+Next: phase B, batched CTR in `gctrInto` as the first patch, then
+fused 8-block encrypt+xor+fold.
+
+## Phase B results (2026-11-06)
+
+- Batched `gctrInto`: generate up to 32 counter blocks with `inc32`,
+  one `encryptBlocks` call, flat xor. `gcmLock` 16 KiB micro went
+  251 -> 861 MB/s (3.4x). Streaming/chunked differential vs one-shot,
+  vs scalar, and 1-byte-chunked all pass in JIT and scalar builds.
+- Fused whole-block loop (`fuseEncryptBlocks`/`fuseDecryptBlocks`,
+  clean state only, tails stay on the slow path): first version with
+  per-block xor+fold measured *slower* (673 vs 861, stable across
+  runs) because the per-block xor defeated C-backend vectorization.
+  Split into flat xor + fold loop over the same L1-resident 512 B
+  chunk: 885-890 MB/s. `gcmUnlock`/`gcmUnlockScalar` now reuse
+  `gcmDecryptUpdate` instead of duplicating absorb+decrypt.
+- Remaining bulk cost is GHASH serial folds (~10 us of ~18 us):
+  next is aggregated GHASH with precomputed H powers.
+- Aggregated GHASH done: `assembleGhashAgg8` in `ghash_jit` folds 8
+  blocks with one reduction (9 Karatsuba pairs: acc*P8, X1*P8 ..
+  X8*P1, accumulated unreduced since shift+reduce are XOR-linear,
+  single tail lifted from the fold kernel by register substitution).
+  Powers P1..P8 precomputed in `initGcm` via dispatched folds;
+  `foldBlocks` uses agg8 for groups of 8, serial tail otherwise, and
+  backs `absorb` plus both fused loops. Alias re-declaration per
+  dynasm block required inside the codegen loop (as in `aes_jit`).
+  Micro `gcmLock` 16 KiB 887 -> 1411-1431 MB/s (+59%). Permanent
+  `agg8 equals serial folds` differential in `tghash_jit` (60 random
+  + zero/0xFF edges). Scalar path unchanged (115 MB/s).
+- CTR kernel done: `assembleCtrCryptBatch8` (10/12/14 rounds) builds
+  8 GCM counters in-kernel on a 128 B stack scratch area (GP-composed
+  BE dword, no `bswap` mnemonic in the emitter), AES-encrypts, xors
+  128 B plaintext, advances `[ctrp]` by 8. Scratch is rax/r10d/r11d
+  only (an early version clobbered rdx=`srcp`, caught by the
+  differential before wiring). Fused loops use it per octet with
+  buffered fallback for sub-octet remainders and non-JIT builds.
+  Micro 1411 -> 1850 (+31%); bulk AES-128-GCM 1428/1384 -> 2051/2071,
+  AES-256 1229/1276 -> 1811/1827 (OpenSSL ~3170/3430, ~2990/3430:
+  gap 1.5x, was 12x at the start). Permanent `ctr crypt kernel`
+  differential in `taes_jit` (all key sizes + FFFFFFFE wrap).
+  Scalar path unchanged.

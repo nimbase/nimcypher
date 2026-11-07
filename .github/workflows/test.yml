@@ -48,3 +48,39 @@ jobs:
       # full scalar suite.
       pre-test-command: |
         nimble test_simd
+  # JIT differentials (dynasm backends vs scalar references). Runs the
+  # full matrix natively so the ARM kernels execute on real hardware.
+  # Needs dynasm >= 0.2.0 in the registry; until it is published this
+  # job fails at dependency resolution.
+  test-jit:
+    name: test-jit (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [{"os":"ubuntu-latest"},{"os":"ubuntu-24.04-arm"},{"os":"macos-15-intel"},{"os":"macos-15"}]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nimbase/setup-nim-action@main
+        with:
+          nim-version: stable
+      - name: Pin host arch (macOS arm64)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          # Same workaround as the reusable test workflow: the prebuilt
+          # Nim can emit x86_64 code on arm64 runners; force host-arch
+          # codegen so the JIT kernels execute natively.
+          if [ "$(uname -m)" = "arm64" ]; then
+            mkdir -p "$HOME/.config/nim"
+            cfg="$HOME/.config/nim/nim.cfg"
+            if ! grep -q -- "-arch arm64" "$cfg" 2>/dev/null; then
+              printf -- '--passC:"-arch arm64"\n--passL:"-arch arm64"\n' >> "$cfg"
+            fi
+          fi
+      - name: Install dependencies
+        shell: bash
+        run: nimble install -Y
+      - name: JIT differentials
+        shell: bash
+        run: nimble test_jit

@@ -16,8 +16,9 @@
 
 NimCypher is a **pure-Nim cryptographic library** that started as a faithful port of
 [Monocypher](https://monocypher.org/) 4.0.3 and has grown beyond it with the addition
-of `AES-128`/`192`/`256` block cipher and `AES-GCM` authenticated encryption, the `SHA-2`
-family (`SHA-256`/`384`/`512`) plus `HMAC-SHA-1` and `HKDF-SHA-256`, legacy `MD5`
+of `AES-128`/`192`/`256` block cipher and `AES-GCM` authenticated encryption, the full `SHA-2`
+family (`SHA-224`/`256`/`384`/`512`/`512-224`/`512-256`) plus raw `SHA-1`, `HMAC-SHA-1`
+and `HKDF-SHA-256`, legacy `MD5`
 and `HMAC-MD5` for interop, and the non-cryptographic `xxHash` family (`XXH32`,
 `XXH64`, `XXH3_64`, `XXH128`) for checksums, and asymmetric
 primitives: RSA (PKCS#1 v1.5, PSS, OAEP) and ECDSA/ECDH over P-256/P-384/P-521 and
@@ -50,7 +51,7 @@ implementation and the NIST test-vector suite.
 High-level API (`import nimcypher`):
 - AES-GCM sealing with random nonces, plus AES block encryption in common modes
 - Authenticated encryption and sealing with XChaCha20-Poly1305, including streaming
-- Hashing with BLAKE2b and the SHA-2 family, HMAC variants, and HKDF key derivation
+- Hashing with BLAKE2b and the full SHA-2 family, SHA-1, HMAC variants, and HKDF key derivation
 - Legacy `MD5` / `HMAC-MD5` for interop and `xxHash` (`XXH32`/`XXH64`/`XXH3`) checksums
 - Argon2id password hashing, verification, and key derivation
 - Key exchange with X25519 and ECDH over standard curves
@@ -61,7 +62,7 @@ High-level API (`import nimcypher`):
 
 Low-level primitives (`nimcypher/algos/...`):
 - AES block cipher and AES-GCM with streaming support, checked against NIST vectors
-- BLAKE2b, SHA-2, HMAC, and HKDF building blocks
+- BLAKE2b, full SHA-2 plus SHA-1, HMAC, and HKDF building blocks
 - `hashes/md5` (RFC 1321, HMAC-MD5) and `hashes/xxhash` (`XXH32`/`XXH64`/`XXH3_64`/`XXH128`)
 - Argon2 password hashing in all three variants
 - X25519 and ECDH key exchange, EdDSA and ECDSA signatures
@@ -169,7 +170,7 @@ let plain2 = aeadStreamRead(decStream, cipher2, mac2)
 assert plain1 & plain2 == toBytes(message)
 ```
 
-### Hashing: BLAKE2b, SHA-512/256/384, HMAC, HMAC-SHA-1, HKDF, MD5, xxHash
+### Hashing: BLAKE2b, full SHA-2, SHA-1, HMAC, HKDF, MD5, xxHash
 
 ```nim
 import nimcypher/hash
@@ -180,6 +181,10 @@ let mac    = blakeKeyed(toBytes("msg"), toBytes("key")) # keyed (MAC)
 let sha    = sha512Hex("hello world")                   # hex string
 let sha2   = sha256Hex("hello world")                   # 32-byte SHA-256
 let sha4   = sha384Hex("hello world")                   # 48-byte SHA-384
+let sha224d = sha224Hex("hello world")                  # 28-byte SHA-224
+let sha5224 = sha512_224Hex("hello world")              # 28-byte SHA-512/224
+let sha5256 = sha512_256Hex("hello world")              # 32-byte SHA-512/256
+let sha1d  = sha1Hex("hello world")                     # 20-byte SHA-1 (legacy only)
 let hmac   = sha512Hmac(toBytes("key"), toBytes("msg"))
 let hmac2  = sha256Hmac(toBytes("key"), toBytes("msg")) # 32-byte HMAC-SHA-256
 let hmac1  = sha1Hmac(toBytes("key"), toBytes("msg"))   # 20-byte HMAC-SHA-1 (RFC 2202)
@@ -187,8 +192,8 @@ let okm    = hkdfSha512(toBytes("ikm"), @[], toBytes("info"), 32)
 let okm2   = hkdfSha256(toBytes("ikm"), @[], toBytes("info"), 32)
 assert okm.len == 32 and okm2.len == 32
 
-var st = initSha256()               # streaming SHA-256 (also initSha512/initSha384)
-st.update(toBytes("hello "))
+var st = initSha256()               # streaming SHA-256 (also initSha512/initSha384,
+st.update(toBytes("hello "))        # initSha224/initSha512_224/initSha512_256/initSha1)
 st.update(toBytes("world"))
 assert st.finish() == sha256(toBytes("hello world"))
 ```
@@ -361,52 +366,88 @@ See the test suite (`tests/`) for a complete walk-through of both layers.
 installed via `nimble`).
 
 All sides are compiled with `-d:danger --opt:speed`
-(the port with `--mm:arc`, `-d:features.nimcypher.nimsimd`. The Monocypher ratios are
-`Monocypher time / NimCypher time`: **below 1 means Monocypher is faster, above 1 means
-NimCypher is faster**. The `NimCypher+SIMD` column shows the SIMD-accelerated kernels
-(AES-NI, PCLMULQDQ, AVX2); `-` means the primitive has no SIMD kernel.
+(the port with `--mm:arc`; accelerated columns add their feature flag, see below).
+The Monocypher ratios are `Monocypher time / NimCypher time`: **below 1 means
+Monocypher is faster, above 1 means NimCypher is faster**. The `NimCypher+SIMD`
+column shows the legacy nimsimd kernels (AES-NI, PCLMULQDQ, AVX2),
+`NimCypher+JIT` the dynasm JIT backend; `-` means the primitive has no
+accelerated kernel.
 
 The `nimcrypto` column shows the same workloads through `nimcrypto` (HW-accelerated
-where available via SHA-NI/AVX/AES-NI); `Nc/Nim` and `Nc/SIMD` are
-`nimcrypto / NimCypher` and `nimcrypto / SIMD`. Results vary a few percent run to run.
+where available via SHA-NI/AVX/AES-NI); `Nc/*` are `nimcrypto / NimCypher`,
+`nimcrypto / SIMD`, `nimcrypto / JIT`.
 
-| operation | iters | MCypher | NCypher | +SIMD | NCrypto | M/Nim | M/SIMD | Nc/Nim | Nc/SIMD |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| blake2b 64B | 100000 | 0.0155s | 0.0182s | - | 0.0412s | 0.85x | - | 2.26x | - |
-| blake2b 1024B | 20000 | 0.0196s | 0.0256s | - | 0.0602s | 0.77x | - | 2.35x | - |
-| blake2b 65536B | 2000 | 0.1192s | 0.1611s | - | 0.3664s | 0.74x | - | 2.27x | - |
-| blake2b 4x 1024B | 5000 | 0.0207s | 0.0277s | 0.0169s | - | 0.75x | 1.23x | - | - |
-| blake2b 4x 65536B | 200 | 0.0473s | 0.0620s | 0.0345s | - | 0.76x | 1.37x | - | - |
-| sha512 64B | 50000 | 0.0167s | 0.0152s | - | 0.0126s | 1.10x | - | 0.83x | - |
-| sha512 1024B | 20000 | 0.0500s | 0.0549s | - | 0.0378s | 0.91x | - | 0.69x | - |
-| sha512 65536B | 1000 | 0.1444s | 0.1557s | - | 0.1065s | 0.93x | - | 0.68x | - |
-| chacha20 64B | 50000 | 0.0060s | 0.0076s | 0.0077s | - | 0.79x | 0.77x | - | - |
-| chacha20 1024B | 20000 | 0.0308s | 0.0394s | 0.0304s | - | 0.78x | 1.01x | - | - |
-| chacha20 65536B | 1000 | 0.0961s | 0.1223s | 0.0958s | - | 0.79x | 1.00x | - | - |
-| poly1305 1024B | 50000 | 0.0257s | 0.0296s | - | - | 0.87x | - | - | - |
-| poly1305 65536B | 2000 | 0.0627s | 0.0703s | - | - | 0.89x | - | - | - |
-| aead lock+unlock 1024B | 10000 | 0.0457s | 0.0556s | 0.0467s | - | 0.82x | 0.98x | - | - |
-| aead lock+unlock 65536B | 500 | 0.1275s | 0.1571s | 0.1328s | - | 0.81x | 0.96x | - | - |
-| x25519 | 2000 | 0.1580s | 0.1549s | - | - | 1.02x | - | - | - |
-| eddsa sign 1KB | 1000 | 0.0417s | 0.0400s | - | - | 1.04x | - | - | - |
-| eddsa check 1KB | 1000 | 0.1189s | 0.1179s | - | - | 1.01x | - | - | - |
-| ed25519 sign 1KB | 1000 | 0.0439s | 0.0423s | - | - | 1.04x | - | - | - |
-| ed25519 check 1KB | 1000 | 0.1213s | 0.1200s | - | - | 1.01x | - | - | - |
-| elligator map | 3000 | 0.0227s | 0.0203s | - | - | 1.12x | - | - | - |
-| elligator rev | 3000 | 0.0221s | 0.0202s | - | - | 1.09x | - | - | - |
-| argon2i 8blk 1pass | 20 | 0.0003s | 0.0005s | - | - | 0.62x | - | - | - |
-| aes-ctr 1024B | 20000 | - | 0.1500s | 0.0141s | 0.5010s | - | 10.61x | 3.34x | 35.44x |
-| aes-ctr 65536B | 1000 | - | 0.4818s | 0.0443s | 1.5668s | - | 10.88x | 3.25x | 35.37x |
-| aes-gcm lock+unlock 1024B | 5000 | - | 0.0876s | 0.0612s | 0.2855s | - | 1.43x | 3.26x | 4.67x |
-| aes-gcm lock+unlock 65536B | 300 | - | 0.2868s | 0.1824s | 1.0398s | - | 1.57x | 3.62x | 5.70x |
+Results vary a few percent run to run (x86_64 laptop, 2026-11-06,
+Nim 2.4.0, `-d:danger --opt:speed --mm:arc`):
+
+```
+operation                    iters  Monocypher  NimCypher    +SIMD     +JIT  nimcrypto  M/Nim  M/SIMD  M/JIT  Nc/Nim  Nc/SIMD  Nc/JIT
+blake2b 64B                 100000     0.0154s    0.0170s        -        -    0.0398s  0.91x       -      -   2.34x        -       -
+blake2b 1024B                20000     0.0191s    0.0230s        -        -    0.0572s  0.83x       -      -   2.49x        -       -
+blake2b 65536B                2000     0.1169s    0.1413s        -        -    0.3660s  0.83x       -      -   2.59x        -       -
+blake2b 4x 1024B              5000     0.0208s    0.0250s  0.0160s  0.0194s          -  0.83x   1.30x  1.07x       -        -       -
+blake2b 4x 65536B              200     0.0520s    0.0624s  0.0326s  0.0513s          -  0.83x   1.60x  1.01x       -        -       -
+sha512 64B                   50000     0.0153s    0.0135s        -        -    0.0116s  1.13x       -      -   0.86x        -       -
+sha512 1024B                 20000     0.0500s    0.0488s        -        -    0.0369s  1.02x       -      -   0.76x        -       -
+sha512 65536B                 1000     0.1414s    0.1383s        -        -    0.0996s  1.02x       -      -   0.72x        -       -
+chacha20 64B                 50000     0.0058s    0.0071s  0.0064s  0.0084s          -  0.82x   0.91x  0.69x       -        -       -
+chacha20 1024B               20000     0.0303s    0.0377s  0.0284s  0.0315s          -  0.80x   1.07x  0.96x       -        -       -
+chacha20 65536B               1000     0.0949s    0.1182s  0.0907s  0.0979s          -  0.80x   1.05x  0.97x       -        -       -
+poly1305 1024B               50000     0.0258s    0.0264s        -        -          -  0.98x       -      -       -        -       -
+poly1305 65536B               2000     0.0630s    0.0640s        -        -          -  0.98x       -      -       -        -       -
+aead lock+unlock 1024B       10000     0.0450s    0.0530s  0.0447s  0.0475s          -  0.85x   1.01x  0.95x       -        -       -
+aead lock+unlock 65536B        500     0.1272s    0.1508s  0.1243s  0.1301s          -  0.84x   1.02x  0.98x       -        -       -
+x25519                        2000     0.1551s    0.1518s        -        -          -  1.02x       -      -       -        -       -
+eddsa sign 1KB                1000     0.0405s    0.0397s        -        -          -  1.02x       -      -       -        -       -
+eddsa check 1KB               1000     0.1150s    0.1136s        -        -          -  1.01x       -      -       -        -       -
+ed25519 sign 1KB              1000     0.0444s    0.0422s        -        -          -  1.05x       -      -       -        -       -
+ed25519 check 1KB             1000     0.1174s    0.1153s        -        -          -  1.02x       -      -       -        -       -
+elligator map                 3000     0.0222s    0.0198s        -        -          -  1.12x       -      -       -        -       -
+elligator rev                 3000     0.0213s    0.0190s        -        -          -  1.13x       -      -       -        -       -
+argon2i 8blk 1pass              20     0.0003s    0.0004s        -        -          -  0.75x       -      -       -        -       -
+aes-ctr 1024B                20000           -    0.1548s  0.0145s  0.0122s    0.4872s      -       -      -   3.15x   33.60x  39.93x
+aes-ctr 65536B                1000           -    0.4957s  0.0451s  0.0379s    1.5236s      -       -      -   3.07x   33.78x  40.20x
+aes-gcm lock+unlock 1024B     5000           -    0.0493s  0.0269s  0.0219s    0.2788s      -       -      -   5.66x   10.36x  12.73x
+aes-gcm lock+unlock 65536B     300           -    0.1268s  0.0446s  0.0194s    1.0193s      -       -      -   8.04x   22.85x  52.54x
+```
+
+`+SIMD` is the legacy nimsimd build (`-d:features.nimcypher.nimsimd`),
+`+JIT` the dynasm backend (`-d:features.nimcypher.nimdynasm`); the
+`blake2b 4x` rows need the nimsimd flag to compile in, so their `+JIT`
+values come from a combined-flags build where dispatch prefers JIT.
+Scalar/Monocypher/nimcrypto columns are from the JIT run. On Nim 2.4
+the harness needs `-d:nimNoLentIterators` to compile.
+
+TLS bulk throughput (`tests/bench_tls.nim`, 16 KiB records, same machine):
+
+```
+suite                        nimcypher seal  nimcypher open  OpenSSL seal  OpenSSL open
+AES-128-GCM (scalar)             112.9 MB/s      112.0 MB/s   2937.4 MB/s   3538.8 MB/s
+AES-128-GCM (+JIT)              2638.9 MB/s     2654.9 MB/s   3000.6 MB/s   3581.5 MB/s
+AES-256-GCM (scalar)              94.2 MB/s       93.6 MB/s   2840.3 MB/s   3362.7 MB/s
+AES-256-GCM (+JIT)              2353.2 MB/s     2342.5 MB/s   2827.4 MB/s   3363.1 MB/s
+ChaCha20-Poly1305 (scalar)       481.3 MB/s      481.5 MB/s   1951.9 MB/s   2157.9 MB/s
+ChaCha20-Poly1305 (+JIT)         968.9 MB/s      982.5 MB/s   1962.6 MB/s   2193.8 MB/s
+```
+
+Both columns are whole one-shot operations (fresh context per record). The TLS
+record layer reuses a cached `GcmSession` instead, which removes the per-record
+key schedule: measured separately at 2879/2881 MB/s for AES-128-GCM 16 KiB
+records, i.e. ~1.03x of OpenSSL's seal. Output is byte-identical to OpenSSL in
+both directions — `tests/topenssl_aead.nim` drives libcrypto's EVP directly and
+exchanges ciphertext and tags for AES-128/256-GCM and ChaCha20-Poly1305 across
+every kernel size class (0 B to 16 KiB + 1), with and without AAD, plus tamper
+rejection and the session path.
 
 The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator.
 On the symmetric primitives the scalar port is roughly 0.75-0.90x vs C Monocypher; with
-the SIMD kernels, ChaCha20 reaches parity, AES-CTR gets a ~10x boost from AES-NI,
-and AES-GCM reaches ~1.5x over the scalar path. Compared to `nimcrypto` (same machine,
-same compiler flags), NimCypher is **2.3x faster on BLAKE2b**, **~0.7x on SHA-512**
-(`nimcrypto` benefits from SHA-NI), and **3.3x (scalar) / 35x (SIMD) faster on AES-CTR**
-and **3.3x / 4.7x on AES-GCM**.
+the JIT backend, ChaCha20 reaches parity, AES-CTR gets a ~13x boost from AES-NI,
+and AES-GCM reaches ~9.6x over the scalar path at 1 KiB and ~25x at 64 KiB
+(one-shot `gcmLock`; 971 vs 102 MB/s and 2864 vs 115 MB/s).
+Compared to `nimcrypto` (same machine,
+same compiler flags), NimCypher is **2.3-2.6x faster on BLAKE2b**, **~0.7x on SHA-512**
+(`nimcrypto` benefits from SHA-NI), and **~3.1x (scalar) / ~40x (JIT) faster on AES-CTR**
+and **~8x / ~53x on AES-GCM**.
 
 The AES scalars are constant-time bitsliced implementations verified against the NIST test vectors;
 with AES-NI enabled, AES-GCM performance matches or beats the C Monocypher AES-NI path.
@@ -431,8 +472,8 @@ Runs three suites:
   hashing, Argon2, Elligator, and constant-time verification.
 - **OpenSSL interop tests** (`topenssl.nim`): live two-way cross-checks against the system
    `openssl` CLI over freshly generated keys: RSA PKCS#1 v1.5 / PSS / OAEP, ECDSA
-   (P-256, P-384, secp256k1), AES-ECB/CBC/CTR, SHA digests, MD5 digests,
-   HMAC-SHA-256, HMAC-MD5, IETF ChaCha20,
+   (P-256, P-384, secp256k1), AES-ECB/CBC/CTR, full SHA-2 + SHA-1 digests, MD5 digests,
+   HMAC-SHA-224/256/512-224/512-256, HMAC-MD5, IETF ChaCha20,
   X25519, and Ed25519. AES-GCM is covered by NIST vectors in `tgcm` instead (`openssl
   enc` rejects AEAD ciphers).
 - **High-level tests**: round trips and error handling for the `import nimcypher` API
@@ -455,10 +496,12 @@ nimble bench
 ```
 
 `nimble bench` installs nimsimd, builds the suite with `-d:features.nimcypher.nimsimd`
-and prints a single Markdown table with both the scalar reference (`NimCypher`) and the
+and prints a single table with the scalar reference (`NimCypher`) and the
 SIMD-accelerated (`NimCypher+SIMD`) columns side by side (see
 [Benchmarks](#benchmarks)). The scalar-only baseline is obtained by compiling
-`tests/tbench.nim` directly without the feature flag.
+`tests/bench.nim` directly without the feature flag. The dynasm JIT backend
+(`-d:features.nimcypher.nimdynasm`, off by default) adds the `NimCypher+JIT`
+column; on Nim 2.4 the harness needs `-d:nimNoLentIterators` to compile.
 
 
 ## Optional SIMD acceleration
@@ -496,9 +539,10 @@ Requirements and what gets accelerated:
   (`tests/bench_rsa.nim`); other architectures keep the portable 32-bit path.
 
 On x86_64 the two-block AVX2 kernel for ChaCha20 roughly reaches parity with C Monocypher
-on the full one-shot, while AES-NI gives a ~10x improvement over the bitsliced scalar
+on the full one-shot, while AES-NI gives a ~13x improvement over the bitsliced scalar
 core on bulk operations (CTR/ECB). The GCM construction benefits from both AES-NI and
-PCLMULQDQ, reaching ~1.5x over the scalar implementation.
+PCLMULQDQ, reaching ~6.5x over the scalar implementation at 64 KiB
+(~23x on 16 KiB TLS records: 2639 vs 113 MB/s, ~1.14x off OpenSSL's seal).
 
 The scalar constant-time bitsliced AES core always stays available as the reference path
 and is cross-checked byte-for-byte by the test suite (`nimble test_simd` runs ChaCha20,

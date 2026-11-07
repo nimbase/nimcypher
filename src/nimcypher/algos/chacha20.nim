@@ -13,6 +13,9 @@ when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
     # opt-in, so the whole binary is built for AVX2 in that case.
     {.passC: "-mavx2".}
 
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./internal/chacha_jit
+
 {.push checks: off.}
 
 const chacha20Constant = [byte 0x65, 0x78, 0x70, 0x61, 0x6e, 0x64, 0x20, 0x33,
@@ -51,9 +54,18 @@ proc chacha20RoundsScalar*(outp: var array[16, uint32], inp: array[16, uint32]) 
   outp[12] = t12; outp[13] = t13; outp[14] = t14; outp[15] = t15
 
 proc chacha20Rounds*(outp: var array[16, uint32], inp: array[16, uint32]) {.inline.} =
-  ## 20 rounds of ChaCha20. Uses the SIMD kernel when built with
+  ## 20 rounds of ChaCha20. Uses the JIT kernel when built with
+  ## `features.nimcypher.nimdynasm` (amd64), else the SIMD kernel with
   ## `features.nimcypher.nimsimd`, otherwise the scalar kernel.
-  when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    if chachaJitAvailable():
+      chacha20RoundsJit(outp, inp)
+    else:
+      when defined(features.nimcypher.nimsimd):
+        simdRounds(outp, inp)
+      else:
+        chacha20RoundsScalar(outp, inp)
+  elif defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
     simdRounds(outp, inp)
   else:
     chacha20RoundsScalar(outp, inp)
@@ -187,10 +199,186 @@ when defined(features.nimcypher.nimsimd) and defined(amd64):
     wipe(pool)
     wipe(din)
 
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  proc chacha20DjbJitAvx2(cipherText: BytePtr, plainText: BytePtr,
+                          textSize: int, key: array[32, byte],
+                          nonce: array[8, byte], ctr: uint64): uint64 =
+    ## ChaCha20-DJB using the JIT AVX2 two-block kernel (amd64 JIT
+    ## builds with OS YMM support only — caller checks cpuHasAvx2).
+    ## `din` holds two interleaved blocks (see `simdRounds2`). Rows 0-2
+    ## never change within a message, so they are built once into a
+    ## template; each pair copies it and patches the four counter words.
+    var dinTmpl: array[32, uint32]
+    for i in 0 ..< 4: # row 0: constants
+      let c = load32Le(cast[BytePtr](unsafeAddr chacha20Constant[i * 4]))
+      dinTmpl[i] = c
+      dinTmpl[4 + i] = c
+    for i in 0 ..< 4: # row 1: key words 4..7
+      let k = load32Le(cast[BytePtr](unsafeAddr key[i * 4]))
+      dinTmpl[8 + i] = k
+      dinTmpl[12 + i] = k
+    for i in 0 ..< 4: # row 2: key words 8..11
+      let k = load32Le(cast[BytePtr](unsafeAddr key[(4 + i) * 4]))
+      dinTmpl[16 + i] = k
+      dinTmpl[20 + i] = k
+    # row 3: counter words 12..13 (per pair), nonce words 14..15
+    dinTmpl[26] = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
+    dinTmpl[27] = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
+    dinTmpl[30] = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
+    dinTmpl[31] = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
+
+    # Quad template: two pairs back to back (pair 1 32 words later).
+    # Rows 0-2 and the nonce never change within a message, so build
+    # once and patch only the 8 counter words per quad.
+    var dinQTmpl: array[64, uint32]
+    for i in 0 ..< 4:
+      let c = load32Le(cast[BytePtr](unsafeAddr chacha20Constant[i * 4]))
+      dinQTmpl[i] = c
+      dinQTmpl[4 + i] = c
+      dinQTmpl[32 + i] = c
+      dinQTmpl[36 + i] = c
+    for i in 0 ..< 4:
+      let k = load32Le(cast[BytePtr](unsafeAddr key[i * 4]))
+      dinQTmpl[8 + i] = k
+      dinQTmpl[12 + i] = k
+      dinQTmpl[40 + i] = k
+      dinQTmpl[44 + i] = k
+    for i in 0 ..< 4:
+      let k = load32Le(cast[BytePtr](unsafeAddr key[(4 + i) * 4]))
+      dinQTmpl[16 + i] = k
+      dinQTmpl[20 + i] = k
+      dinQTmpl[48 + i] = k
+      dinQTmpl[52 + i] = k
+    let n0 = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
+    let n1 = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
+    dinQTmpl[26] = n0
+    dinQTmpl[27] = n1
+    dinQTmpl[30] = n0
+    dinQTmpl[31] = n1
+    dinQTmpl[58] = n0
+    dinQTmpl[59] = n1
+    dinQTmpl[62] = n0
+    dinQTmpl[63] = n1
+
+    var din: array[32, uint32]
+    var pool: array[32, uint32]
+    var dinQ: array[64, uint32]
+    var poolQ: array[64, uint32]
+    var textSize2 = textSize
+    var ct = cipherText
+    var pt = plainText
+    let nbBlocks = textSize2 shr 6
+    let nbQuads = nbBlocks shr 2
+    var c = ctr
+    if pt != nil:
+      copyMem(addr dinQ[0], addr dinQTmpl[0], 256)
+      for _ in 0 ..< nbQuads:
+        dinQ[24] = uint32(c)
+        dinQ[25] = uint32(c shr 32)
+        dinQ[28] = uint32(c + 1)
+        dinQ[29] = uint32((c + 1) shr 32)
+        dinQ[56] = uint32(c + 2)
+        dinQ[57] = uint32((c + 2) shr 32)
+        dinQ[60] = uint32(c + 3)
+        dinQ[61] = uint32((c + 3) shr 32)
+        chacha20Crypt4Jit(ct, pt, poolQ, cast[BytePtr](addr dinQ[0]))
+        ct = ct + 256
+        pt = pt + 256
+        c = c + 4
+    else:
+      # Keystream path stays on the pair kernel (bulk nil inputs are
+      # tiny in practice: 32-64 B auth-key derivations).
+      for _ in 0 ..< nbQuads * 2:
+        copyMem(addr din[0], addr dinTmpl[0], 128)
+        din[24] = uint32(c)
+        din[25] = uint32(c shr 32)
+        din[28] = uint32(c + 1)
+        din[29] = uint32((c + 1) shr 32)
+        chacha20Rounds2Jit(pool, din)
+        for w in 0 ..< 16:
+          let aIdx = (w shr 2) shl 3 + (w and 3)
+          let bIdx = aIdx + 4
+          let off = w shl 2
+          store32Le(ct + off, pool[aIdx] + din[aIdx])
+          store32Le(ct + 64 + off, pool[bIdx] + din[bIdx])
+        ct = ct + 128
+        c = c + 2
+
+    # Leftover pair
+    if (nbBlocks and 2) == 2:
+      copyMem(addr din[0], addr dinTmpl[0], 128)
+      din[24] = uint32(c)
+      din[25] = uint32(c shr 32)
+      din[28] = uint32(c + 1)
+      din[29] = uint32((c + 1) shr 32)
+      if pt != nil:
+        chacha20Crypt2Jit(ct, pt, pool, din)
+      else:
+        chacha20Rounds2Jit(pool, din)
+        for w in 0 ..< 16:
+          let aIdx = (w shr 2) shl 3 + (w and 3)
+          let bIdx = aIdx + 4
+          let off = w shl 2
+          store32Le(ct + off, pool[aIdx] + din[aIdx])
+          store32Le(ct + 64 + off, pool[bIdx] + din[bIdx])
+      ct = ct + 128
+      if pt != nil:
+        pt = pt + 128
+      c = c + 2
+
+    # Odd block
+    if (nbBlocks and 1) == 1:
+      var inputBuf: array[16, uint32]
+      chacha20BuildInput(inputBuf, key, nonce, c)
+      var pool1: array[16, uint32]
+      chacha20Rounds(pool1, inputBuf)
+      if pt != nil:
+        for j in 0 ..< 16:
+          store32Le(ct, (pool1[j] + inputBuf[j]) xor load32Le(pt))
+          ct = ct + 4
+          pt = pt + 4
+      else:
+        for j in 0 ..< 16:
+          store32Le(ct, pool1[j] + inputBuf[j])
+          ct = ct + 4
+      c = c + 1
+
+    textSize2 = textSize2 and 63
+    # Last (incomplete) block
+    if textSize2 > 0:
+      var inputBuf: array[16, uint32]
+      chacha20BuildInput(inputBuf, key, nonce, c)
+      var pool1: array[16, uint32]
+      chacha20Rounds(pool1, inputBuf)
+      var tmp: array[64, byte]
+      for i in 0 ..< 16:
+        store32Le(cast[BytePtr](unsafeAddr tmp[i * 4]), pool1[i] + inputBuf[i])
+      if pt == nil:
+        for i in 0 ..< textSize2:
+          ct[i] = tmp[i]
+      else:
+        for i in 0 ..< textSize2:
+          ct[i] = tmp[i] xor pt[i]
+      wipe(tmp)
+    result = c + (if textSize2 > 0: 1'u64 else: 0'u64)
+    wipe(pool)
+    wipe(din)
+    wipe(poolQ)
+    wipe(dinQ)
+
+proc chacha20DjbScalar*(cipherText: BytePtr, plainText: BytePtr, textSize: int,
+                        key: array[32, byte], nonce: array[8, byte],
+                        ctr: uint64): uint64
+
 proc chacha20Djb*(cipherText: BytePtr, plainText: BytePtr, textSize: int,
                   key: array[32, byte], nonce: array[8, byte],
                   ctr: uint64): uint64 =
-  when defined(features.nimcypher.nimsimd) and defined(amd64):
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    if cpuHasAvx2():
+      chacha20DjbJitAvx2(cipherText, plainText, textSize, key, nonce, ctr)
+    else:
+      chacha20DjbScalar(cipherText, plainText, textSize, key, nonce, ctr)
+  elif defined(features.nimcypher.nimsimd) and defined(amd64):
     chacha20DjbAvx2(cipherText, plainText, textSize, key, nonce, ctr)
   else:
     var inputBuf: array[16, uint32]

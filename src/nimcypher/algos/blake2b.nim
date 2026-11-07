@@ -9,6 +9,10 @@ import ./common
 when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
   import ./internal/blake2b_simd
 
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./internal/blake2b_jit
+  import ./internal/cpu_jit
+
 {.push checks: off.}
 
 type
@@ -202,7 +206,9 @@ proc keyedBlake2b*(message, key: openArray[byte], hashSize: int = 64): seq[byte]
   update(ctx, message)
   result = final(ctx)
 
-when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
+when (defined(features.nimcypher.nimsimd) and
+    (defined(amd64) or defined(arm64))) or
+    (defined(features.nimcypher.nimdynasm) and defined(amd64)):
   proc blake2bParallel*[T](messages: array[4, T],
                         hashSize: int = 64): array[4, seq[byte]] =
     ## Hash four messages with BLAKE2b in parallel using SIMD. Equivalent to
@@ -238,7 +244,28 @@ when defined(features.nimcypher.nimsimd) and (defined(amd64) or defined(arm64)):
           load64LeBuf(blocks[k].toOpenArray(0, 15),
                       cast[BytePtr](unsafeAddr messages[k][offsets[k]]), 16)
           offsets[k] += 128
-      compress4(hashes, offs, blocks, laneMask)
+      when defined(features.nimcypher.nimdynasm) and defined(amd64):
+        if cpuHasAvx2() and blake2bJitAvailable():
+          compress4Jit(hashes, offs, blocks, laneMask)
+        else:
+          when defined(features.nimcypher.nimsimd):
+            compress4(hashes, offs, blocks, laneMask)
+          else:
+            # No SIMD: scalar compress per live lane. compress() adds
+            # inputIdx to the offset, so rewind 128 first.
+            for k in 0 ..< 4:
+              if (laneMask and (1'u64 shl k)) != 0:
+                var c: Blake2bContext
+                c.hash = hashes[k]
+                c.inputOffset[0] = offs[k][0] - 128
+                c.inputOffset[1] = offs[k][1] -
+                  (if offs[k][0] < 128: 1'u64 else: 0'u64)
+                c.input = blocks[k]
+                c.inputIdx = 128
+                compress(c, 0)
+                hashes[k] = c.hash
+      else:
+        compress4(hashes, offs, blocks, laneMask)
       for k in 0 ..< 4:
         if (laneMask and (1'u64 shl k)) != 0:
           ctxs[k].hash = hashes[k]

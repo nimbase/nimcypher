@@ -22,9 +22,22 @@ import ./aes
 when defined(features.nimcypher.nimsimd) and defined(amd64):
   import ./internal/ghash_simd
 
+when defined(features.nimcypher.nimdynasm) and
+    (defined(amd64) or defined(arm64)):
+  import ./internal/aes_jit
+
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./internal/ghash_jit
+  import ./internal/gcm_jit
+
 {.push checks: off.}
 
 const gcmBlockSize = 16
+
+const gcmGhashPowSlots = 16
+  ## Aggregated-kernel power table size: 8 byte-swapped H^1..H^8 then
+  ## their Karatsuba folds. Kept local so non-JIT builds compile without
+  ## importing `ghash_jit`; the JIT build asserts the two agree.
 
 # ---------------------------------------------------------------------------
 # Constant-time GHASH (BearSSL ghash_ctmul64).
@@ -119,7 +132,20 @@ proc ghashFoldScalar*(acc: var array[16, byte], hBlock: array[16, byte],
   store64Be(cast[BytePtr](addr acc[0]), v3)
   store64Be(cast[BytePtr](addr acc[8]), v2)
 
-when defined(features.nimcypher.nimsimd) and defined(amd64):
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  proc ghashFold*(acc: var array[16, byte], h: array[16, byte],
+                  src: BytePtr) {.inline.} =
+    ## JIT fast path, assembled once by dynasm; falls back when exec
+    ## memory is unavailable (or to the nimsimd kernel when both
+    ## features are on), then to scalar.
+    if ghashFoldJitAvailable():
+      ghashFoldJit(acc, h, src)
+    else:
+      when defined(features.nimcypher.nimsimd):
+        ghashFoldClmul(acc, h, src)
+      else:
+        ghashFoldScalar(acc, h, src)
+elif defined(features.nimcypher.nimsimd) and defined(amd64):
   proc ghashFold*(acc: var array[16, byte], h: array[16, byte],
                   src: BytePtr) {.inline.} =
     ghashFoldClmul(acc, h, src)
@@ -136,8 +162,11 @@ type
   GcmContext* = object
     aes: AesContext
     hBlock: array[16, byte] # GHASH key block H = E_K(0^128)
-    acc*: array[16, byte]   # GHASH accumulator (big-endian block)
+    # Contiguous fused-kernel block {ctr, acc, pow}: the JIT crypt
+    # kernel takes one pointer to ctr and advances/folds in place.
     ctr: array[16, byte]    # GCTR counter block (starts at inc32(J0))
+    acc*: array[16, byte]   # GHASH accumulator (big-endian block)
+    hPow: array[gcmGhashPowSlots, array[16, byte]] # bswapped H^i + folds
     j0: array[16, byte]     # pre-counter block (tag mask source)
     kbuf: array[16, byte]   # partially consumed keystream block
     kused: int
@@ -164,6 +193,163 @@ proc fold(ctx: var GcmContext, p: BytePtr) {.inline.} =
   else:
     ghashFold(ctx.acc, ctx.hBlock, p)
 
+proc foldBlocks(ctx: var GcmContext, p: BytePtr, nb: int) =
+  ## Fold `nb` whole blocks; 8-at-a-time through the aggregated JIT
+  ## kernel when available, serial dispatch for the tail (or everywhere
+  ## when forced scalar / exec memory is unavailable).
+  var pp = p
+  var left = nb
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    if not ctx.forceScalar and left >= 8:
+      if ghashAgg8JitAvailable():
+        while left >= 8:
+          ghashAgg8Jit(ctx.acc, cast[BytePtr](addr ctx.hPow[0]), pp)
+          pp = pp + 128
+          left -= 8
+  while left > 0:
+    ctx.fold(pp)
+    pp = pp + gcmBlockSize
+    left -= 1
+
+const gcmBatchBlocks = 32 # fused-loop chunk, multiple of the 8-block JIT batch
+
+proc fuseEncryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
+                       nbBlocks: int) =
+  ## Whole-block fused CTR-encrypt + GHASH-fold for the clean state
+  ## (`bufLen == 0`, `kused == 16`). Octets go through the CTR kernel
+  ## (in-kernel counter gen + xor); a sub-octet remainder uses the
+  ## buffered path. The chunk is folded while still hot.
+  var dp = dst
+  var sp = src
+  var left = nbBlocks
+  var cbs: array[gcmBatchBlocks * gcmBlockSize, byte]
+  var ks: array[gcmBatchBlocks * gcmBlockSize, byte]
+  while left > 0:
+    let nb = min(left, gcmBatchBlocks)
+    var produced = 0
+    when defined(features.nimcypher.nimdynasm) and
+      (defined(amd64) or defined(arm64)):
+      if aesJitAvailable():
+        while produced + aesJitBatch <= nb:
+          ctrCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0],
+                       dp + (produced shl 4), sp + (produced shl 4),
+                       cast[BytePtr](addr ctx.ctr[0]))
+          produced += aesJitBatch
+    if produced < nb:
+      let rn = nb - produced
+      let ro = produced shl 4
+      for b in 0 ..< rn:
+        copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+        inc32(ctx.ctr)
+      encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                    cast[BytePtr](addr cbs[0]), rn)
+      let rfull = rn shl 4
+      for i in 0 ..< rfull:
+        dp[ro + i] = sp[ro + i] xor ks[i]
+    ctx.foldBlocks(dp, nb)
+    ctx.ctLen += uint64(nb shl 4)
+    dp = dp + (nb shl 4)
+    sp = sp + (nb shl 4)
+    left -= nb
+  wipe(ks)
+
+proc fuseDecryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
+                       nbBlocks: int) =
+  ## Whole-block fused GHASH-fold + CTR-decrypt for the clean state.
+  ## The fold reads the ciphertext before it is xored into plaintext.
+  var dp = dst
+  var sp = src
+  var left = nbBlocks
+  var cbs: array[gcmBatchBlocks * gcmBlockSize, byte]
+  var ks: array[gcmBatchBlocks * gcmBlockSize, byte]
+  while left > 0:
+    let nb = min(left, gcmBatchBlocks)
+    ctx.foldBlocks(sp, nb)
+    var produced = 0
+    when defined(features.nimcypher.nimdynasm) and
+      (defined(amd64) or defined(arm64)):
+      if aesJitAvailable():
+        while produced + aesJitBatch <= nb:
+          ctrCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0],
+                       dp + (produced shl 4), sp + (produced shl 4),
+                       cast[BytePtr](addr ctx.ctr[0]))
+          produced += aesJitBatch
+    if produced < nb:
+      let rn = nb - produced
+      let ro = produced shl 4
+      for b in 0 ..< rn:
+        copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+        inc32(ctx.ctr)
+      encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                    cast[BytePtr](addr cbs[0]), rn)
+      let rfull = rn shl 4
+      for i in 0 ..< rfull:
+        dp[ro + i] = sp[ro + i] xor ks[i]
+    ctx.ctLen += uint64(nb shl 4)
+    dp = dp + (nb shl 4)
+    sp = sp + (nb shl 4)
+    left -= nb
+  wipe(ks)
+
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  proc fuseEncryptBlocksFused(ctx: var GcmContext, dst, src: BytePtr,
+                              nbBlocks: int) =
+    ## Whole-block path through the fused crypt kernels: one call per
+    ## 32 blocks (wide) then per 8 blocks (narrow) does counter-gen +
+    ## AES + xor + GHASH. A sub-octet tail uses the buffered path.
+    ## Clean state only (caller guarantees `bufLen == 0`, `kused == 16`).
+    var dp = dst
+    var sp = src
+    var left = nbBlocks
+    if left >= gcmWideStages * aesJitBatch:
+      # Resolve the kernel once; the per-chunk dispatch cost dominated
+      # the remaining record overhead (32 calls per 16 KiB).
+      let f = gcmCrypt32Fn(ctx.aes.rounds, false)
+      let nrk = addr ctx.aes.nrk[0]
+      let blk = cast[BytePtr](addr ctx.ctr[0])
+      while left >= gcmWideStages * aesJitBatch:
+        f(nrk, cast[pointer](sp), cast[pointer](dp), cast[pointer](blk))
+        dp = dp + 512
+        sp = sp + 512
+        left -= gcmWideStages * aesJitBatch
+        ctx.ctLen += uint64(gcmWideStages * aesJitBatch * 16)
+    while left >= aesJitBatch:
+      gcmCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0], dp, sp,
+                   cast[BytePtr](addr ctx.ctr[0]))
+      dp = dp + 128
+      sp = sp + 128
+      left -= aesJitBatch
+      ctx.ctLen += 128
+    if left > 0:
+      ctx.fuseEncryptBlocks(dp, sp, left)
+
+  proc fuseDecryptBlocksFused(ctx: var GcmContext, dst, src: BytePtr,
+                              nbBlocks: int) =
+    ## Whole-block fused decrypt (same kernels; CTR mode decrypts with
+    ## the same keystream). Sub-octet tail uses the buffered path.
+    var dp = dst
+    var sp = src
+    var left = nbBlocks
+    if left >= gcmWideStages * aesJitBatch:
+      let f = gcmCrypt32Fn(ctx.aes.rounds, true)
+      let nrk = addr ctx.aes.nrk[0]
+      let blk = cast[BytePtr](addr ctx.ctr[0])
+      while left >= gcmWideStages * aesJitBatch:
+        f(nrk, cast[pointer](dp), cast[pointer](sp), cast[pointer](blk))
+        dp = dp + 512
+        sp = sp + 512
+        left -= gcmWideStages * aesJitBatch
+        ctx.ctLen += uint64(gcmWideStages * aesJitBatch * 16)
+    while left >= aesJitBatch:
+      gcmCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0], dp, sp,
+                   cast[BytePtr](addr ctx.ctr[0]), decrypt = true)
+      dp = dp + 128
+      sp = sp + 128
+      left -= aesJitBatch
+      ctx.ctLen += 128
+    if left > 0:
+      ctx.fuseDecryptBlocks(dp, sp, left)
+
 proc absorb(ctx: var GcmContext, p: BytePtr, n: int) =
   ## Feed whole/partial blocks into GHASH (zero-padding the final tail is
   ## done by `flushBuf`/the length block instead, per the spec).
@@ -180,10 +366,11 @@ proc absorb(ctx: var GcmContext, p: BytePtr, n: int) =
         ctx.fold(cast[BytePtr](addr ctx.buf[0]))
         ctx.bufLen = 0
     else:
-      while left >= gcmBlockSize:
-        ctx.fold(pp)
-        pp = pp + gcmBlockSize
-        left -= gcmBlockSize
+      let nb = left shr 4
+      if nb > 0:
+        ctx.foldBlocks(pp, nb)
+        pp = pp + (nb shl 4)
+        left -= nb shl 4
       if left > 0:
         copyMem(addr ctx.buf[0], pp, left)
         ctx.bufLen = left
@@ -231,6 +418,21 @@ proc initGcm*(ctx: var GcmContext, key: openArray[byte],
                   cast[BytePtr](addr zero[0]))
   ctx.hBlock = h
   wipe(h)
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    static: doAssert gcmGhashPowSlots == ghashPowSlots
+    if not forceScalar:
+      # Powers P1..P8 for the aggregated kernel: P[i+1] = P[i] * H,
+      # then the kernel's byte-swapped + folded forms (once per key).
+      var raw: array[8, array[16, byte]]
+      raw[0] = ctx.hBlock
+      var z: array[16, byte]
+      for i in 1 ..< 8:
+        zeroMem(addr z[0], 16)
+        ghashFold(z, ctx.hBlock, cast[BytePtr](addr raw[i - 1][0]))
+        raw[i] = z
+      wipe(z)
+      buildGhashPowers(ctx.hPow, raw)
+      wipe(raw)
   zeroMem(addr ctx.acc[0], 16)
   ctx.bufLen = 0
   ctx.kused = 16 # force keystream generation on first update
@@ -249,6 +451,66 @@ proc initGcm*(ctx: var GcmContext, key: openArray[byte],
   ctx.ctr = ctx.j0
   inc32(ctx.ctr) # GCTR starts at inc32(J0); the tag mask uses J0 itself
 
+# ---------------------------------------------------------------------------
+# Key sessions: cache the per-key schedule + GHASH powers across records.
+# initGcm above re-expands the key and recomputes H^1..H^8 on every call
+# (~1.2 us); a session pays that once per key and each record only
+# copies the schedule in (~50 ns) plus its own J0/counter setup.
+# ---------------------------------------------------------------------------
+
+type
+  GcmSession* = object
+    aes: AesContext
+    hBlock: array[16, byte]
+    hPow: array[gcmGhashPowSlots, array[16, byte]]
+
+proc initGcmSession*(key: openArray[byte]): GcmSession =
+  ## Expand the AES schedule, H = E_K(0^128) and H^1..H^8 once.
+  ## Raises ValueError on an invalid key length.
+  initAes(result.aes, key)
+  var zero: array[16, byte]
+  encryptBlockRaw(result.aes, cast[BytePtr](addr result.hBlock[0]),
+                  cast[BytePtr](addr zero[0]))
+  wipe(zero)
+  when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    var raw: array[8, array[16, byte]]
+    raw[0] = result.hBlock
+    var z: array[16, byte]
+    for i in 1 ..< 8:
+      zeroMem(addr z[0], 16)
+      ghashFold(z, result.hBlock, cast[BytePtr](addr raw[i - 1][0]))
+      raw[i] = z
+    wipe(z)
+    buildGhashPowers(result.hPow, raw)
+    wipe(raw)
+
+proc initGcmWithSession*(ctx: var GcmContext, s: GcmSession,
+                         iv: openArray[byte], forceScalar = false) =
+  ## Per-record init from a cached session: copies the schedule (no key
+  ## expansion, no power precompute), then J0/counter setup as usual.
+  if iv.len == 0:
+    raise newException(ValueError, "GCM IV must not be empty")
+  ctx.aes = s.aes
+  ctx.hBlock = s.hBlock
+  ctx.hPow = s.hPow
+  zeroMem(addr ctx.acc[0], 16)
+  ctx.bufLen = 0
+  ctx.kused = 16
+  ctx.aadLen = 0
+  ctx.ctLen = 0
+  ctx.inAad = true
+  ctx.forceScalar = forceScalar
+  if iv.len == 12:
+    copyMem(addr ctx.j0[0], unsafeAddr iv[0], 12)
+    ctx.j0[12] = 0
+    ctx.j0[13] = 0
+    ctx.j0[14] = 0
+    ctx.j0[15] = 1
+  else:
+    ctx.j0 = computeJ0(ctx, iv)
+  ctx.ctr = ctx.j0
+  inc32(ctx.ctr)
+
 proc gcmAddAad*(ctx: var GcmContext, ad: openArray[byte]) =
   ## Absorb associated data. Must be called before the first data update.
   if not ctx.inAad:
@@ -262,15 +524,14 @@ proc gcmAddAad*(ctx: var GcmContext, ad: openArray[byte]) =
 proc gctrInto(ctx: var GcmContext, dst, src: BytePtr, n: int) =
   ## XOR `n` bytes with the AES-CTR keystream (counter starts at `ctr`),
   ## keeping a partially consumed keystream block in `kbuf`.
+  ## Fast path batches full blocks through `encryptBlocks` (JIT/SIMD 8-block
+  ## kernels when enabled); the counter uses GCM `inc32` semantics, so this
+  ## cannot reuse the generic 128-bit `ctrXorInto`.
   var dp = dst
   var sp = src
   var left = n
-  while left > 0:
-    if ctx.kused == 16:
-      encryptBlockRaw(ctx.aes, cast[BytePtr](addr ctx.kbuf[0]),
-                      cast[BytePtr](addr ctx.ctr[0]))
-      inc32(ctx.ctr)
-      ctx.kused = 0
+  # Drain any pending keystream from a previous partial call.
+  if ctx.kused != 16:
     let take = min(gcmBlockSize - ctx.kused, left)
     for i in 0 ..< take:
       dp[i] = sp[i] xor ctx.kbuf[ctx.kused + i]
@@ -278,6 +539,37 @@ proc gctrInto(ctx: var GcmContext, dst, src: BytePtr, n: int) =
     dp = dp + take
     sp = sp + take
     left -= take
+    if left == 0:
+      return
+  # Bulk: generate counter blocks, encrypt as a batch, xor.
+  const batchBlocks = 32 # multiple of the 8-block JIT batch
+  var cbs: array[batchBlocks * gcmBlockSize, byte]
+  var ks: array[batchBlocks * gcmBlockSize, byte]
+  while left >= gcmBlockSize:
+    let nb = min(left shr 4, batchBlocks)
+    for b in 0 ..< nb:
+      copyMem(addr cbs[b * gcmBlockSize], addr ctx.ctr[0], gcmBlockSize)
+      inc32(ctx.ctr)
+    encryptBlocks(ctx.aes, cast[BytePtr](addr ks[0]),
+                  cast[BytePtr](addr cbs[0]), nb)
+    let full = nb shl 4
+    for i in 0 ..< full:
+      dp[i] = sp[i] xor ks[i]
+    dp = dp + full
+    sp = sp + full
+    left -= full
+  # Partial tail: one fresh keystream block held in kbuf.
+  if left > 0:
+    encryptBlocks(ctx.aes, cast[BytePtr](addr ctx.kbuf[0]),
+                  cast[BytePtr](addr ctx.ctr[0]), 1)
+    inc32(ctx.ctr)
+    ctx.kused = 0
+    for i in 0 ..< left:
+      dp[i] = sp[i] xor ctx.kbuf[i]
+    ctx.kused = left
+  else:
+    ctx.kused = 16
+  wipe(ks)
 
 proc gcmEncryptUpdate*(ctx: var GcmContext, plaintext: openArray[byte]):
     seq[byte] =
@@ -287,9 +579,26 @@ proc gcmEncryptUpdate*(ctx: var GcmContext, plaintext: openArray[byte]):
   if plaintext.len > 0:
     var rp = cast[BytePtr](addr result[0])
     let pp = cast[BytePtr](unsafeAddr plaintext[0])
-    ctx.gctrInto(rp, pp, plaintext.len)
-    ctx.ctLen += uint64(plaintext.len)
-    ctx.absorb(rp, plaintext.len)
+    if ctx.bufLen == 0 and ctx.kused == 16:
+      let nbFull = plaintext.len shr 4
+      if nbFull > 0:
+        when defined(features.nimcypher.nimdynasm) and defined(amd64):
+          if not ctx.forceScalar and gcmCrypt8JitAvailable():
+            ctx.fuseEncryptBlocksFused(rp, pp, nbFull)
+          else:
+            ctx.fuseEncryptBlocks(rp, pp, nbFull)
+        else:
+          ctx.fuseEncryptBlocks(rp, pp, nbFull)
+      let tail = plaintext.len and 15
+      if tail > 0:
+        let off = nbFull shl 4
+        ctx.gctrInto(rp + off, pp + off, tail)
+        ctx.absorb(rp + off, tail)
+        ctx.ctLen += uint64(tail)
+    else:
+      ctx.gctrInto(rp, pp, plaintext.len)
+      ctx.ctLen += uint64(plaintext.len)
+      ctx.absorb(rp, plaintext.len)
 
 proc gcmDecryptUpdate*(ctx: var GcmContext, ciphertext: openArray[byte]):
     seq[byte] =
@@ -300,9 +609,26 @@ proc gcmDecryptUpdate*(ctx: var GcmContext, ciphertext: openArray[byte]):
   if ciphertext.len > 0:
     let cp = cast[BytePtr](unsafeAddr ciphertext[0])
     var rp = cast[BytePtr](addr result[0])
-    ctx.ctLen += uint64(ciphertext.len)
-    ctx.absorb(cp, ciphertext.len)
-    ctx.gctrInto(rp, cp, ciphertext.len)
+    if ctx.bufLen == 0 and ctx.kused == 16:
+      let nbFull = ciphertext.len shr 4
+      if nbFull > 0:
+        when defined(features.nimcypher.nimdynasm) and defined(amd64):
+          if not ctx.forceScalar and gcmCrypt8JitAvailable():
+            ctx.fuseDecryptBlocksFused(rp, cp, nbFull)
+          else:
+            ctx.fuseDecryptBlocks(rp, cp, nbFull)
+        else:
+          ctx.fuseDecryptBlocks(rp, cp, nbFull)
+      let tail = ciphertext.len and 15
+      if tail > 0:
+        let off = nbFull shl 4
+        ctx.absorb(cp + off, tail)
+        ctx.ctLen += uint64(tail)
+        ctx.gctrInto(rp + off, cp + off, tail)
+    else:
+      ctx.ctLen += uint64(ciphertext.len)
+      ctx.absorb(cp, ciphertext.len)
+      ctx.gctrInto(rp, cp, ciphertext.len)
 
 proc gcmFinishTag(ctx: var GcmContext): array[16, byte] =
   ## Fold the pending tail and lengths, produce E(K,J0) xor GHASH.
@@ -361,6 +687,18 @@ proc gcmLock*(key, iv: openArray[byte], plaintext: openArray[byte],
   result[0] = gcmEncryptUpdate(ctx, plaintext)
   result[1] = gcmFinishEnc(ctx)
 
+proc gcmLockWithSession*(s: GcmSession, iv: openArray[byte],
+                         plaintext: openArray[byte],
+                         ad: openArray[byte] = []): (seq[byte],
+    array[16, byte]) =
+  ## Like `gcmLock` but reuses a cached session: no key expansion, no
+  ## power precompute, just the per-record J0/counter setup.
+  var ctx: GcmContext
+  initGcmWithSession(ctx, s, iv)
+  gcmAddAad(ctx, ad)
+  result[0] = gcmEncryptUpdate(ctx, plaintext)
+  result[1] = gcmFinishEnc(ctx)
+
 proc gcmUnlock*(key, iv: openArray[byte], ciphertext: openArray[byte],
                 tag: openArray[byte], ad: openArray[byte] = []):
     Option[seq[byte]] =
@@ -369,18 +707,29 @@ proc gcmUnlock*(key, iv: openArray[byte], ciphertext: openArray[byte],
   var ctx: GcmContext
   initGcm(ctx, key, iv)
   gcmAddAad(ctx, ad)
-  ctx.flushAad()
-  var plain = newSeqUninit[byte](ciphertext.len)
-  if ciphertext.len > 0:
-    var rp = cast[BytePtr](addr plain[0])
-    let cp = cast[BytePtr](unsafeAddr ciphertext[0])
-    ctx.ctLen += uint64(ciphertext.len)
-    ctx.absorb(cp, ciphertext.len)
-    ctx.gctrInto(rp, cp, ciphertext.len)
+  let plain = gcmDecryptUpdate(ctx, ciphertext)
   if gcmFinishDec(ctx, tag):
     result = some(plain)
   else:
-    wipe(plain)
+    var m = plain
+    wipe(m)
+    result = none(seq[byte])
+
+proc gcmUnlockWithSession*(s: GcmSession, iv: openArray[byte],
+                           ciphertext: openArray[byte],
+                           tag: openArray[byte], ad: openArray[byte] = []):
+    Option[seq[byte]] =
+  ## Like `gcmUnlock` but reuses a cached session (see
+  ## `gcmLockWithSession`).
+  var ctx: GcmContext
+  initGcmWithSession(ctx, s, iv)
+  gcmAddAad(ctx, ad)
+  let plain = gcmDecryptUpdate(ctx, ciphertext)
+  if gcmFinishDec(ctx, tag):
+    result = some(plain)
+  else:
+    var m = plain
+    wipe(m)
     result = none(seq[byte])
 
 proc gcmLockScalar*(key, iv: openArray[byte], plaintext: openArray[byte],
@@ -400,18 +749,12 @@ proc gcmUnlockScalar*(key, iv: openArray[byte], ciphertext: openArray[byte],
   var ctx: GcmContext
   initGcm(ctx, key, iv, forceScalar = true)
   gcmAddAad(ctx, ad)
-  ctx.flushAad()
-  var plain = newSeqUninit[byte](ciphertext.len)
-  if ciphertext.len > 0:
-    var rp = cast[BytePtr](addr plain[0])
-    let cp = cast[BytePtr](unsafeAddr ciphertext[0])
-    ctx.ctLen += uint64(ciphertext.len)
-    ctx.absorb(cp, ciphertext.len)
-    ctx.gctrInto(rp, cp, ciphertext.len)
+  let plain = gcmDecryptUpdate(ctx, ciphertext)
   if gcmFinishDec(ctx, tag):
     result = some(plain)
   else:
-    wipe(plain)
+    var m = plain
+    wipe(m)
     result = none(seq[byte])
 
 {.pop.}

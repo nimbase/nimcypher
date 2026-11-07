@@ -34,32 +34,47 @@ const mont64Window* = 5
 # Wide multiply: lo = a*b mod 2^64, hi = floor(a*b / 2^64)
 # ---------------------------------------------------------------------------
 
-when defined(features.nimcypher.nimsimd) and defined(amd64):
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  import ./mulwide_jit
+
+proc mulWideSplit*(a, b: uint64, hi: var uint64): uint64 {.inline.} =
+  ## Portable 32-bit-half splitting. Same narrow-mult count as 32-bit
+  ## limbs: correctness fallback only, not a speedup.
+  const mask = 0xFFFF_FFFF'u64
+  let a0 = a and mask
+  let a1 = a shr 32
+  let b0 = b and mask
+  let b1 = b shr 32
+  let u = a0 * b0
+  let v1 = a0 * b1
+  let v2 = a1 * b0
+  let w = a1 * b1
+  let sLo = v1 + v2
+  let sHi = if sLo < v1: 1'u64 else: 0'u64
+  let t = (sLo and mask) shl 32
+  let lo = u + t
+  let c1 = if lo < u: 1'u64 else: 0'u64
+  # Partial sums below never exceed the true high word (< 2^64), so the
+  # plain adds cannot wrap: every term is non-negative.
+  hi = (sLo shr 32) + (sHi shl 32) + w + c1
+  lo
+
+when defined(features.nimcypher.nimdynasm) and defined(amd64):
+  proc mulWide(a, b: uint64, hi: var uint64): uint64 {.inline.} =
+    ## JIT MULX when it assembles and executes correctly (functional
+    ## gate, not just CPUID); otherwise portable splitting. Never the
+    ## nimsimd MULX here: a host that misexecutes one misexecutes both.
+    if mulwideJitAvailable():
+      mulWideJit(a, b, hi)
+    else:
+      mulWideSplit(a, b, hi)
+elif defined(features.nimcypher.nimsimd) and defined(amd64):
   proc mulWide(a, b: uint64, hi: var uint64): uint64 {.inline.} =
     ## Single MULX instruction (BMI2): no flags touched, best scheduling.
     mulx_u64(a, b, addr hi)
 else:
   proc mulWide(a, b: uint64, hi: var uint64): uint64 {.inline.} =
-    ## Portable 32-bit-half splitting. Same narrow-mult count as 32-bit
-    ## limbs: correctness fallback only, not a speedup.
-    const mask = 0xFFFF_FFFF'u64
-    let a0 = a and mask
-    let a1 = a shr 32
-    let b0 = b and mask
-    let b1 = b shr 32
-    let u = a0 * b0
-    let v1 = a0 * b1
-    let v2 = a1 * b0
-    let w = a1 * b1
-    let sLo = v1 + v2
-    let sHi = if sLo < v1: 1'u64 else: 0'u64
-    let t = (sLo and mask) shl 32
-    let lo = u + t
-    let c1 = if lo < u: 1'u64 else: 0'u64
-    # Partial sums below never exceed the true high word (< 2^64), so the
-    # plain adds cannot wrap: every term is non-negative.
-    hi = (sLo shr 32) + (sHi shl 32) + w + c1
-    lo
+    mulWideSplit(a, b, hi)
 
 # ---------------------------------------------------------------------------
 # Limb helpers (little-endian seq[uint64])
