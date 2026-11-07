@@ -601,26 +601,30 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
   hash tables only, never signatures, MACs, or password hashing.
 
 
+> [NOTE]
+> JOSE (JWS/JWE/JWK) lives in a separate package:
+> [nimbase/jose](https://github.com/nimbase/jose), pure-Nim JOSE based
+> on nimcypher.
+
+
 ## Roadmap
 
 Direction, not a commitment. Items land as pure-Nim, tested against
 reference vectors and OpenSSL interop before they are documented here.
 
 **Next (asymmetric usability):**
-- RSA/EC key import and export: PKCS#1 / PKCS#8 / SEC1 DER + PEM, JWK
-  (`n`, `e`, `d`, `x`, `y`, `crv`) for the supported RSA and EC curves.
-- JWS signing/verification and JWE decryption using the existing
-  RS/PS/ES and RSA-OAEP primitives (no new crypto, mostly encoding).
-- HKDF-SHA-384 in the high-level `hash` API (low-level HMAC-SHA-384 in
-  `algos/sha384` already exists; only the HKDF expand/extract glue is missing).
+- RSA/EC key export and JWK import/export (`n`, `e`, `d`, `x`, `y`,
+  `crv`) for the supported RSA and EC curves. PKCS#1 / PKCS#8 / SEC1
+  DER + PEM private-key import already exists in `tls/keys`.
 
 **Later (further algos):**
 - SHA-3 / Keccak and HMAC-SHA3 (FIPS 202) alongside the SHA-2 family.
 - AES Key Wrap (KW/KWP, NIST SP 800-38F) for JOSE key management.
 - PBKDF2-HMAC-SHA-2 for legacy password-based key derivation
   (Argon2id stays the default).
-- TLS 1.3 `HKDF-Expand-Label` and a minimal HPKE (DHKEM + AEAD) built
-  from the existing ECDH/HKDF/AEAD pieces.
+- Minimal HPKE (DHKEM + AEAD) built from the existing ECDH/HKDF/AEAD
+  pieces. TLS 1.3 `HKDF-Expand-Label` already exists in
+  `tls/key_schedule`.
 
 **Hardening (no new algos):**
 - Constant-time EC field arithmetic to replace the current variable-time
@@ -630,8 +634,9 @@ reference vectors and OpenSSL interop before they are documented here.
 - Expanded `nimble bench` rows for SHA-256/384, RSA and ECDSA vs
   OpenSSL/nimcrypto.
 
-Out of scope: X.509 path validation / TLS stacks; import/export helpers
-only; bring your own ASN.1 profile or use a dedicated TLS library.
+Out of scope: CRL/OCSP, name constraints, policies, IDNA; encrypted
+PKCS#8, multi-prime RSA, and explicit-curve parameters (see
+`tls/verify` and `tls/keys`).
 
 
 ### ❤ Contributions & Support
