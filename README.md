@@ -422,12 +422,12 @@ TLS bulk throughput (`tests/bench_tls.nim`, 16 KiB records, same machine):
 
 ```
 suite                    nimcypher seal  nimcypher open  OpenSSL seal  OpenSSL open
-AES-128-GCM (scalar)             114.0 MB/s      115.9 MB/s   2982.0 MB/s   3515.3 MB/s
-AES-128-GCM (+JIT)              2055.2 MB/s     2072.4 MB/s   3176.5 MB/s   3673.1 MB/s
-AES-256-GCM (scalar)              96.0 MB/s       96.7 MB/s   2800.7 MB/s   3328.6 MB/s
-AES-256-GCM (+JIT)              1808.8 MB/s     1843.8 MB/s   2810.6 MB/s   3407.3 MB/s
-ChaCha20-Poly1305 (scalar)       348.4 MB/s      368.5 MB/s   1956.6 MB/s   2181.3 MB/s
-ChaCha20-Poly1305 (+JIT)         356.5 MB/s      373.5 MB/s   2020.6 MB/s   2225.5 MB/s
+AES-128-GCM (scalar)             115.7 MB/s      115.5 MB/s   3013.0 MB/s   3595.5 MB/s
+AES-128-GCM (+JIT)              2215.4 MB/s     2220.1 MB/s   2988.9 MB/s   3554.3 MB/s
+AES-256-GCM (scalar)              94.4 MB/s       95.6 MB/s   2814.6 MB/s   3379.4 MB/s
+AES-256-GCM (+JIT)              1924.9 MB/s     1954.5 MB/s   2655.3 MB/s   3214.8 MB/s
+ChaCha20-Poly1305 (scalar)       480.2 MB/s      480.3 MB/s   1957.6 MB/s   2172.1 MB/s
+ChaCha20-Poly1305 (+JIT)         712.2 MB/s      738.0 MB/s   1878.6 MB/s   2133.8 MB/s
 ```
 
 The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator.
