@@ -1,0 +1,7 @@
+nimTitle	aead	nimcypher/tls/aead.html	module nimcypher/tls/aead		0
+nim	TlsTagLen	nimcypher/tls/aead.html#TlsTagLen	const TlsTagLen		20
+nim	le64	nimcypher/tls/aead.html#le64,uint64	proc le64(v: uint64): array[8, byte]		22
+nim	chacha20Poly1305Seal	nimcypher/tls/aead.html#chacha20Poly1305Seal,array[,byte],array[,byte],openArray[byte],openArray[byte]	proc chacha20Poly1305Seal(key: array[32, byte]; nonce: array[12, byte];\n                     plaintext, ad: openArray[byte]): (seq[byte],\n    array[16, byte])		51
+nim	chacha20Poly1305Open	nimcypher/tls/aead.html#chacha20Poly1305Open,array[,byte],array[,byte],openArray[byte],openArray[byte],openArray[byte]	proc chacha20Poly1305Open(key: array[32, byte]; nonce: array[12, byte];\n                     ciphertext, tag: openArray[byte]; ad: openArray[byte] = []): Option[\n    seq[byte]]		64
+nim	tlsSeal	nimcypher/tls/aead.html#tlsSeal,CipherSuiteId,openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc tlsSeal(suite: CipherSuiteId; key, nonce: openArray[byte];\n        plaintext, ad: openArray[byte]): (seq[byte], array[16, byte])		80
+nim	tlsOpen	nimcypher/tls/aead.html#tlsOpen,CipherSuiteId,openArray[byte],openArray[byte],openArray[byte],openArray[byte],openArray[byte]	proc tlsOpen(suite: CipherSuiteId; key, nonce: openArray[byte];\n        ciphertext, tag: openArray[byte]; ad: openArray[byte] = []): Option[\n    seq[byte]]		102

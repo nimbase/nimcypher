@@ -101,6 +101,10 @@
   <li><a class="reference" href="#montN0_64%2CopenArray%5Buint64%5D" title="montN0_64(n: openArray[uint64]): uint64">montN0_64(n: openArray[uint64]): uint64</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">mulWideSplit
+  <li><a class="reference" href="#mulWideSplit%2Cuint64%2Cuint64%2Cuint64" title="mulWideSplit(a, b: uint64; hi: var uint64): uint64">mulWideSplit(a, b: uint64; hi: var uint64): uint64</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">padTo64
   <li><a class="reference" href="#padTo64%2Cseq%5Buint64%5D%2Cint" title="padTo64(limbs: seq[uint64]; k: int): seq[uint64]">padTo64(limbs: seq[uint64]; k: int): seq[uint64]</a></li>
 
@@ -230,6 +234,18 @@
 </div>
 
 </div>
+<div id="mulWideSplit-procs-all">
+  <div id="mulWideSplit,uint64,uint64,uint64">
+  <dt><pre><span class="Keyword">proc</span> <a href="#mulWideSplit%2Cuint64%2Cuint64%2Cuint64"><span class="Identifier">mulWideSplit</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">,</span> <span class="Identifier">b</span><span class="Other">:</span> <span class="Identifier">uint64</span><span class="Other">;</span> <span class="Identifier">hi</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">uint64</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint64</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Portable 32-bit-half splitting. Same narrow-mult count as 32-bit limbs: correctness fallback only, not a speedup.
+    
+  </dd>
+</div>
+
+</div>
 <div id="padTo64-procs-all">
   <div id="padTo64,seq[uint64],int">
   <dt><pre><span class="Keyword">proc</span> <a href="#padTo64%2Cseq%5Buint64%5D%2Cint"><span class="Identifier">padTo64</span></a><span class="Other">(</span><span class="Identifier">limbs</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint64</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">k</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">uint64</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
@@ -287,7 +303,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-04 22:55:22 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-07 20:01:16 UTC</small>
       </div>
     </div>
   </div>

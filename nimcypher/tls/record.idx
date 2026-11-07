@@ -1,0 +1,16 @@
+nimTitle	record	nimcypher/tls/record.html	module nimcypher/tls/record		0
+nim	TlsLegacyVersion	nimcypher/tls/record.html#TlsLegacyVersion	const TlsLegacyVersion		17
+nim	TlsMaxFragment	nimcypher/tls/record.html#TlsMaxFragment	const TlsMaxFragment		18
+nim	TlsMaxRecordOverhead	nimcypher/tls/record.html#TlsMaxRecordOverhead	const TlsMaxRecordOverhead		19
+nim	TlsTrafficKeys	nimcypher/tls/record.html#TlsTrafficKeys	object TlsTrafficKeys		22
+nim	isGcmSuite	nimcypher/tls/record.html#isGcmSuite,CipherSuiteId	proc isGcmSuite(suite: CipherSuiteId): bool		31
+nim	initTrafficKeys	nimcypher/tls/record.html#initTrafficKeys,CipherSuiteId,openArray[byte],openArray[byte]	proc initTrafficKeys(suite: CipherSuiteId; key: openArray[byte]; iv: openArray[byte]): TlsTrafficKeys		34
+nim	initTrafficKeysFromSecret	nimcypher/tls/record.html#initTrafficKeysFromSecret,CipherSuiteId,openArray[byte]	proc initTrafficKeysFromSecret(suite: CipherSuiteId; secret: openArray[byte]): TlsTrafficKeys		47
+nim	ratchet	nimcypher/tls/record.html#ratchet,TlsTrafficKeys	proc ratchet(keys: var TlsTrafficKeys)		59
+nim	encodePlaintext	nimcypher/tls/record.html#encodePlaintext,ContentType,openArray[byte]	proc encodePlaintext(outerType: ContentType; fragment: openArray[byte]): seq[byte]		75
+nim	sealCcs	nimcypher/tls/record.html#sealCcs	proc sealCcs(): seq[byte]		85
+nim	isCcsRecord	nimcypher/tls/record.html#isCcsRecord,openArray[byte]	proc isCcsRecord(packet: openArray[byte]): bool		89
+nim	sealAlertFatal	nimcypher/tls/record.html#sealAlertFatal,AlertDescription	proc sealAlertFatal(desc: AlertDescription): seq[byte]		93
+nim	tlsNonce	nimcypher/tls/record.html#tlsNonce,array[,byte],uint64	proc tlsNonce(iv: array[12, byte]; seqNum: uint64): array[12, byte]		96
+nim	sealRecord	nimcypher/tls/record.html#sealRecord,TlsTrafficKeys,openArray[byte],ContentType	proc sealRecord(keys: var TlsTrafficKeys; content: openArray[byte];\n           innerType: ContentType): seq[byte]		102
+nim	openRecord	nimcypher/tls/record.html#openRecord,TlsTrafficKeys,openArray[byte]	proc openRecord(keys: var TlsTrafficKeys; packet: openArray[byte]): tuple[\n    content: seq[byte], innerType: ContentType]		134

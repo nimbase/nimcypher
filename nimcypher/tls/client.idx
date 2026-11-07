@@ -1,0 +1,21 @@
+nimTitle	client	nimcypher/tls/client.html	module nimcypher/tls/client		0
+nim	csExpectServerHello	nimcypher/tls/client.html#csExpectServerHello	ClientState.csExpectServerHello		32
+nim	csExpectEncryptedExtensions	nimcypher/tls/client.html#csExpectEncryptedExtensions	ClientState.csExpectEncryptedExtensions		32
+nim	csExpectCertificate	nimcypher/tls/client.html#csExpectCertificate	ClientState.csExpectCertificate		32
+nim	csExpectCertificateVerify	nimcypher/tls/client.html#csExpectCertificateVerify	ClientState.csExpectCertificateVerify		32
+nim	csExpectFinished	nimcypher/tls/client.html#csExpectFinished	ClientState.csExpectFinished		32
+nim	csTraffic	nimcypher/tls/client.html#csTraffic	ClientState.csTraffic		32
+nim	csClosed	nimcypher/tls/client.html#csClosed	ClientState.csClosed		32
+nim	csFailed	nimcypher/tls/client.html#csFailed	ClientState.csFailed		32
+nim	ClientState	nimcypher/tls/client.html#ClientState	enum ClientState		32
+nim	TlsClientConn	nimcypher/tls/client.html#TlsClientConn	object TlsClientConn		42
+nim	failed	nimcypher/tls/client.html#failed,TlsClientConn	proc failed(c: TlsClientConn): bool		80
+nim	established	nimcypher/tls/client.html#established,TlsClientConn	proc established(c: TlsClientConn): bool		83
+nim	takeOutbox	nimcypher/tls/client.html#takeOutbox,TlsClientConn	proc takeOutbox(c: var TlsClientConn): seq[byte]		86
+nim	readApp	nimcypher/tls/client.html#readApp,TlsClientConn	proc readApp(c: var TlsClientConn): seq[byte]		90
+nim	newClientConn	nimcypher/tls/client.html#newClientConn,ClientConfig,string	proc newClientConn(config: ClientConfig; hostname: string): TlsClientConn		203
+nim	feed	nimcypher/tls/client.html#feed,TlsClientConn,openArray[byte]	proc feed(c: var TlsClientConn; chunk: openArray[byte])		578
+nim	encryptApp	nimcypher/tls/client.html#encryptApp,TlsClientConn,openArray[byte]	proc encryptApp(c: var TlsClientConn; data: openArray[byte])		590
+nim	encryptApp	nimcypher/tls/client.html#encryptApp,TlsClientConn,string	proc encryptApp(c: var TlsClientConn; data: string)		600
+nim	sendCloseNotify	nimcypher/tls/client.html#sendCloseNotify,TlsClientConn	proc sendCloseNotify(c: var TlsClientConn)		603
+nimgrp	encryptapp	nimcypher/tls/client.html#encryptApp-procs-all	proc		590
