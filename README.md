@@ -422,18 +422,28 @@ TLS bulk throughput (`tests/bench_tls.nim`, 16 KiB records, same machine):
 
 ```
 suite                        nimcypher seal  nimcypher open  OpenSSL seal  OpenSSL open
-AES-128-GCM (scalar)             115.7 MB/s      115.5 MB/s   3013.0 MB/s   3595.5 MB/s
-AES-128-GCM (+JIT)              2638.3 MB/s     2638.4 MB/s   2973.6 MB/s   3548.2 MB/s
-AES-256-GCM (scalar)              94.4 MB/s       95.6 MB/s   2814.6 MB/s   3379.4 MB/s
-AES-256-GCM (+JIT)              2346.1 MB/s     2262.4 MB/s   2730.6 MB/s   3325.1 MB/s
-ChaCha20-Poly1305 (scalar)       480.2 MB/s      480.3 MB/s   1957.6 MB/s   2172.1 MB/s
-ChaCha20-Poly1305 (+JIT)         991.0 MB/s      998.9 MB/s   1969.5 MB/s   2178.6 MB/s
+AES-128-GCM (scalar)             112.9 MB/s      112.0 MB/s   2937.4 MB/s   3538.8 MB/s
+AES-128-GCM (+JIT)              2638.9 MB/s     2654.9 MB/s   3000.6 MB/s   3581.5 MB/s
+AES-256-GCM (scalar)              94.2 MB/s       93.6 MB/s   2840.3 MB/s   3362.7 MB/s
+AES-256-GCM (+JIT)              2353.2 MB/s     2342.5 MB/s   2827.4 MB/s   3363.1 MB/s
+ChaCha20-Poly1305 (scalar)       481.3 MB/s      481.5 MB/s   1951.9 MB/s   2157.9 MB/s
+ChaCha20-Poly1305 (+JIT)         968.9 MB/s      982.5 MB/s   1962.6 MB/s   2193.8 MB/s
 ```
+
+Both columns are whole one-shot operations (fresh context per record). The TLS
+record layer reuses a cached `GcmSession` instead, which removes the per-record
+key schedule: measured separately at 2879/2881 MB/s for AES-128-GCM 16 KiB
+records, i.e. ~1.03x of OpenSSL's seal. Output is byte-identical to OpenSSL in
+both directions — `tests/topenssl_aead.nim` drives libcrypto's EVP directly and
+exchanges ciphertext and tags for AES-128/256-GCM and ChaCha20-Poly1305 across
+every kernel size class (0 B to 16 KiB + 1), with and without AAD, plus tamper
+rejection and the session path.
 
 The port matches or slightly beats C for SHA-512, X25519, EdDSA/Ed25519 and Elligator.
 On the symmetric primitives the scalar port is roughly 0.75-0.90x vs C Monocypher; with
 the JIT backend, ChaCha20 reaches parity, AES-CTR gets a ~13x boost from AES-NI,
-and AES-GCM reaches ~2.2x over the scalar path at 1 KiB and ~6.5x at 64 KiB.
+and AES-GCM reaches ~9.6x over the scalar path at 1 KiB and ~25x at 64 KiB
+(one-shot `gcmLock`; 971 vs 102 MB/s and 2864 vs 115 MB/s).
 Compared to `nimcrypto` (same machine,
 same compiler flags), NimCypher is **2.3-2.6x faster on BLAKE2b**, **~0.7x on SHA-512**
 (`nimcrypto` benefits from SHA-NI), and **~3.1x (scalar) / ~40x (JIT) faster on AES-CTR**
@@ -532,7 +542,7 @@ On x86_64 the two-block AVX2 kernel for ChaCha20 roughly reaches parity with C M
 on the full one-shot, while AES-NI gives a ~13x improvement over the bitsliced scalar
 core on bulk operations (CTR/ECB). The GCM construction benefits from both AES-NI and
 PCLMULQDQ, reaching ~6.5x over the scalar implementation at 64 KiB
-(~18x on 16 KiB TLS records: 2055 vs 114 MB/s, ~1.5x off OpenSSL).
+(~23x on 16 KiB TLS records: 2639 vs 113 MB/s, ~1.14x off OpenSSL's seal).
 
 The scalar constant-time bitsliced AES core always stays available as the reference path
 and is cross-checked byte-for-byte by the test suite (`nimble test_simd` runs ChaCha20,

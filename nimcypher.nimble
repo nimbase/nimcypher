@@ -45,7 +45,7 @@ feature "nimdynasm":
 task test_simd, "Run the SIMD-accelerated tests":
   exec "nimble install -y nimsimd"
   for t in ["tchacha20", "taead", "tblake2b", "tinterop", "taes", "tgcm",
-            "tmontgomery", "trsa"]:
+            "topenssl_aead", "tmontgomery", "trsa"]:
     exec "nim c -r --hints:off -d:danger " &
          "-d:features.nimcypher.nimsimd tests/" & t & ".nim"
 
@@ -56,7 +56,7 @@ task test_jit, "Run the dynasm JIT differential tests":
   ## (the jit/simd-isa branch, merged to main);
   ## suites self-skip where the host arch lacks a backend.
   for t in ["taes_jit", "tchacha_jit", "tblake2b_jit", "tghash_jit",
-            "tmulwide_jit", "tgcm_fused", "taes", "tgcm"]:
+            "tmulwide_jit", "tgcm_fused", "topenssl_aead", "taes", "tgcm"]:
     exec "nim c -r --hints:off -d:danger " &
          "-d:features.nimcypher.nimdynasm tests/" & t & ".nim"
 
