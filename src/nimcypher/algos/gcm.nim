@@ -34,6 +34,11 @@ when defined(features.nimcypher.nimdynasm) and defined(amd64):
 
 const gcmBlockSize = 16
 
+const gcmGhashPowSlots = 16
+  ## Aggregated-kernel power table size: 8 byte-swapped H^1..H^8 then
+  ## their Karatsuba folds. Kept local so non-JIT builds compile without
+  ## importing `ghash_jit`; the JIT build asserts the two agree.
+
 # ---------------------------------------------------------------------------
 # Constant-time GHASH (BearSSL ghash_ctmul64).
 #
@@ -161,7 +166,7 @@ type
     # kernel takes one pointer to ctr and advances/folds in place.
     ctr: array[16, byte]    # GCTR counter block (starts at inc32(J0))
     acc*: array[16, byte]   # GHASH accumulator (big-endian block)
-    hPow: array[8, array[16, byte]] # H^1..H^8 for the agg8 kernel
+    hPow: array[gcmGhashPowSlots, array[16, byte]] # bswapped H^i + folds
     j0: array[16, byte]     # pre-counter block (tag mask source)
     kbuf: array[16, byte]   # partially consumed keystream block
     kused: int
@@ -289,13 +294,25 @@ proc fuseDecryptBlocks(ctx: var GcmContext, dst, src: BytePtr,
 when defined(features.nimcypher.nimdynasm) and defined(amd64):
   proc fuseEncryptBlocksFused(ctx: var GcmContext, dst, src: BytePtr,
                               nbBlocks: int) =
-    ## Whole-block path through the fused crypt kernel: one call per 8
-    ## blocks does counter-gen + AES + xor + GHASH. A sub-octet tail
-    ## uses the buffered path. Clean state only (caller guarantees
-    ## `bufLen == 0`, `kused == 16`).
+    ## Whole-block path through the fused crypt kernels: one call per
+    ## 32 blocks (wide) then per 8 blocks (narrow) does counter-gen +
+    ## AES + xor + GHASH. A sub-octet tail uses the buffered path.
+    ## Clean state only (caller guarantees `bufLen == 0`, `kused == 16`).
     var dp = dst
     var sp = src
     var left = nbBlocks
+    if left >= gcmWideStages * aesJitBatch:
+      # Resolve the kernel once; the per-chunk dispatch cost dominated
+      # the remaining record overhead (32 calls per 16 KiB).
+      let f = gcmCrypt32Fn(ctx.aes.rounds, false)
+      let nrk = addr ctx.aes.nrk[0]
+      let blk = cast[BytePtr](addr ctx.ctr[0])
+      while left >= gcmWideStages * aesJitBatch:
+        f(nrk, cast[pointer](sp), cast[pointer](dp), cast[pointer](blk))
+        dp = dp + 512
+        sp = sp + 512
+        left -= gcmWideStages * aesJitBatch
+        ctx.ctLen += uint64(gcmWideStages * aesJitBatch * 16)
     while left >= aesJitBatch:
       gcmCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0], dp, sp,
                    cast[BytePtr](addr ctx.ctr[0]))
@@ -308,11 +325,21 @@ when defined(features.nimcypher.nimdynasm) and defined(amd64):
 
   proc fuseDecryptBlocksFused(ctx: var GcmContext, dst, src: BytePtr,
                               nbBlocks: int) =
-    ## Whole-block fused decrypt (same kernel; CTR mode decrypts with
+    ## Whole-block fused decrypt (same kernels; CTR mode decrypts with
     ## the same keystream). Sub-octet tail uses the buffered path.
     var dp = dst
     var sp = src
     var left = nbBlocks
+    if left >= gcmWideStages * aesJitBatch:
+      let f = gcmCrypt32Fn(ctx.aes.rounds, true)
+      let nrk = addr ctx.aes.nrk[0]
+      let blk = cast[BytePtr](addr ctx.ctr[0])
+      while left >= gcmWideStages * aesJitBatch:
+        f(nrk, cast[pointer](dp), cast[pointer](sp), cast[pointer](blk))
+        dp = dp + 512
+        sp = sp + 512
+        left -= gcmWideStages * aesJitBatch
+        ctx.ctLen += uint64(gcmWideStages * aesJitBatch * 16)
     while left >= aesJitBatch:
       gcmCrypt8Jit(ctx.aes.rounds, addr ctx.aes.nrk[0], dp, sp,
                    cast[BytePtr](addr ctx.ctr[0]), decrypt = true)
@@ -392,15 +419,20 @@ proc initGcm*(ctx: var GcmContext, key: openArray[byte],
   ctx.hBlock = h
   wipe(h)
   when defined(features.nimcypher.nimdynasm) and defined(amd64):
+    static: doAssert gcmGhashPowSlots == ghashPowSlots
     if not forceScalar:
-      # Powers P1..P8 for the aggregated kernel: P[i+1] = P[i] * H.
-      ctx.hPow[0] = ctx.hBlock
+      # Powers P1..P8 for the aggregated kernel: P[i+1] = P[i] * H,
+      # then the kernel's byte-swapped + folded forms (once per key).
+      var raw: array[8, array[16, byte]]
+      raw[0] = ctx.hBlock
       var z: array[16, byte]
       for i in 1 ..< 8:
         zeroMem(addr z[0], 16)
-        ghashFold(z, ctx.hBlock, cast[BytePtr](addr ctx.hPow[i - 1][0]))
-        ctx.hPow[i] = z
+        ghashFold(z, ctx.hBlock, cast[BytePtr](addr raw[i - 1][0]))
+        raw[i] = z
       wipe(z)
+      buildGhashPowers(ctx.hPow, raw)
+      wipe(raw)
   zeroMem(addr ctx.acc[0], 16)
   ctx.bufLen = 0
   ctx.kused = 16 # force keystream generation on first update
@@ -430,7 +462,7 @@ type
   GcmSession* = object
     aes: AesContext
     hBlock: array[16, byte]
-    hPow: array[8, array[16, byte]]
+    hPow: array[gcmGhashPowSlots, array[16, byte]]
 
 proc initGcmSession*(key: openArray[byte]): GcmSession =
   ## Expand the AES schedule, H = E_K(0^128) and H^1..H^8 once.
@@ -441,13 +473,16 @@ proc initGcmSession*(key: openArray[byte]): GcmSession =
                   cast[BytePtr](addr zero[0]))
   wipe(zero)
   when defined(features.nimcypher.nimdynasm) and defined(amd64):
-    result.hPow[0] = result.hBlock
+    var raw: array[8, array[16, byte]]
+    raw[0] = result.hBlock
     var z: array[16, byte]
     for i in 1 ..< 8:
       zeroMem(addr z[0], 16)
-      ghashFold(z, result.hBlock, cast[BytePtr](addr result.hPow[i - 1][0]))
-      result.hPow[i] = z
+      ghashFold(z, result.hBlock, cast[BytePtr](addr raw[i - 1][0]))
+      raw[i] = z
     wipe(z)
+    buildGhashPowers(result.hPow, raw)
+    wipe(raw)
 
 proc initGcmWithSession*(ctx: var GcmContext, s: GcmSession,
                          iv: openArray[byte], forceScalar = false) =

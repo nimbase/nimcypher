@@ -119,10 +119,123 @@ type GcmCryptFn* = proc(nrk, a, b, blk: pointer) {.cdecl, gcsafe.}
   ## Positional: (nrk, src, dst, blk) for seal, (nrk, dst, src, blk) for
   ## open — the kernel folds its 3rd argument in both cases.
 
+const gcmWideStages* = 4 # 8-block stages per wide-kernel call (32 blocks)
+
+proc assembleGcmCrypt32(R: int, forDecrypt: bool): ExecutableBuffer =
+  ## Wide fused kernel: 32 blocks per call (4 inlined 8-block stages),
+  ## one Nim->kernel transition and one prologue for four stages. Cuts
+  ## the per-call overhead that dominated the 8-block kernel and lets
+  ## the CPU overlap stage k+1's AES with stage k's GHASH chain
+  ## (independent register sets). Pointer parking uses rbx/r12-r14
+  ## (callee-saved on both ABIs) because the GHASH emitter needs
+  ## rdi/rsi/rdx while the next stage's AES needs them back.
+  var a = newAssembler(akX64)
+  dynasm a:
+    arch x64
+    alias nrkp, rdi, rcx
+    alias arg2p, rsi, rdx
+    alias arg3p, rdx, r8
+    alias blkp, rcx, r9
+    push rbx
+    push r12
+    push r13
+    push r14
+    mov rbx, nrkp               # key schedule
+    mov r12, arg2p              # seal: plaintext in, open: plaintext out
+    mov r13, arg3p              # ciphertext (GHASH folds this) in both
+    mov r14, blkp               # {ctr, acc, pow}
+    sub rsp, 128                # counter scratch for the ctr head
+  for k in 0 ..< gcmWideStages:
+    let off = k * 128
+    # --- counter build + AES for this stage ---
+    when defined(windows):
+      dynasm a:
+        arch x64
+        mov r9, r14
+    else:
+      dynasm a:
+        arch x64
+        mov rcx, r14
+    emitAesCtrHead8(a)
+    for i in 0 ..< aesJitBatch:
+      let s = i
+      let d = i * 16
+      dynasm a:
+        arch x64
+        movdqu Rx(s), [rsp + d]
+    when defined(windows):
+      dynasm a:
+        arch x64
+        mov rcx, rbx
+    else:
+      dynasm a:
+        arch x64
+        mov rdi, rbx
+    emitAesEncRounds8(a, R)
+    let kd = R * 16
+    when defined(windows):
+      dynasm a:
+        arch x64
+        movdqu xmm8, [rcx + kd]
+    else:
+      dynasm a:
+        arch x64
+        movdqu xmm8, [rdi + kd]
+    for i in 0 ..< aesJitBatch:
+      let s = i
+      let d = i * 16
+      if forDecrypt:
+        dynasm a:
+          arch x64
+          aesenclast Rx(s), xmm8
+          movdqu xmm9, [r13 + off + d]
+          pxor Rx(s), xmm9
+          movdqu [r12 + off + d], Rx(s)
+      else:
+        dynasm a:
+          arch x64
+          aesenclast Rx(s), xmm8
+          movdqu xmm9, [r12 + off + d]
+          pxor Rx(s), xmm9
+          movdqu [r13 + off + d], Rx(s)
+    # --- GHASH this stage's ciphertext (always arg3) ---
+    when defined(windows):
+      dynasm a:
+        arch x64
+        mov rcx, r14
+        add rcx, 16
+        mov rdx, r14
+        add rdx, 32
+        mov r8, r13
+        add r8, off
+    else:
+      dynasm a:
+        arch x64
+        mov rdi, r14
+        add rdi, 16
+        mov rsi, r14
+        add rsi, 32
+        mov rdx, r13
+        add rdx, off
+    emitGhashAgg8(a)
+  dynasm a:
+    arch x64
+    add rsp, 128
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    ret()
+    global bswapidx
+    u8 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+  result = a.finalize()
+
 var gGcmLock: Lock
 initLock(gGcmLock)
 var gGcmEnc: array[3, ExecutableBuffer]
 var gGcmDec: array[3, ExecutableBuffer]
+var gGcmWideEnc: array[3, ExecutableBuffer]
+var gGcmWideDec: array[3, ExecutableBuffer]
 var gGcmReady: Atomic[bool]
 
 proc gcmRoundsIndex(rounds: int): int =
@@ -140,6 +253,8 @@ proc ensureGcmJit() =
     for idx in 0 ..< 3:
       gGcmEnc[idx] = assembleGcmCrypt8(jitRounds[idx], false)
       gGcmDec[idx] = assembleGcmCrypt8(jitRounds[idx], true)
+      gGcmWideEnc[idx] = assembleGcmCrypt32(jitRounds[idx], false)
+      gGcmWideDec[idx] = assembleGcmCrypt32(jitRounds[idx], true)
     gGcmReady.store(true, moRelease)
 
 proc gcmCrypt8JitAvailable*(): bool =
@@ -163,3 +278,30 @@ proc gcmCrypt8Jit*(rounds: int, nrk: pointer, dst, src, blk: BytePtr,
   else:
     let f = cast[GcmCryptFn](gGcmEnc[idx].ptrAt(AssemblyOffset(0)))
     f(nrk, cast[pointer](src), cast[pointer](dst), cast[pointer](blk))
+
+proc gcmCrypt32Jit*(rounds: int, nrk: pointer, dst, src, blk: BytePtr,
+                     decrypt: bool = false) =
+  ## Crypt exactly 32 blocks per call (4 inlined 8-block stages) with
+  ## the same contract as `gcmCrypt8Jit`: advances ctr by 32, folds all
+  ## 32 ciphertext blocks into acc. Requires AVX-free SSE/AESNI/PCLMUL
+  ## like the 8-block kernel.
+  ensureGcmJit()
+  let idx = gcmRoundsIndex(rounds)
+  if decrypt:
+    let f = cast[GcmCryptFn](gGcmWideDec[idx].ptrAt(AssemblyOffset(0)))
+    f(nrk, cast[pointer](dst), cast[pointer](src), cast[pointer](blk))
+  else:
+    let f = cast[GcmCryptFn](gGcmWideEnc[idx].ptrAt(AssemblyOffset(0)))
+    f(nrk, cast[pointer](src), cast[pointer](dst), cast[pointer](blk))
+
+proc gcmCrypt32Fn*(rounds: int, decrypt: bool): GcmCryptFn =
+  ## Resolved wide-kernel entry point, for bulk loops that call it many
+  ## times per message: hoists `ensureGcmJit` + round dispatch out of
+  ## the per-chunk path (~20 cycles × 32 calls per 16 KiB record).
+  ## Caller must have checked `gcmCrypt8JitAvailable`.
+  ensureGcmJit()
+  let idx = gcmRoundsIndex(rounds)
+  if decrypt:
+    cast[GcmCryptFn](gGcmWideDec[idx].ptrAt(AssemblyOffset(0)))
+  else:
+    cast[GcmCryptFn](gGcmWideEnc[idx].ptrAt(AssemblyOffset(0)))

@@ -20,6 +20,25 @@ import dynasm
 import std/locks
 import std/atomics
 
+const
+  ghashPowSlots* = 16        ## powers array: 8 byte-swapped + 8 folded
+  ghashPowFoldBase* = 8 * 16 ## byte offset of the folded forms
+
+proc buildGhashPowers*(pow: var array[ghashPowSlots, array[16, byte]],
+                       raw: array[8, array[16, byte]]) =
+  ## Fill the aggregated kernel's power table from the raw powers
+  ## H^1..H^8 (computed by the caller with the reference fold): slots
+  ## 0..7 hold the byte-swapped powers, slots 8..15 their Karatsuba
+  ## folds (`X xor pshufd(X, 0x0E)`). Both were recomputed per pair per
+  ## call before; that shuffle/xor chain sat on the critical path of
+  ## every PCLMUL and dominated the fused AES+GHASH kernel.
+  for i in 0 ..< 8:
+    for j in 0 ..< 16:
+      pow[i][j] = raw[i][15 - j]
+    for j in 0 ..< 8:
+      pow[8 + i][j] = pow[i][j] xor pow[i][j + 8]
+      pow[8 + i][j + 8] = pow[i][j + 8] xor pow[i][j]
+
 # Register plan (all low XMM, no REX needed):
 #   xmm7 bswapIdx (pool, live throughout)   xmm0 yw / scratch
 #   xmm1 hw -> t3                            xmm2 hx
@@ -135,9 +154,15 @@ type GhashFoldFn* = proc(acc, h, src: pointer) {.cdecl, gcsafe.}
 #   xmm7 t0                         xmm11..14 ACC0..3 (unreduced sum)
 proc emitGhashAgg8*(a: var Assembler) =
   ## Fold 8 blocks at [srcp] into [accp] with one reduction (see
-  ## assembleGhashAgg8). Caller declares the `accp`/`powp`/`srcp`
+  ## `assembleGhashAgg8`). Caller declares the `accp`/`powp`/`srcp`
   ## aliases; loads the bswap table from `[glob("bswapidx")]` (caller
   ## emits that pool before finalizing). Uses xmm0-8, xmm11-15.
+  ##
+  ## `powp` points at 16 slots (`ghashPowSlots`): [0..7] are the
+  ## byte-swapped powers P1..P8, [8..15] their Karatsuba folds. Both
+  ## are precomputed by `buildGhashPowers`; recomputing them per pair
+  ## (bswap + shuffle + xor on the critical path of each PCLMUL) was
+  ## what serialised the fused AES+GHASH kernel.
   dynasm a:
     arch x64
     alias accp, rdi, rcx
@@ -152,7 +177,9 @@ proc emitGhashAgg8*(a: var Assembler) =
   # powp + (i-1)*16. Products accumulate unreduced; shift+reduce run
   # once below (both are XOR-linear, so this equals 8 serial folds).
   for k in 0 ..< 9:
-    let powOff = if k == 0: 7 * 16 else: (8 - k) * 16
+    let powIdx = if k == 0: 7 else: 8 - k
+    let powOff = powIdx * 16
+    let powFoldOff = ghashPowFoldBase + powIdx * 16
     if k == 0:
       dynasm a:
         arch x64
@@ -168,14 +195,11 @@ proc emitGhashAgg8*(a: var Assembler) =
       arch x64
       alias powp, rsi, rdx
       pshufb xmm0, xmm15
-      movdqu xmm2, [powp + powOff]
-      pshufb xmm2, xmm15
+      movdqu xmm2, [powp + powOff]         # already byte-swapped
       movdqu xmm1, xmm0
       pshufd xmm8, xmm0, 0x0E
       pxor xmm1, xmm8
-      movdqu xmm3, xmm2
-      pshufd xmm8, xmm2, 0x0E
-      pxor xmm3, xmm8
+      movdqu xmm3, [powp + powFoldOff]     # already folded
       movdqu xmm4, xmm0
       pclmulqdq xmm4, xmm2, 0x11
       movdqu xmm5, xmm0
@@ -322,9 +346,9 @@ proc ghashAgg8JitAvailable*(): bool =
 proc ghashAgg8Jit*(acc: var array[16, byte], hpow: BytePtr, src: BytePtr) =
   ## Fold 8 blocks at `src` (128 bytes) into `acc` in one shot:
   ## acc = acc*H^8 xor X1*H^8 xor X2*H^7 .. xor X8*H, with a single
-  ## reduction. `hpow` points at 8 consecutive powers P1..P8 (16 bytes
-  ## each, same block format as the H key). Raises on assembly failure;
-  ## check ghashAgg8JitAvailable first.
+  ## reduction. `hpow` points at `ghashPowSlots` consecutive slots:
+  ## byte-swapped P1..P8 then their folds (see `buildGhashPowers`).
+  ## Raises on assembly failure; check ghashAgg8JitAvailable first.
   ensureGhashAggJit()
   let f = cast[GhashAgg8Fn](gGhashAggBuf.ptrAt(AssemblyOffset(0)))
   f(addr acc[0], cast[pointer](hpow), cast[pointer](src))

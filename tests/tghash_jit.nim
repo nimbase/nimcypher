@@ -51,12 +51,14 @@ when defined(features.nimcypher.nimdynasm) and
         for i in 0 ..< 16:
           acc[i] = byte(rand(255))
           h[i] = byte(rand(255))
-        var hpow: array[8, array[16, byte]]
-        hpow[0] = h
+        var rawPow: array[8, array[16, byte]]
+        rawPow[0] = h
         for i in 1 ..< 8:
           var z: array[16, byte]
-          ghashFoldScalar(z, h, cast[BytePtr](addr hpow[i - 1][0]))
-          hpow[i] = z
+          ghashFoldScalar(z, h, cast[BytePtr](addr rawPow[i - 1][0]))
+          rawPow[i] = z
+        var hpow: array[ghashPowSlots, array[16, byte]]
+        buildGhashPowers(hpow, rawPow)
         var blks: array[8, array[16, byte]]
         for b in 0 ..< 8:
           for i in 0 ..< 16:
@@ -73,12 +75,14 @@ when defined(features.nimcypher.nimdynasm) and
         for i in 0 ..< 16:
           acc[i] = v
           h[i] = v
-        var hpow: array[8, array[16, byte]]
-        hpow[0] = h
+        var rawPow: array[8, array[16, byte]]
+        rawPow[0] = h
         for i in 1 ..< 8:
           var z: array[16, byte]
-          ghashFoldScalar(z, h, cast[BytePtr](addr hpow[i - 1][0]))
-          hpow[i] = z
+          ghashFoldScalar(z, h, cast[BytePtr](addr rawPow[i - 1][0]))
+          rawPow[i] = z
+        var hpow: array[ghashPowSlots, array[16, byte]]
+        buildGhashPowers(hpow, rawPow)
         var blks: array[8, array[16, byte]]
         for b in 0 ..< 8:
           for i in 0 ..< 16:

@@ -94,6 +94,51 @@
   separately: stream 1739, Poly 2046 MB/s. Both legs would need ~2x
   for OpenSSL parity; banked at 991/999.
 
+## Phase E (2026-11-07): measured split, three fixes, AES-128-GCM near parity
+
+Measured with the JIT build on 16 KiB, call granularity included:
+
+| component | MB/s | note |
+|---|---|---|
+| CTR batch (counter gen + AES + xor + store), 8 blk/call | 5083 | |
+| GHASH agg8 (8 blk/call) | 5573 | |
+| same two kernels as two calls | 2743 | serial, little overlap |
+| fused 8-block kernel | 2791 | |
+| fused 32-block kernel (4 inlined stages) | 2933 | |
+| OpenSSL seal, whole one-shot op | 2974 | |
+
+So the kernel was within ~10% of OpenSSL's *entire* operation; the rest was
+per-record overhead. Three fixes, each independently measured:
+
+1. **Wide fused kernel** (`assembleGcmCrypt32`): four 8-block stages inlined
+   in one call, pointer parking in rbx/r12-r14 (callee-saved on both ABIs)
+   because GHASH needs rdi/rsi/rdx while the next stage's AES needs them
+   back. 2682 -> 2933 (+9%). 64-block calls measured no better (2830).
+2. **`initAes` InvMixColumns via straight-line constant-time multiplies**
+   instead of the data-dependent `gmul` loop: `initGcm` 1.12 -> 0.49 us.
+   The old loop ran ~576 times per key schedule and dominated one-shot
+   fixed cost for encrypt-only users that never touch `nrkInv`.
+3. **Precomputed GHASH power forms** (`buildGhashPowers`): the byte-swap
+   and Karatsuba fold of each H^i were recomputed per pair per call,
+   putting a shuffle+xor chain on every PCLMUL's critical path. Stored
+   once per key (16 slots). GHASH alone +4%, fused kernel +3%.
+4. **Hoisted kernel dispatch** (`gcmCrypt32Fn`): the per-chunk
+   `ensureGcmJit` + round dispatch cost ~20 cycles x 32 calls per record;
+   resolving once per message moved the session path 2774 -> 2879.
+
+Result (one-shot, same flags): AES-128-GCM 2215/2211 -> 2638/2638
+(+19%), gap to OpenSSL 1.36x/1.61x -> 1.13x/1.35x. With the record-layer
+`GcmSession` (what TLS actually uses) it is 2879/2881 vs OpenSSL
+2974/3548, i.e. 1.03x on seal. AES-256-GCM 1925/1955 -> 2346/2262.
+
+Open stays behind because OpenSSL's *open* is consistently ~20% faster
+than its own seal (3548 vs 2974) while ours is symmetric; not explained
+yet. The remaining one-shot gap is the software AES key schedule
+(0.35 us vs ~0.03 us for an AESKEYGENASSIST-based one) — `skey` (the
+bitsliced schedule) is built eagerly even though JIT builds only use
+`nrk`. Making it lazy needs mutable access from `decryptBlocks`, whose
+callers hold `let` contexts, so it was left alone.
+
 ## Gates
 
 - Differential tests vs scalar for every new kernel, KATs for GCM/ChaCha.

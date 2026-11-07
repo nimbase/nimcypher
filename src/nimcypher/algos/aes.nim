@@ -553,14 +553,26 @@ proc gmul(a, b: uint8): uint8 =
 proc invMixColumn4(c: array[4, uint8]): array[4, uint8] =
   ## InvMixColumns of a single 4-byte state column
   ## (coefficients 0e, 0b, 0d, 09 rotated per row).
-  result[0] = gmul(c[0], 14) xor gmul(c[1], 11) xor gmul(c[2], 13) xor
-              gmul(c[3], 9)
-  result[1] = gmul(c[1], 14) xor gmul(c[2], 11) xor gmul(c[3], 13) xor
-              gmul(c[0], 9)
-  result[2] = gmul(c[2], 14) xor gmul(c[3], 11) xor gmul(c[0], 13) xor
-              gmul(c[1], 9)
-  result[3] = gmul(c[3], 14) xor gmul(c[0], 11) xor gmul(c[1], 13) xor
-              gmul(c[2], 9)
+  ##
+  ## Straight-line constant-time multiplies: the previous `gmul` loop was
+  ## data-dependent (`while bb != 0`) and ran ~16 times per column, so
+  ## building `nrkInv` cost ~1 us and dominated one-shot AES/GCM fixed
+  ## cost. Each byte is expanded to its 2/4/8 xtimes once, then the four
+  ## coefficients are sums of those (0e = 8^4^2, 0b = 8^2^1,
+  ## 0d = 8^4^1, 09 = 8^1). Same results, no branches, no tables.
+  var x1, x2, x3: array[4, uint8]
+  for i in 0 ..< 4:
+    x1[i] = xtime(c[i])
+    x2[i] = xtime(x1[i])
+    x3[i] = xtime(x2[i])
+  template m9(i: int): uint8 = x3[i] xor c[i]
+  template m11(i: int): uint8 = x3[i] xor x1[i] xor c[i]
+  template m13(i: int): uint8 = x3[i] xor x2[i] xor c[i]
+  template m14(i: int): uint8 = x3[i] xor x2[i] xor x1[i]
+  result[0] = m14(0) xor m11(1) xor m13(2) xor m9(3)
+  result[1] = m14(1) xor m11(2) xor m13(3) xor m9(0)
+  result[2] = m14(2) xor m11(3) xor m13(0) xor m9(1)
+  result[3] = m14(3) xor m11(0) xor m13(1) xor m9(2)
 
 proc initAes*(ctx: var AesContext, key: openArray[byte]) =
   ## Expand `key` (16, 24 or 32 bytes) into a fresh AES context. Raises
@@ -583,6 +595,7 @@ proc initAes*(ctx: var AesContext, key: openArray[byte]) =
       ctx.nrk[i * 4 + 2] = byte(w shr 16)
       ctx.nrk[i * 4 + 3] = byte(w shr 24)
     # equivalent inverse cipher: middle round keys get InvMixColumns
+    # (constant-time straight-line multiplies, see `invMixColumn4`)
     for r in 1 ..< ctx.rounds:
       for col in 0 ..< 4:
         var c: array[4, uint8]
