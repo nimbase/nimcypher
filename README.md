@@ -601,7 +601,7 @@ and bit tricks as the reference C code, secret-dependent comparisons go through
   hash tables only, never signatures, MACs, or password hashing.
 
 
-> [NOTE]
+> [!NOTE]
 > JOSE (JWS/JWE/JWK) lives in a separate package:
 > [nimbase/jose](https://github.com/nimbase/jose), pure-Nim JOSE based
 > on nimcypher.
