@@ -79,6 +79,20 @@
   + GCM ctrCrypt sites enabled for arm64 (GHASH/fused stay amd64).
   `taes_jit` gate widened to amd64-or-arm64. Execution proof is the
   ARM CI differential (macos-15, ubuntu-24.04-arm).
+- ChaCha 4-block crypt done 2026-11-07: `chacha_jit` gains
+  `assembleChachaCrypt4`/`chacha20Crypt4Jit` (two 2-block groups in
+  flight, A ymm0-3, B ymm8-11, shared tables; same verified VEX/SSE
+  forms, pool round-trip for uniform regs); DJB bulk loops 256 B
+  quads with a once-per-message template, leftover pair/odd/tail on
+  the old paths. Bulk 712/738 -> 991/999 MB/s (+38%/+35%); gap to
+  OpenSSL 2.6x/2.9x -> 2.0x/2.2x. Proven on all CI runners.
+- Poly step 3 closed 2026-11-07, NOT pursued: scalar 2-way with r^2
+  is arithmetically dead (reduced r^2 limbs need 67-bit accumulators,
+  the masked-r headroom is exactly 64 bits — proven, not tunable);
+  4-lane SSE2 radix-2^26 estimated at only ~1.3x Poly (the transpose
+  tax eats the mult win on this host) for ~600 lines. Legs measured
+  separately: stream 1739, Poly 2046 MB/s. Both legs would need ~2x
+  for OpenSSL parity; banked at 991/999.
 
 ## Gates
 
