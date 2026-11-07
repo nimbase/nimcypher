@@ -52,6 +52,19 @@ non-AES `*_jit` suites skip on ARM.
 5. cpu detector — `getauxval(AT_HWCAP)` on Linux, always-true on
    macOS; gates crypto kernels at runtime.
 
+## Execution proof (2026-11-07)
+
+- `nimble test_jit` (new nimble task) runs the five `*_jit` suites
+  plus `tgcm_fused`/`taes`/`tgcm` with nimdynasm; the `test-jit` CI
+  job runs it natively on all four runners.
+- Requires dynasm >= 0.2.0 in the registry: the 0.1.0 release has no
+  x64 assemblers at all, so the job fails at dependency resolution
+  until 0.2.0 is published. Publish order: dynasm 0.2.0 first, then
+  merge the nimcypher side.
+- The macOS step pins `-arch arm64` codegen (same workaround as the
+  reusable test workflow) so kernels execute natively on Apple
+  Silicon runners.
+
 ## Gates (same as x86)
 
 - Differential vs scalar for every kernel, host-verified encodings

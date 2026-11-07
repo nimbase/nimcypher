@@ -49,6 +49,17 @@ task test_simd, "Run the SIMD-accelerated tests":
     exec "nim c -r --hints:off -d:danger " &
          "-d:features.nimcypher.nimsimd tests/" & t & ".nim"
 
+task test_jit, "Run the dynasm JIT differential tests":
+  ## AES/ChaCha/Blake2b/GHASH/MULX batch kernels plus the fused-GCM
+  ## and dispatch integration suites, all against their scalar
+  ## references. Needs a dynasm with the x64 encoders + detectors
+  ## (the jit/simd-isa branch, merged to main);
+  ## suites self-skip where the host arch lacks a backend.
+  for t in ["taes_jit", "tchacha_jit", "tblake2b_jit", "tghash_jit",
+            "tmulwide_jit", "tgcm_fused", "taes", "tgcm"]:
+    exec "nim c -r --hints:off -d:danger " &
+         "-d:features.nimcypher.nimdynasm tests/" & t & ".nim"
+
 task bench, "Benchmark NimCypher (scalar vs SIMD) against C Monocypher and nimcrypto":
   exec "nimble install -y nimsimd nimcrypto"
   exec "nim c -r --hints:off -d:danger --opt:speed --mm:arc " &
