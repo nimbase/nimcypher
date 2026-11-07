@@ -37,7 +37,9 @@ when defined(features.nimcypher.nimdynasm) and
     test "crypt2 equals scalar djb":
       if cpuHasAvx2():
         randomize(0xC2C4)
-        for msgLen in [0, 1, 63, 64, 65, 127, 128, 129, 191, 192, 1024, 1031]:
+        for msgLen in [0, 1, 63, 64, 65, 127, 128, 129, 191, 192, 255,
+                       256, 257, 319, 320, 321, 383, 384, 385, 511, 512,
+                       1024, 1031]:
           var key: array[32, byte]
           var nonce: array[8, byte]
           for i in 0 ..< 32: key[i] = byte(rand(255))
@@ -88,6 +90,34 @@ when defined(features.nimcypher.nimdynasm) and
             let aIdx = (w shr 2) shl 3 + (w and 3)
             check poolJit[aIdx] == e0[w]
             check poolJit[aIdx + 4] == e1[w]
+      else:
+        skip()
+
+    test "four-block avx2 agrees":
+      if cpuHasAvx2():
+        randomize(0x4B1C)
+        for _ in 0 ..< 60:
+          var b: array[4, array[16, uint32]]
+          for k in 0 ..< 4:
+            for i in 0 ..< 16:
+              b[k][i] = uint32(rand(high(int)))
+          # two-pair layout: word w of block k at
+          # (w shr 2) shl 3 + (w and 3) + 32*(k shr 1) + 4*(k and 1)
+          var din, poolJit: array[64, uint32]
+          for k in 0 ..< 4:
+            for w in 0 ..< 16:
+              let aIdx = (w shr 2) shl 3 + (w and 3) + 32 * (k shr 1) +
+                4 * (k and 1)
+              din[aIdx] = b[k][w]
+          chacha20Rounds4Jit(poolJit, din)
+          var e: array[4, array[16, uint32]]
+          for k in 0 ..< 4:
+            chacha20RoundsScalar(e[k], b[k])
+          for k in 0 ..< 4:
+            for w in 0 ..< 16:
+              let aIdx = (w shr 2) shl 3 + (w and 3) + 32 * (k shr 1) +
+                4 * (k and 1)
+              check poolJit[aIdx] == e[k][w]
       else:
         skip()
 else:

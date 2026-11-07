@@ -227,15 +227,85 @@ when defined(features.nimcypher.nimdynasm) and defined(amd64):
     dinTmpl[30] = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
     dinTmpl[31] = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
 
+    # Quad template: two pairs back to back (pair 1 32 words later).
+    # Rows 0-2 and the nonce never change within a message, so build
+    # once and patch only the 8 counter words per quad.
+    var dinQTmpl: array[64, uint32]
+    for i in 0 ..< 4:
+      let c = load32Le(cast[BytePtr](unsafeAddr chacha20Constant[i * 4]))
+      dinQTmpl[i] = c
+      dinQTmpl[4 + i] = c
+      dinQTmpl[32 + i] = c
+      dinQTmpl[36 + i] = c
+    for i in 0 ..< 4:
+      let k = load32Le(cast[BytePtr](unsafeAddr key[i * 4]))
+      dinQTmpl[8 + i] = k
+      dinQTmpl[12 + i] = k
+      dinQTmpl[40 + i] = k
+      dinQTmpl[44 + i] = k
+    for i in 0 ..< 4:
+      let k = load32Le(cast[BytePtr](unsafeAddr key[(4 + i) * 4]))
+      dinQTmpl[16 + i] = k
+      dinQTmpl[20 + i] = k
+      dinQTmpl[48 + i] = k
+      dinQTmpl[52 + i] = k
+    let n0 = load32Le(cast[BytePtr](unsafeAddr nonce[0]))
+    let n1 = load32Le(cast[BytePtr](unsafeAddr nonce[4]))
+    dinQTmpl[26] = n0
+    dinQTmpl[27] = n1
+    dinQTmpl[30] = n0
+    dinQTmpl[31] = n1
+    dinQTmpl[58] = n0
+    dinQTmpl[59] = n1
+    dinQTmpl[62] = n0
+    dinQTmpl[63] = n1
+
     var din: array[32, uint32]
     var pool: array[32, uint32]
+    var dinQ: array[64, uint32]
+    var poolQ: array[64, uint32]
     var textSize2 = textSize
     var ct = cipherText
     var pt = plainText
     let nbBlocks = textSize2 shr 6
-    let nbPairs = nbBlocks shr 1
+    let nbQuads = nbBlocks shr 2
     var c = ctr
-    for _ in 0 ..< nbPairs:
+    if pt != nil:
+      copyMem(addr dinQ[0], addr dinQTmpl[0], 256)
+      for _ in 0 ..< nbQuads:
+        dinQ[24] = uint32(c)
+        dinQ[25] = uint32(c shr 32)
+        dinQ[28] = uint32(c + 1)
+        dinQ[29] = uint32((c + 1) shr 32)
+        dinQ[56] = uint32(c + 2)
+        dinQ[57] = uint32((c + 2) shr 32)
+        dinQ[60] = uint32(c + 3)
+        dinQ[61] = uint32((c + 3) shr 32)
+        chacha20Crypt4Jit(ct, pt, poolQ, cast[BytePtr](addr dinQ[0]))
+        ct = ct + 256
+        pt = pt + 256
+        c = c + 4
+    else:
+      # Keystream path stays on the pair kernel (bulk nil inputs are
+      # tiny in practice: 32-64 B auth-key derivations).
+      for _ in 0 ..< nbQuads * 2:
+        copyMem(addr din[0], addr dinTmpl[0], 128)
+        din[24] = uint32(c)
+        din[25] = uint32(c shr 32)
+        din[28] = uint32(c + 1)
+        din[29] = uint32((c + 1) shr 32)
+        chacha20Rounds2Jit(pool, din)
+        for w in 0 ..< 16:
+          let aIdx = (w shr 2) shl 3 + (w and 3)
+          let bIdx = aIdx + 4
+          let off = w shl 2
+          store32Le(ct + off, pool[aIdx] + din[aIdx])
+          store32Le(ct + 64 + off, pool[bIdx] + din[bIdx])
+        ct = ct + 128
+        c = c + 2
+
+    # Leftover pair
+    if (nbBlocks and 2) == 2:
       copyMem(addr din[0], addr dinTmpl[0], 128)
       din[24] = uint32(c)
       din[25] = uint32(c shr 32)
@@ -293,6 +363,8 @@ when defined(features.nimcypher.nimdynasm) and defined(amd64):
     result = c + (if textSize2 > 0: 1'u64 else: 0'u64)
     wipe(pool)
     wipe(din)
+    wipe(poolQ)
+    wipe(dinQ)
 
 proc chacha20DjbScalar*(cipherText: BytePtr, plainText: BytePtr, textSize: int,
                         key: array[32, byte], nonce: array[8, byte],

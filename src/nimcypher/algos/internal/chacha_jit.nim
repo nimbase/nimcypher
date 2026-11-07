@@ -331,6 +331,288 @@ proc chacha20Crypt2Jit*(dst, src: BytePtr, pool: var array[32, uint32],
   f(addr pool[0], unsafeAddr din[0], cast[pointer](dst),
     cast[pointer](src))
 
+proc emitChachaRounds4(a: var Assembler) =
+  ## Ten double-rounds over two 2-block groups: A in ymm0..3 (temp ymm4),
+  ## B in ymm8..11 (temp ymm12), shuffle tables shared in ymm5..7.
+  ## Groups run back-to-back per double-round; the chains are independent
+  ## so the out-of-order window overlaps them (~2x rounds ILP vs the
+  ## 2-block kernel). Body is a mechanical rename of `emitChachaRounds2`
+  ## (same verified VEX forms, no extracts/inserts).
+  for _ in 0 ..< 10:
+    dynasm a:
+      arch x64
+      # group A column round
+      vpaddd ymm0, ymm0, ymm1
+      vpxor ymm3, ymm3, ymm0
+      vpslld ymm4, ymm3, 16
+      vpsrld ymm3, ymm3, 16
+      vpor ymm3, ymm3, ymm4
+      vpaddd ymm2, ymm2, ymm3
+      vpxor ymm1, ymm1, ymm2
+      vpslld ymm4, ymm1, 12
+      vpsrld ymm1, ymm1, 20
+      vpor ymm1, ymm1, ymm4
+      vpaddd ymm0, ymm0, ymm1
+      vpxor ymm3, ymm3, ymm0
+      vpslld ymm4, ymm3, 8
+      vpsrld ymm3, ymm3, 24
+      vpor ymm3, ymm3, ymm4
+      vpaddd ymm2, ymm2, ymm3
+      vpxor ymm1, ymm1, ymm2
+      vpslld ymm4, ymm1, 7
+      vpsrld ymm1, ymm1, 25
+      vpor ymm1, ymm1, ymm4
+      vpshufb ymm1, ymm1, ymm5
+      vpshufb ymm2, ymm2, ymm6
+      vpshufb ymm3, ymm3, ymm7
+      # group B column round
+      vpaddd ymm8, ymm8, ymm9
+      vpxor ymm11, ymm11, ymm8
+      vpslld ymm12, ymm11, 16
+      vpsrld ymm11, ymm11, 16
+      vpor ymm11, ymm11, ymm12
+      vpaddd ymm10, ymm10, ymm11
+      vpxor ymm9, ymm9, ymm10
+      vpslld ymm12, ymm9, 12
+      vpsrld ymm9, ymm9, 20
+      vpor ymm9, ymm9, ymm12
+      vpaddd ymm8, ymm8, ymm9
+      vpxor ymm11, ymm11, ymm8
+      vpslld ymm12, ymm11, 8
+      vpsrld ymm11, ymm11, 24
+      vpor ymm11, ymm11, ymm12
+      vpaddd ymm10, ymm10, ymm11
+      vpxor ymm9, ymm9, ymm10
+      vpslld ymm12, ymm9, 7
+      vpsrld ymm9, ymm9, 25
+      vpor ymm9, ymm9, ymm12
+      vpshufb ymm9, ymm9, ymm5
+      vpshufb ymm10, ymm10, ymm6
+      vpshufb ymm11, ymm11, ymm7
+      # group A diagonal round
+      vpaddd ymm0, ymm0, ymm1
+      vpxor ymm3, ymm3, ymm0
+      vpslld ymm4, ymm3, 16
+      vpsrld ymm3, ymm3, 16
+      vpor ymm3, ymm3, ymm4
+      vpaddd ymm2, ymm2, ymm3
+      vpxor ymm1, ymm1, ymm2
+      vpslld ymm4, ymm1, 12
+      vpsrld ymm1, ymm1, 20
+      vpor ymm1, ymm1, ymm4
+      vpaddd ymm0, ymm0, ymm1
+      vpxor ymm3, ymm3, ymm0
+      vpslld ymm4, ymm3, 8
+      vpsrld ymm3, ymm3, 24
+      vpor ymm3, ymm3, ymm4
+      vpaddd ymm2, ymm2, ymm3
+      vpxor ymm1, ymm1, ymm2
+      vpslld ymm4, ymm1, 7
+      vpsrld ymm1, ymm1, 25
+      vpor ymm1, ymm1, ymm4
+      vpshufb ymm1, ymm1, ymm7
+      vpshufb ymm2, ymm2, ymm6
+      vpshufb ymm3, ymm3, ymm5
+      # group B diagonal round
+      vpaddd ymm8, ymm8, ymm9
+      vpxor ymm11, ymm11, ymm8
+      vpslld ymm12, ymm11, 16
+      vpsrld ymm11, ymm11, 16
+      vpor ymm11, ymm11, ymm12
+      vpaddd ymm10, ymm10, ymm11
+      vpxor ymm9, ymm9, ymm10
+      vpslld ymm12, ymm9, 12
+      vpsrld ymm9, ymm9, 20
+      vpor ymm9, ymm9, ymm12
+      vpaddd ymm8, ymm8, ymm9
+      vpxor ymm11, ymm11, ymm8
+      vpslld ymm12, ymm11, 8
+      vpsrld ymm11, ymm11, 24
+      vpor ymm11, ymm11, ymm12
+      vpaddd ymm10, ymm10, ymm11
+      vpxor ymm9, ymm9, ymm10
+      vpslld ymm12, ymm9, 7
+      vpsrld ymm9, ymm9, 25
+      vpor ymm9, ymm9, ymm12
+      vpshufb ymm9, ymm9, ymm7
+      vpshufb ymm10, ymm10, ymm6
+      vpshufb ymm11, ymm11, ymm5
+
+proc assembleChachaRounds4(): ExecutableBuffer =
+  ## 4-block AVX2 rounds: two pairs in parallel (group A blocks 0,1 in
+  ## ymm0..3; group B blocks 2,3 in ymm8..11). Layout per pair matches
+  ## `simdRounds2`: word w of pair-block k at
+  ## [(w shr 2) shl 3 + (w and 3) + 4*(k and 1)], pair 1 32 words later.
+  var a = newAssembler(akX64)
+  dynasm a:
+    arch x64
+    alias inp, rsi, rdx
+    vmovdqu ymm0, [inp]
+    vmovdqu ymm1, [inp + 32]
+    vmovdqu ymm2, [inp + 64]
+    vmovdqu ymm3, [inp + 96]
+    vmovdqu ymm8, [inp + 128]
+    vmovdqu ymm9, [inp + 160]
+    vmovdqu ymm10, [inp + 192]
+    vmovdqu ymm11, [inp + 224]
+    vmovdqu ymm5, [glob("shuf39")]
+    vmovdqu ymm6, [glob("shuf4e")]
+    vmovdqu ymm7, [glob("shuf93")]
+  emitChachaRounds4(a)
+  dynasm a:
+    arch x64
+    alias outp, rdi, rcx
+    vmovdqu [outp], ymm0
+    vmovdqu [outp + 32], ymm1
+    vmovdqu [outp + 64], ymm2
+    vmovdqu [outp + 96], ymm3
+    vmovdqu [outp + 128], ymm8
+    vmovdqu [outp + 160], ymm9
+    vmovdqu [outp + 192], ymm10
+    vmovdqu [outp + 224], ymm11
+    vzeroupper()
+    ret()
+    global shuf39
+    u8 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3,
+      4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3
+    global shuf4e
+    u8 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7,
+      8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7
+    global shuf93
+    u8 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+      12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+  result = a.finalize()
+
+proc assembleChachaCrypt4(): ExecutableBuffer =
+  ## Fused 4-block crypt: rounds over the interleaved input at [inp],
+  ## pool stored to [poolp], then (pool + input) xor plaintext stored to
+  ## [dstp], all in one call. Same row-group SSE epilogue shape as the
+  ## 2-block kernel (uniform regs via the pool round-trip), extended to
+  ## both pairs. `din` is passed by pointer (256 B by-value copies would
+  ## cost an extra full pass over the input per quad).
+  var a = newAssembler(akX64)
+  dynasm a:
+    arch x64
+    alias inp, rcx, r9
+    vmovdqu ymm0, [inp]
+    vmovdqu ymm1, [inp + 32]
+    vmovdqu ymm2, [inp + 64]
+    vmovdqu ymm3, [inp + 96]
+    vmovdqu ymm8, [inp + 128]
+    vmovdqu ymm9, [inp + 160]
+    vmovdqu ymm10, [inp + 192]
+    vmovdqu ymm11, [inp + 224]
+    vmovdqu ymm5, [glob("shuf39")]
+    vmovdqu ymm6, [glob("shuf4e")]
+    vmovdqu ymm7, [glob("shuf93")]
+  emitChachaRounds4(a)
+  dynasm a:
+    arch x64
+    alias poolp, rdx, r8
+    vmovdqu [poolp], ymm0
+    vmovdqu [poolp + 32], ymm1
+    vmovdqu [poolp + 64], ymm2
+    vmovdqu [poolp + 96], ymm3
+    vmovdqu [poolp + 128], ymm8
+    vmovdqu [poolp + 160], ymm9
+    vmovdqu [poolp + 192], ymm10
+    vmovdqu [poolp + 224], ymm11
+  # Keystream add pass (uniform regs via the pool round-trip), then one
+  # vzeroupper before the SSE xor/store pass.
+  for p in 0 ..< 2:
+    let b = p * 128
+    for g in 0 ..< 4:
+      let o = b + g * 32
+      dynasm a:
+        arch x64
+        alias poolp, rdx, r8
+        alias inp, rcx, r9
+        vmovdqu ymm0, [poolp + o]
+        vmovdqu ymm1, [inp + o]
+        vpaddd ymm0, ymm0, ymm1
+        vmovdqu [poolp + o], ymm0
+  dynasm a:
+    arch x64
+    vzeroupper()
+  for p in 0 ..< 2:
+    let b = p * 128
+    for g in 0 ..< 4:
+      let o = b + g * 32
+      let o16 = o + 16
+      let q = b + g * 16
+      let q64 = 64 + q
+      dynasm a:
+        arch x64
+        alias dstp, rdi, rcx
+        alias srcp, rsi, rdx
+        alias poolp, rdx, r8
+        movdqu xmm0, [poolp + o]
+        movdqu xmm1, [srcp + q]
+        pxor xmm0, xmm1
+        movdqu [dstp + q], xmm0
+        movdqu xmm0, [poolp + o16]
+        movdqu xmm1, [srcp + q64]
+        pxor xmm0, xmm1
+        movdqu [dstp + q64], xmm0
+  dynasm a:
+    arch x64
+    ret()
+    global shuf39
+    u8 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3,
+      4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3
+    global shuf4e
+    u8 8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7,
+      8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7
+    global shuf93
+    u8 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+      12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+  result = a.finalize()
+
+var gChachaBuf4: ExecutableBuffer
+var gChachaReady4: Atomic[bool]
+var gChachaCrypt4Buf: ExecutableBuffer
+var gChachaCrypt4Ready: Atomic[bool]
+
+proc ensureChachaJit4() =
+  if gChachaReady4.load(moAcquire):
+    return
+  withLock(gChachaLock):
+    if gChachaReady4.load(moRelaxed):
+      return
+    gChachaBuf4 = assembleChachaRounds4()
+    gChachaReady4.store(true, moRelease)
+
+proc ensureChachaCrypt4Jit() =
+  if gChachaCrypt4Ready.load(moAcquire):
+    return
+  withLock(gChachaLock):
+    if gChachaCrypt4Ready.load(moRelaxed):
+      return
+    gChachaCrypt4Buf = assembleChachaCrypt4()
+    gChachaCrypt4Ready.store(true, moRelease)
+
+proc chacha20Rounds4Jit*(pool: var array[64, uint32],
+                         din: array[64, uint32]) =
+  ## Apply 20 rounds to four blocks at once (two-pair layout, pair 1
+  ## 32 words after pair 0). Requires AVX2 + OS YMM support; check
+  ## cpuHasAvx2() first.
+  ensureChachaJit4()
+  let f = cast[ChachaJitFn](gChachaBuf4.ptrAt(AssemblyOffset(0)))
+  f(addr pool[0], unsafeAddr din[0])
+
+type ChachaCrypt4Fn* = proc(dstp, srcp, poolp, inp: pointer) {.cdecl, gcsafe.}
+
+proc chacha20Crypt4Jit*(dst, src: BytePtr, pool: var array[64, uint32],
+                        din: BytePtr) =
+  ## Rounds + add + xor + store for a block quad (two-pair layout, pair 1
+  ## 128 bytes after pair 0; blocks land contiguously, 64 bytes each).
+  ## `din` is a pointer to avoid a 256 B by-value copy per quad.
+  ## Requires AVX2 + OS YMM support; check cpuHasAvx2() first.
+  ensureChachaCrypt4Jit()
+  let f = cast[ChachaCrypt4Fn](gChachaCrypt4Buf.ptrAt(AssemblyOffset(0)))
+  f(cast[pointer](dst), cast[pointer](src), addr pool[0],
+    cast[pointer](din))
+
 proc ensureChachaJit() =
   if gChachaReady.load(moAcquire):
     return
