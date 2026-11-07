@@ -55,8 +55,8 @@ task test_jit, "Run the dynasm JIT differential tests":
   ## references. Needs a dynasm with the x64 encoders + detectors
   ## (the jit/simd-isa branch, merged to main);
   ## suites self-skip where the host arch lacks a backend.
-  for t in ["zz_armdbg", "taes_jit", "tchacha_jit", "tblake2b_jit",
-            "tghash_jit", "tmulwide_jit", "tgcm_fused", "taes", "tgcm"]:
+  for t in ["taes_jit", "tchacha_jit", "tblake2b_jit", "tghash_jit",
+            "tmulwide_jit", "tgcm_fused", "taes", "tgcm"]:
     exec "nim c -r --hints:off -d:danger " &
          "-d:features.nimcypher.nimdynasm tests/" & t & ".nim"
 

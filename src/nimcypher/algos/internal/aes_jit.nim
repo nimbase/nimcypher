@@ -60,7 +60,7 @@ func armEorVWord*(rd, rn, rm: int): uint32 {.inline.} =
   armEorVBase or uint32(rd and 31) or (uint32(rn and 31) shl 5) or
     (uint32(rm and 31) shl 16)
 
-when defined(amd64) and not defined(forceArmJit):
+when defined(amd64):
 
   proc emitAesCtrHead8*(a: var Assembler) =
     ## Build 8 GCM counter blocks at [rsp .. rsp+127] from the base block
@@ -153,7 +153,7 @@ when defined(amd64) and not defined(forceArmJit):
           arch x64
           aesenc Rx(s), xmm8
 
-  proc assembleCtrCryptBatch8*(R: int): ExecutableBuffer =
+  proc assembleCtrCryptBatch8(R: int): ExecutableBuffer =
     ## CTR-crypt exactly 8 blocks for GCM: build counters base..base+7
     ## (GCM inc32 order, low dword big-endian at [ctrp+12]) on a stack
     ## scratch area, AES-encrypt them, xor with 128 bytes at [srcp],
@@ -197,7 +197,7 @@ when defined(amd64) and not defined(forceArmJit):
       ret()
     result = a.finalize()
 
-  proc assembleEncBatch8*(R: int): ExecutableBuffer =
+  proc assembleEncBatch8(R: int): ExecutableBuffer =
     ## Encrypt exactly 8 blocks, R full rounds + final, keys at [nrkp].
     var a = newAssembler(akX64)
     for i in 0 ..< aesJitBatch:
@@ -226,7 +226,7 @@ when defined(amd64) and not defined(forceArmJit):
       ret()
     result = a.finalize()
 
-  proc assembleDecBatch8*(R: int): ExecutableBuffer =
+  proc assembleDecBatch8(R: int): ExecutableBuffer =
     ## Decrypt exactly 8 blocks via the equivalent inverse cipher:
     ## first AESDEC with the last round key, middle rounds from the
     ## InvMixColumns schedule, final AESDECLAST with the first key.
@@ -276,7 +276,7 @@ when defined(amd64) and not defined(forceArmJit):
       ret()
     result = a.finalize()
 
-when defined(arm64) or defined(forceArmJit):
+when defined(arm64):
   # ARMv8 Crypto kernels. dynasm has no crypto mnemonics yet, so the
   # four 2-operand instructions (aese/aesd/aesmc/aesimc) and the
   # dynamic-index vector memory ops are emitted as raw words via the
@@ -297,27 +297,25 @@ when defined(arm64) or defined(forceArmJit):
   template emitAesimc(a: var Assembler, rd, rn: int) =
     a.pushU32(armCryptoWord(armAesimcBase, rd, rn))
 
-  proc ldStates8*(a: var Assembler, baseReg: int, off0: int) =
+  proc ldStates8(a: var Assembler, baseReg: int, off0: int) =
     ## Load the 8 states v0..v7 from [baseReg + off0 .. + 127].
     ## `baseReg` is a raw number (2 = x2 src, 3 = x3, 31 = sp).
     for i in 0 ..< aesJitBatch:
       a.pushU32(armLdrQWord(i, baseReg, off0 + i * 16))
 
-  proc stStates8*(a: var Assembler, baseReg: int, off0: int) =
+  proc stStates8(a: var Assembler, baseReg: int, off0: int) =
     ## Store the 8 states v0..v7 to [baseReg + off0 .. + 127].
     for i in 0 ..< aesJitBatch:
       a.pushU32(armStrQWord(i, baseReg, off0 + i * 16))
 
-  proc emitAesEncRoundsA64*(a: var Assembler, R: int) =
-    ## Key0 xor + middle AESE/AESMC rounds over v0..v7 (round key
-    ## reloaded into v31 each round; no final round — the caller
-    ## emits it, like the x64 `emitAesEncRounds8`).
-    dynasm a:
-      arch aarch64
-      ldr q31, [x0]
-    for i in 0 ..< aesJitBatch:
-      a.pushU32(armEorVWord(i, i, 31))
-    for r in 1 ..< R:
+  proc emitAesEncRoundsA64(a: var Assembler, R: int) =
+    ## AESE/AESMC rounds over v0..v7 (round key reloaded into v31 each
+    ## round; no final round — the caller emits it, like the x64
+    ## `emitAesEncRounds8`). AESE folds AddRoundKey, so unlike the x64
+    ## emitter there is NO separate initial xor: round 0 consumes k0
+    ## (mirrors `aes_simd.encBatch4`; the invariant is
+    ## state[r] = trueAES[r] xor k[r], discharged by the final eor).
+    for r in 0 ..< R - 1:
       let d = r * 16
       dynasm a:
         arch aarch64
@@ -326,7 +324,7 @@ when defined(arm64) or defined(forceArmJit):
         emitAese(a, i, 31)
         emitAesmc(a, i, i)
 
-  proc emitAesEncFinalA64*(a: var Assembler, R: int) =
+  proc emitAesEncFinalA64(a: var Assembler, R: int) =
     ## Final AESE (no MixColumns) + xor with the last round key.
     let km1 = (R - 1) * 16
     let kd = R * 16
@@ -390,7 +388,7 @@ when defined(arm64) or defined(forceArmJit):
       strb w5, [x3, 14]
       strb w4, [x3, 15]
 
-  proc assembleEncBatch8*(R: int): ExecutableBuffer =
+  proc assembleEncBatch8(R: int): ExecutableBuffer =
     ## Encrypt exactly 8 blocks, R full rounds + final, keys at [x0].
     ## AAPCS64 args: x0 = nrk, x1 = dst, x2 = src.
     var a = newAssembler(akAarch64)
@@ -403,7 +401,7 @@ when defined(arm64) or defined(forceArmJit):
       ret()
     result = a.finalize()
 
-  proc assembleDecBatch8*(R: int): ExecutableBuffer =
+  proc assembleDecBatch8(R: int): ExecutableBuffer =
     ## Decrypt exactly 8 blocks via the equivalent inverse cipher:
     ## first AESD with the last round key, middle rounds from the
     ## InvMixColumns schedule, final xor with the first key.
@@ -436,7 +434,7 @@ when defined(arm64) or defined(forceArmJit):
       ret()
     result = a.finalize()
 
-  proc assembleCtrCryptBatch8*(R: int): ExecutableBuffer =
+  proc assembleCtrCryptBatch8(R: int): ExecutableBuffer =
     ## CTR-crypt exactly 8 blocks for GCM: build counters base..base+7
     ## on a 128-byte stack area, AES-encrypt them, xor with 128 bytes
     ## at [x2], store at [x1]. Advances the dword at [x3+12] by 8.
