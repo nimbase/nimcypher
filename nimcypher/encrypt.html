@@ -104,10 +104,24 @@
                ad: openArray[byte] = []): seq[byte]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">aeadStreamReadInto
+  <li><a class="reference" href="#aeadStreamReadInto%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CMac16%2CopenArray%5Bbyte%5D" title="aeadStreamReadInto(stream: var AeadStream; plainText: var openArray[byte];
+                   cipherText: openArray[byte]; mac: Mac16;
+                   ad: openArray[byte] = []): bool">aeadStreamReadInto(stream: var AeadStream; plainText: var openArray[byte];
+                   cipherText: openArray[byte]; mac: Mac16;
+                   ad: openArray[byte] = []): bool</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">aeadStreamWrite
   <li><a class="reference" href="#aeadStreamWrite%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="aeadStreamWrite(stream: var AeadStream; plainText: openArray[byte];
                 ad: openArray[byte] = []): (seq[uint8], Mac16)">aeadStreamWrite(stream: var AeadStream; plainText: openArray[byte];
                 ad: openArray[byte] = []): (seq[uint8], Mac16)</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">aeadStreamWriteInto
+  <li><a class="reference" href="#aeadStreamWriteInto%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="aeadStreamWriteInto(stream: var AeadStream; cipherText: var openArray[byte];
+                    plainText: openArray[byte]; ad: openArray[byte] = []): Mac16">aeadStreamWriteInto(stream: var AeadStream; cipherText: var openArray[byte];
+                    plainText: openArray[byte]; ad: openArray[byte] = []): Mac16</a></li>
 
 </ul>
 <ul class="simple nested-toc-section">computeChallengeMac
@@ -271,6 +285,20 @@
 </div>
 
 </div>
+<div id="aeadStreamReadInto-procs-all">
+  <div id="aeadStreamReadInto,AeadStream,openArray[byte],openArray[byte],Mac16,openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#aeadStreamReadInto%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CMac16%2CopenArray%5Bbyte%5D"><span class="Identifier">aeadStreamReadInto</span></a><span class="Other">(</span><span class="Identifier">stream</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#AeadStream"><span class="Identifier">AeadStream</span></a><span class="Other">;</span> <span class="Identifier">plainText</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+                        <span class="Identifier">cipherText</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">mac</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a><span class="Other">;</span>
+                        <span class="Identifier">ad</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> <span class="Other">=</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span>
+    <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Chunk-decrypt into a caller-provided buffer (<tt class="docutils literal"><span class="pre"><span class="Identifier">plainText</span></span></tt> must be exactly <tt class="docutils literal"><span class="pre"><span class="Identifier">cipherText</span><span class="Operator">.</span><span class="Identifier">len</span></span></tt> bytes, no overlap). Returns true on MAC success; on failure returns false leaving <tt class="docutils literal"><span class="pre"><span class="Identifier">plainText</span></span></tt> untouched. Same rekeying as <tt class="docutils literal"><span class="pre"><span class="Identifier">aeadStreamRead</span></span></tt>; outputs are byte-identical. Zero heap allocation for fixed reused buffers.
+    
+  </dd>
+</div>
+
+</div>
 <div id="aeadStreamWrite-procs-all">
   <div id="aeadStreamWrite,AeadStream,openArray[byte],openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#aeadStreamWrite%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">aeadStreamWrite</span></a><span class="Other">(</span><span class="Identifier">stream</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#AeadStream"><span class="Identifier">AeadStream</span></a><span class="Other">;</span> <span class="Identifier">plainText</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
@@ -279,6 +307,20 @@
   <dd>
     
     Encrypt and authenticate one chunk, rekeying the stream for the next.
+    
+  </dd>
+</div>
+
+</div>
+<div id="aeadStreamWriteInto-procs-all">
+  <div id="aeadStreamWriteInto,AeadStream,openArray[byte],openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#aeadStreamWriteInto%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">aeadStreamWriteInto</span></a><span class="Other">(</span><span class="Identifier">stream</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#AeadStream"><span class="Identifier">AeadStream</span></a><span class="Other">;</span>
+                         <span class="Identifier">cipherText</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+                         <span class="Identifier">plainText</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">ad</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> <span class="Other">=</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <a href="utils.html#Mac16"><span class="Identifier">Mac16</span></a> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Chunk-encrypt into a caller-provided buffer (<tt class="docutils literal"><span class="pre"><span class="Identifier">cipherText</span></span></tt> must be exactly <tt class="docutils literal"><span class="pre"><span class="Identifier">plainText</span><span class="Operator">.</span><span class="Identifier">len</span></span></tt> bytes, no overlap). Returns the chunk MAC. Same rekeying as <tt class="docutils literal"><span class="pre"><span class="Identifier">aeadStreamWrite</span></span></tt>; outputs are byte-identical. Zero heap allocation for fixed reused buffers.
     
   </dd>
 </div>
@@ -439,7 +481,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-07 20:28:28 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-08 00:42:56 UTC</small>
       </div>
     </div>
   </div>

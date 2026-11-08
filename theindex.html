@@ -167,11 +167,25 @@
                ad: openArray[byte] = []): seq[byte]" href="nimcypher/encrypt.html#aeadStreamRead%2CAeadStream%2CopenArray%5Bbyte%5D%2CMac16%2CopenArray%5Bbyte%5D">encrypt: proc aeadStreamRead(stream: var AeadStream; cipherText: openArray[byte]; mac: Mac16;
                ad: openArray[byte] = []): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="aeadStreamReadInto" href="#aeadStreamReadInto"><span>aeadStreamReadInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="encrypt: proc aeadStreamReadInto(stream: var AeadStream; plainText: var openArray[byte];
+                   cipherText: openArray[byte]; mac: Mac16;
+                   ad: openArray[byte] = []): bool" href="nimcypher/encrypt.html#aeadStreamReadInto%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CMac16%2CopenArray%5Bbyte%5D">encrypt: proc aeadStreamReadInto(stream: var AeadStream; plainText: var openArray[byte];
+                   cipherText: openArray[byte]; mac: Mac16;
+                   ad: openArray[byte] = []): bool</a></li>
+          </ul></dd>
 <dt><a name="aeadStreamWrite" href="#aeadStreamWrite"><span>aeadStreamWrite:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="encrypt: proc aeadStreamWrite(stream: var AeadStream; plainText: openArray[byte];
                 ad: openArray[byte] = []): (seq[uint8], Mac16)" href="nimcypher/encrypt.html#aeadStreamWrite%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">encrypt: proc aeadStreamWrite(stream: var AeadStream; plainText: openArray[byte];
                 ad: openArray[byte] = []): (seq[uint8], Mac16)</a></li>
+          </ul></dd>
+<dt><a name="aeadStreamWriteInto" href="#aeadStreamWriteInto"><span>aeadStreamWriteInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="encrypt: proc aeadStreamWriteInto(stream: var AeadStream; cipherText: var openArray[byte];
+                    plainText: openArray[byte]; ad: openArray[byte] = []): Mac16" href="nimcypher/encrypt.html#aeadStreamWriteInto%2CAeadStream%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">encrypt: proc aeadStreamWriteInto(stream: var AeadStream; cipherText: var openArray[byte];
+                    plainText: openArray[byte]; ad: openArray[byte] = []): Mac16</a></li>
           </ul></dd>
 <dt><a name="aeadUnlock" href="#aeadUnlock"><span>aeadUnlock:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -2619,6 +2633,12 @@
 <li><a class="reference external"
           data-doc-search-tag="codec: proc readBytes(r: var TlsReader; n: int): seq[byte]" href="nimcypher/tls/codec.html#readBytes%2CTlsReader%2Cint">codec: proc readBytes(r: var TlsReader; n: int): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="readInto" href="#readInto"><span>readInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aead: proc readInto(ctx: var AeadContext; plaintext: var openArray[byte];
+         ciphertext, mac: openArray[byte]; ad: openArray[byte] = []): bool" href="nimcypher/algos/aead.html#readInto%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aead: proc readInto(ctx: var AeadContext; plaintext: var openArray[byte];
+         ciphertext, mac: openArray[byte]; ad: openArray[byte] = []): bool</a></li>
+          </ul></dd>
 <dt><a name="readOpaque16" href="#readOpaque16"><span>readOpaque16:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="codec: proc readOpaque16(r: var TlsReader): seq[byte]" href="nimcypher/tls/codec.html#readOpaque16%2CTlsReader">codec: proc readOpaque16(r: var TlsReader): seq[byte]</a></li>
@@ -4061,6 +4081,12 @@
 <li><a class="reference external"
           data-doc-search-tag="codec: proc writeByte(dst: var seq[byte]; v: byte)" href="nimcypher/tls/codec.html#writeByte%2Cseq%5Bbyte%5D%2Cbyte">codec: proc writeByte(dst: var seq[byte]; v: byte)</a></li>
           </ul></dd>
+<dt><a name="writeInto" href="#writeInto"><span>writeInto:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aead: proc writeInto(ctx: var AeadContext; ciphertext: var openArray[byte];
+          plaintext, ad: openArray[byte]): array[16, byte]" href="nimcypher/algos/aead.html#writeInto%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aead: proc writeInto(ctx: var AeadContext; ciphertext: var openArray[byte];
+          plaintext, ad: openArray[byte]): array[16, byte]</a></li>
+          </ul></dd>
 <dt><a name="writeOpaque16" href="#writeOpaque16"><span>writeOpaque16:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="codec: proc writeOpaque16(dst: var seq[byte]; data: openArray[byte])" href="nimcypher/tls/codec.html#writeOpaque16%2Cseq%5Bbyte%5D%2CopenArray%5Bbyte%5D">codec: proc writeOpaque16(dst: var seq[byte]; data: openArray[byte])</a></li>
@@ -4269,7 +4295,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-07 20:28:28 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-08 00:42:56 UTC</small>
       </div>
     </div>
   </div>

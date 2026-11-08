@@ -113,10 +113,22 @@
      ad: openArray[byte] = []): Option[seq[byte]]</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">readInto
+  <li><a class="reference" href="#readInto%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="readInto(ctx: var AeadContext; plaintext: var openArray[byte];
+         ciphertext, mac: openArray[byte]; ad: openArray[byte] = []): bool">readInto(ctx: var AeadContext; plaintext: var openArray[byte];
+         ciphertext, mac: openArray[byte]; ad: openArray[byte] = []): bool</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">write
   <li><a class="reference" href="#write%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="write(ctx: var AeadContext; plaintext, ad: openArray[byte]): (seq[byte],
     array[16, byte])">write(ctx: var AeadContext; plaintext, ad: openArray[byte]): (seq[byte],
     array[16, byte])</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">writeInto
+  <li><a class="reference" href="#writeInto%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D" title="writeInto(ctx: var AeadContext; ciphertext: var openArray[byte];
+          plaintext, ad: openArray[byte]): array[16, byte]">writeInto(ctx: var AeadContext; ciphertext: var openArray[byte];
+          plaintext, ad: openArray[byte]): array[16, byte]</a></li>
 
 </ul>
 
@@ -234,6 +246,19 @@
 </div>
 
 </div>
+<div id="readInto-procs-all">
+  <div id="readInto,AeadContext,openArray[byte],openArray[byte],openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#readInto%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">readInto</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#AeadContext"><span class="Identifier">AeadContext</span></a><span class="Other">;</span> <span class="Identifier">plaintext</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+              <span class="Identifier">ciphertext</span><span class="Other">,</span> <span class="Identifier">mac</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">ad</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span> <span class="Other">=</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">bool</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Authenticate and decrypt a chunk into a caller-provided buffer. <tt class="docutils literal"><span class="pre"><span class="Identifier">plaintext</span></span></tt> must be exactly <tt class="docutils literal"><span class="pre"><span class="Identifier">ciphertext</span><span class="Operator">.</span><span class="Identifier">len</span></span></tt> bytes and must not overlap <tt class="docutils literal"><span class="pre"><span class="Identifier">ciphertext</span></span></tt>. Returns true on MAC success (and rekeys the context); on failure returns false leaving <tt class="docutils literal"><span class="pre"><span class="Identifier">plaintext</span></span></tt> untouched and the context unadvanced. Zero heap allocation: pass reused fixed-size buffers across chunks for bounded-memory streaming.
+    
+  </dd>
+</div>
+
+</div>
 <div id="write-procs-all">
   <div id="write,AeadContext,openArray[byte],openArray[byte]">
   <dt><pre><span class="Keyword">proc</span> <a href="#write%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">write</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#AeadContext"><span class="Identifier">AeadContext</span></a><span class="Other">;</span> <span class="Identifier">plaintext</span><span class="Other">,</span> <span class="Identifier">ad</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Other">(</span><span class="Identifier">seq</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">,</span>
@@ -241,6 +266,19 @@
   <dd>
     
     Encrypt and authenticate a chunk of plaintext. Returns the ciphertext and a 16-byte MAC. Also rekeys the context for the next chunk.
+    
+  </dd>
+</div>
+
+</div>
+<div id="writeInto-procs-all">
+  <div id="writeInto,AeadContext,openArray[byte],openArray[byte],openArray[byte]">
+  <dt><pre><span class="Keyword">proc</span> <a href="#writeInto%2CAeadContext%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D"><span class="Identifier">writeInto</span></a><span class="Other">(</span><span class="Identifier">ctx</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#AeadContext"><span class="Identifier">AeadContext</span></a><span class="Other">;</span> <span class="Identifier">ciphertext</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">;</span>
+               <span class="Identifier">plaintext</span><span class="Other">,</span> <span class="Identifier">ad</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><span class="Identifier">byte</span><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="DecNumber">16</span><span class="Other">,</span> <span class="Identifier">byte</span><span class="Other">]</span> {.
+    <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Identifier">ValueError</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
+  <dd>
+    
+    Encrypt and authenticate a chunk into a caller-provided buffer. <tt class="docutils literal"><span class="pre"><span class="Identifier">ciphertext</span></span></tt> must be exactly <tt class="docutils literal"><span class="pre"><span class="Identifier">plaintext</span><span class="Operator">.</span><span class="Identifier">len</span></span></tt> bytes and must not overlap <tt class="docutils literal"><span class="pre"><span class="Identifier">plaintext</span></span></tt>. Returns the 16-byte MAC. Also rekeys the context for the next chunk. Zero heap allocation: pass reused fixed-size buffers across chunks for bounded-memory streaming.
     
   </dd>
 </div>
@@ -256,7 +294,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-07 20:28:28 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-08 00:42:56 UTC</small>
       </div>
     </div>
   </div>

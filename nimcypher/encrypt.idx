@@ -18,13 +18,15 @@ nim	aeadStreamInitDjb	nimcypher/encrypt.html#aeadStreamInitDjb,Key32,array[,uint
 nim	aeadStreamInitIetf	nimcypher/encrypt.html#aeadStreamInitIetf,Key32,array[,uint8]	proc aeadStreamInitIetf(key: Key32; nonce: array[12, uint8]): AeadStream		106
 nim	aeadStreamWrite	nimcypher/encrypt.html#aeadStreamWrite,AeadStream,openArray[byte],openArray[byte]	proc aeadStreamWrite(stream: var AeadStream; plainText: openArray[byte];\n                ad: openArray[byte] = []): (seq[uint8], Mac16)		111
 nim	aeadStreamRead	nimcypher/encrypt.html#aeadStreamRead,AeadStream,openArray[byte],Mac16,openArray[byte]	proc aeadStreamRead(stream: var AeadStream; cipherText: openArray[byte]; mac: Mac16;\n               ad: openArray[byte] = []): seq[byte]		116
-nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair,Key32	proc x25519KeyPair(secret: Key32): (Key32, Key32)		125
-nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair	proc x25519KeyPair(): (Key32, Key32)		129
-nim	sharedSecret	nimcypher/encrypt.html#sharedSecret,Key32,Key32	proc sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]		134
-nim	sharedSecretHashed	nimcypher/encrypt.html#sharedSecretHashed,Key32,Key32,openArray[byte]	proc sharedSecretHashed(mySecret: Key32; theirPublic: Key32;\n                   info: openArray[byte] = []): Secret[Key32]		141
-nim	computeChallengeMac	nimcypher/encrypt.html#computeChallengeMac,Key32,Mac16	proc computeChallengeMac(secret: Key32; challenge: Mac16): Mac16		152
-nim	verifyChallengeMac	nimcypher/encrypt.html#verifyChallengeMac,Key32,Mac16,Mac16	proc verifyChallengeMac(secret: Key32; challenge: Mac16; received: Mac16): bool		158
+nim	aeadStreamWriteInto	nimcypher/encrypt.html#aeadStreamWriteInto,AeadStream,openArray[byte],openArray[byte],openArray[byte]	proc aeadStreamWriteInto(stream: var AeadStream; cipherText: var openArray[byte];\n                    plainText: openArray[byte]; ad: openArray[byte] = []): Mac16		124
+nim	aeadStreamReadInto	nimcypher/encrypt.html#aeadStreamReadInto,AeadStream,openArray[byte],openArray[byte],Mac16,openArray[byte]	proc aeadStreamReadInto(stream: var AeadStream; plainText: var openArray[byte];\n                   cipherText: openArray[byte]; mac: Mac16;\n                   ad: openArray[byte] = []): bool		134
+nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair,Key32	proc x25519KeyPair(secret: Key32): (Key32, Key32)		146
+nim	x25519KeyPair	nimcypher/encrypt.html#x25519KeyPair	proc x25519KeyPair(): (Key32, Key32)		150
+nim	sharedSecret	nimcypher/encrypt.html#sharedSecret,Key32,Key32	proc sharedSecret(mySecret: Key32; theirPublic: Key32): Secret[Key32]		155
+nim	sharedSecretHashed	nimcypher/encrypt.html#sharedSecretHashed,Key32,Key32,openArray[byte]	proc sharedSecretHashed(mySecret: Key32; theirPublic: Key32;\n                   info: openArray[byte] = []): Secret[Key32]		162
+nim	computeChallengeMac	nimcypher/encrypt.html#computeChallengeMac,Key32,Mac16	proc computeChallengeMac(secret: Key32; challenge: Mac16): Mac16		173
+nim	verifyChallengeMac	nimcypher/encrypt.html#verifyChallengeMac,Key32,Mac16,Mac16	proc verifyChallengeMac(secret: Key32; challenge: Mac16; received: Mac16): bool		179
 nimgrp	seal	nimcypher/encrypt.html#seal-procs-all	proc		60
 nimgrp	encrypt	nimcypher/encrypt.html#encrypt-procs-all	proc		34
 nimgrp	decrypt	nimcypher/encrypt.html#decrypt-procs-all	proc		46
-nimgrp	x25519keypair	nimcypher/encrypt.html#x25519KeyPair-procs-all	proc		125
+nimgrp	x25519keypair	nimcypher/encrypt.html#x25519KeyPair-procs-all	proc		146
