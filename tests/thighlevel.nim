@@ -248,3 +248,39 @@ test "aes-gcm: streaming equals one-shot":
   var pt = gcmStreamUpdate(ds, ct)
   check gcmStreamVerify(ds, @tag)
   check pt == data
+
+
+test "encrypt: streaming AEAD into reused buffers":
+  let key = randomBytes[32]()
+  let nonce = randomBytes[24]()
+  # empty chunk first (zero-length slices need no buffer space)
+  var w0 = aeadStreamInitX(key, nonce)
+  var r0 = aeadStreamInitX(key, nonce)
+  var emptyOut = newSeq[byte](0)
+  let mac0 = aeadStreamWriteInto(w0, emptyOut, newSeq[byte](0))
+  var emptyBack = newSeq[byte](0)
+  check aeadStreamReadInto(r0, emptyBack, newSeq[byte](0), mac0)
+  # longer chunks through fixed reused buffers, incl. off-boundary lens
+  var writer = aeadStreamInitX(key, nonce)
+  var reader = aeadStreamInitX(key, nonce)
+  var ptBuf = newSeq[byte](65)
+  var ctBuf = newSeq[byte](65)
+  for chunk in [1, 8, 63, 64, 65]:
+    for j in 0 ..< chunk: ptBuf[j] = byte((chunk + j) and 0xFF)
+    let mac = aeadStreamWriteInto(writer, ctBuf.toOpenArray(0, chunk - 1),
+                                  ptBuf.toOpenArray(0, chunk - 1))
+    var ptBack = newSeq[byte](chunk)
+    check aeadStreamReadInto(reader, ptBack, ctBuf.toOpenArray(0, chunk - 1),
+                             mac)
+    check ptBack == ptBuf[0 ..< chunk]
+  # tamper fails closed, output untouched, ratchet unadvanced
+  for j in 0 ..< 8: ptBuf[j] = byte(j)
+  let mac = aeadStreamWriteInto(writer, ctBuf.toOpenArray(0, 7),
+                                ptBuf.toOpenArray(0, 7))
+  var tampered = ctBuf[0 ..< 8]
+  tampered[0] = tampered[0] xor 1
+  var outBuf = @[byte 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB]
+  check not aeadStreamReadInto(reader, outBuf, tampered, mac)
+  check outBuf == @[byte 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB]
+  check aeadStreamReadInto(reader, outBuf, ctBuf.toOpenArray(0, 7), mac)
+  check outBuf == @[byte 0, 1, 2, 3, 4, 5, 6, 7]

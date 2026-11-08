@@ -82,6 +82,32 @@ proc write*(ctx: var AeadContext, plaintext, ad: openArray[byte]):
     ctx.key[i] = authKey[32 + i]
   wipe(authKey)
 
+proc writeInto*(ctx: var AeadContext, ciphertext: var openArray[byte],
+               plaintext, ad: openArray[byte]): array[16, byte] =
+  ## Encrypt and authenticate a chunk into a caller-provided buffer.
+  ## `ciphertext` must be exactly `plaintext.len` bytes and must not
+  ## overlap `plaintext`. Returns the 16-byte MAC. Also rekeys the
+  ## context for the next chunk. Zero heap allocation: pass reused
+  ## fixed-size buffers across chunks for bounded-memory streaming.
+  if ciphertext.len != plaintext.len:
+    raise newException(ValueError,
+      "AEAD writeInto: output buffer size must equal input length")
+  var authKey: array[64, byte]
+  discard chacha20Djb(cast[BytePtr](unsafeAddr authKey[0]), nil, 64,
+                      ctx.key, ctx.nonce, ctx.counter)
+  var dp = if plaintext.len > 0: cast[BytePtr](unsafeAddr plaintext[0]) else: nil
+  var rp = if ciphertext.len > 0: cast[BytePtr](unsafeAddr ciphertext[0]) else: nil
+  discard chacha20Djb(rp, dp, plaintext.len, ctx.key, ctx.nonce,
+                      ctx.counter + 1)
+  var auth32: array[32, byte]
+  for i in 0 ..< 32:
+    auth32[i] = authKey[i]
+  result = lockAuth(auth32, ad, ciphertext)
+  # rekey
+  for i in 0 ..< 32:
+    ctx.key[i] = authKey[32 + i]
+  wipe(authKey)
+
 proc read*(ctx: var AeadContext, ciphertext, mac: openArray[byte],
            ad: openArray[byte] = []): Option[seq[byte]] =
   ## Authenticate and decrypt a chunk of ciphertext. Returns `some`
@@ -104,6 +130,36 @@ proc read*(ctx: var AeadContext, ciphertext, mac: openArray[byte],
     for i in 0 ..< 32:
       ctx.key[i] = authKey[32 + i]
     result = some(plain)
+  wipe(authKey)
+
+proc readInto*(ctx: var AeadContext, plaintext: var openArray[byte],
+              ciphertext, mac: openArray[byte],
+              ad: openArray[byte] = []): bool =
+  ## Authenticate and decrypt a chunk into a caller-provided buffer.
+  ## `plaintext` must be exactly `ciphertext.len` bytes and must not
+  ## overlap `ciphertext`. Returns true on MAC success (and rekeys the
+  ## context); on failure returns false leaving `plaintext` untouched
+  ## and the context unadvanced. Zero heap allocation: pass reused
+  ## fixed-size buffers across chunks for bounded-memory streaming.
+  if plaintext.len != ciphertext.len:
+    raise newException(ValueError,
+      "AEAD readInto: output buffer size must equal input length")
+  var authKey: array[64, byte]
+  discard chacha20Djb(cast[BytePtr](unsafeAddr authKey[0]), nil, 64,
+                      ctx.key, ctx.nonce, ctx.counter)
+  var auth32: array[32, byte]
+  for i in 0 ..< 32:
+    auth32[i] = authKey[i]
+  let realMac = lockAuth(auth32, ad, ciphertext)
+  if constantTimeEqual(mac, realMac):
+    var cp = if ciphertext.len > 0: cast[BytePtr](unsafeAddr ciphertext[0]) else: nil
+    var rp = if plaintext.len > 0: cast[BytePtr](unsafeAddr plaintext[0]) else: nil
+    discard chacha20Djb(rp, cp, ciphertext.len, ctx.key, ctx.nonce,
+                        ctx.counter + 1)
+    # rekey
+    for i in 0 ..< 32:
+      ctx.key[i] = authKey[32 + i]
+    result = true
   wipe(authKey)
 
 proc aeadLock*(key: array[32, byte], nonce: array[24, byte],

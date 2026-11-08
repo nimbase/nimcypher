@@ -82,3 +82,54 @@ test "aead streaming round-trip across chunks":
     check back.isSome
     check back.get == pt
   check cipher.len == plain.len
+
+test "aead writeInto/readInto match allocating variants":
+  var key: array[32, byte]
+  var nonce: array[24, byte]
+  for j in 0 ..< 32: key[j] = byte(j * 7 + 1)
+  for j in 0 ..< 24: nonce[j] = byte(j * 13 + 5)
+  for ln in [0, 1, 7, 63, 64, 65, 1000]:
+    var pt = newSeq[byte](ln)
+    for j in 0 ..< ln: pt[j] = byte((j * 31 + ln) and 0xFF)
+    let ad = @[byte(ln and 0xFF)]
+    # writeInto is byte-identical to write (fresh contexts each side)
+    var encA, encB: AeadContext
+    initX(encA, key, nonce)
+    initX(encB, key, nonce)
+    let (ctAlloc, macAlloc) = write(encA, pt, ad)
+    var ctBuf = newSeq[byte](ln)
+    let macBuf = writeInto(encB, ctBuf, pt, ad)
+    check ctBuf == ctAlloc
+    check macBuf == macAlloc
+    # readInto round-trips into a reused buffer
+    var dec: AeadContext
+    initX(dec, key, nonce)
+    var ptBuf = newSeq[byte](ln)
+    check readInto(dec, ptBuf, ctBuf, macBuf, ad)
+    check ptBuf == pt
+  # tampered cipher/mac fail closed without touching output or state
+  var enc: AeadContext
+  var dec: AeadContext
+  initX(enc, key, nonce)
+  initX(dec, key, nonce)
+  let pt = @[byte 10, 20, 30, 40, 50]
+  var ct = newSeq[byte](pt.len)
+  let mac = writeInto(enc, ct, pt, [])
+  var badCt = ct
+  badCt[2] = badCt[2] xor 1
+  var outBuf = @[byte 0xAA, 0xAA, 0xAA, 0xAA, 0xAA]
+  check not readInto(dec, outBuf, badCt, mac)
+  check outBuf == @[byte 0xAA, 0xAA, 0xAA, 0xAA, 0xAA]
+  var badMac = mac
+  badMac[0] = badMac[0] xor 1
+  check not readInto(dec, outBuf, ct, badMac)
+  # failure does not advance the ratchet: a good read still works
+  check readInto(dec, outBuf, ct, mac)
+  check outBuf == pt
+  # mismatched buffer sizes raise
+  var shortOut = newSeq[byte](pt.len - 1)
+  expect(ValueError):
+    discard writeInto(enc, shortOut, pt, [])
+  var longOut = newSeq[byte](pt.len + 1)
+  expect(ValueError):
+    discard readInto(dec, longOut, ct, mac)

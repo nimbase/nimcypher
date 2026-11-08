@@ -121,6 +121,27 @@ proc aeadStreamRead*(stream: var AeadStream, cipherText: openArray[byte],
     raise newException(ValueError, "AEAD stream decryption failed or MAC verification failed")
   result = plain.get
 
+proc aeadStreamWriteInto*(stream: var AeadStream,
+                          cipherText: var openArray[byte],
+                          plainText: openArray[byte],
+                          ad: openArray[byte] = []): Mac16 =
+  ## Chunk-encrypt into a caller-provided buffer (`cipherText` must be
+  ## exactly `plainText.len` bytes, no overlap). Returns the chunk MAC.
+  ## Same rekeying as `aeadStreamWrite`; outputs are byte-identical.
+  ## Zero heap allocation for fixed reused buffers.
+  aeadAlgo.writeInto(stream.ctx, cipherText, plainText, ad)
+
+proc aeadStreamReadInto*(stream: var AeadStream,
+                         plainText: var openArray[byte],
+                         cipherText: openArray[byte], mac: Mac16,
+                         ad: openArray[byte] = []): bool =
+  ## Chunk-decrypt into a caller-provided buffer (`plainText` must be
+  ## exactly `cipherText.len` bytes, no overlap). Returns true on MAC
+  ## success; on failure returns false leaving `plainText` untouched.
+  ## Same rekeying as `aeadStreamRead`; outputs are byte-identical.
+  ## Zero heap allocation for fixed reused buffers.
+  aeadAlgo.readInto(stream.ctx, plainText, cipherText, mac, ad)
+
 # X25519 key exchange
 proc x25519KeyPair*(secret: Key32): (Key32, Key32) =
   ## Generate an X25519 key pair from a secret. Returns (secret, publicKey).
