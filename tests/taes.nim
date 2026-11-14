@@ -230,6 +230,66 @@ suite "streaming == one-shot":
         off += take
       check back == data
 
+  test "cbc stream matches one-shot (encrypt and decrypt)":
+    for chunk in chunks:
+      let data = makeData(112) # multiple of 16 at every chunking
+      var se: AesCbcEncStream
+      initAesCbcEnc(se, hexToBytes(fips197Key128),
+                    toArray[16](hexToBytes(sp38aIv)))
+      var ct: seq[byte]
+      var off = 0
+      while off < data.len:
+        let take = min(chunk, data.len - off)
+        ct.add(aesCbcEncryptUpdate(se, data.toOpenArray(off, off + take - 1)))
+        off += take
+      check cbcEncPending(se) == 0
+      let whole = cbcEncryptOne(initAes(hexToBytes(fips197Key128)),
+                                toArray[16](hexToBytes(sp38aIv)), data)
+      check ct == whole
+      var sd: AesCbcDecStream
+      initAesCbcDec(sd, hexToBytes(fips197Key128),
+                    toArray[16](hexToBytes(sp38aIv)))
+      var back: seq[byte]
+      off = 0
+      while off < ct.len:
+        let take = min(chunk, ct.len - off)
+        back.add(aesCbcDecryptUpdate(sd, ct.toOpenArray(off, off + take - 1)))
+        off += take
+      check cbcDecPending(sd) == 0
+      check back == data
+
+  test "cbc stream buffers partial blocks across calls":
+    var se: AesCbcEncStream
+    initAesCbcEnc(se, hexToBytes(fips197Key128),
+                  toArray[16](hexToBytes(sp38aIv)))
+    let data = makeData(48)
+    check aesCbcEncryptUpdate(se, data.toOpenArray(0, 9)).len == 0
+    check cbcEncPending(se) == 10
+    check aesCbcEncryptUpdate(se, data.toOpenArray(10, 10)).len == 0
+    check cbcEncPending(se) == 11
+    let tail = aesCbcEncryptUpdate(se, data.toOpenArray(11, 47))
+    check cbcEncPending(se) == 0
+    let whole = cbcEncryptOne(initAes(hexToBytes(fips197Key128)),
+                              toArray[16](hexToBytes(sp38aIv)), data)
+    check tail.len == 48
+    check tail == whole
+    wipeAesCbcEnc(se)
+    var sd: AesCbcDecStream
+    initAesCbcDec(sd, hexToBytes(fips197Key128),
+                  toArray[16](hexToBytes(sp38aIv)))
+    check aesCbcDecryptUpdate(sd, whole.toOpenArray(0, 4)).len == 0
+    var back = aesCbcDecryptUpdate(sd, whole.toOpenArray(5, 47))
+    check back == data
+    wipeAesCbcDec(sd)
+
+  test "cbc stream empty input emits nothing":
+    var se: AesCbcEncStream
+    initAesCbcEnc(se, hexToBytes(fips197Key128),
+                  toArray[16](hexToBytes(sp38aIv)))
+    check aesCbcEncryptUpdate(se, newSeq[byte](0)).len == 0
+    check cbcEncPending(se) == 0
+    wipeAesCbcEnc(se)
+
 suite "PKCS#7 padding":
   test "pads and unpads":
     check pkcs7Pad(@[]).len == 16

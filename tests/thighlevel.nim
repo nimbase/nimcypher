@@ -249,6 +249,40 @@ test "aes-gcm: streaming equals one-shot":
   check gcmStreamVerify(ds, @tag)
   check pt == data
 
+test "aes-cbc: streaming equals one-shot at odd chunk sizes":
+  let key = randomBytes[32]()
+  let iv = randomBytes[16]()
+  var data = newSeq[byte](160)
+  for i in 0 ..< data.len:
+    data[i] = byte((i * 31 + 7) and 0xFF)
+  var st = cbcStreamInit(key, iv, true)
+  var ct = cbcStreamUpdate(st, data.toOpenArray(0, 8))
+  ct.add(cbcStreamUpdate(st, data.toOpenArray(9, 99)))
+  ct.add(cbcStreamUpdate(st, data.toOpenArray(100, 159)))
+  check cbcStreamPending(st) == 0
+  cbcStreamFinish(st)
+  check ct == aesCbcEncrypt(key, iv, data, false)
+  var ds = cbcStreamInit(key, iv, false)
+  var pt = cbcStreamUpdate(ds, ct.toOpenArray(0, 15))
+  pt.add(cbcStreamUpdate(ds, ct.toOpenArray(16, 159)))
+  check cbcStreamPending(ds) == 0
+  cbcStreamFinish(ds)
+  check pt == data
+
+test "aes-cbc: stream finish rejects partial input and reuse":
+  let key = randomBytes[32]()
+  let iv = randomBytes[16]()
+  var st = cbcStreamInit(key, iv, true)
+  discard cbcStreamUpdate(st, newSeq[byte](20))
+  check cbcStreamPending(st) == 4
+  expect ValueError:
+    cbcStreamFinish(st)
+  var ds = cbcStreamInit(key, iv, false)
+  discard cbcStreamUpdate(ds, newSeq[byte](16))
+  cbcStreamFinish(ds)
+  expect ValueError:
+    discard cbcStreamUpdate(ds, newSeq[byte](16))
+
 
 test "encrypt: streaming AEAD into reused buffers":
   let key = randomBytes[32]()

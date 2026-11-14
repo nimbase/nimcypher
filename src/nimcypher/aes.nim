@@ -253,3 +253,60 @@ proc gcmStreamVerify*(s: var AesGcmStream, tag: openArray[byte]): bool =
     raise newException(ValueError, "not a decryption stream")
   s.done = true
   gcmFinishDec(s.ctx, tag)
+
+# ---------------------------------------------------------------------------
+# Streaming CBC
+# ---------------------------------------------------------------------------
+
+type
+  AesCbcStream* = object
+    enc: aesAlgo.AesCbcEncStream
+    dec: aesAlgo.AesCbcDecStream
+    encrypting: bool
+    done: bool
+
+proc cbcStreamInit*(key: openArray[byte], iv: openArray[byte],
+                    encrypting: bool): AesCbcStream =
+  ## Initialize a streaming CBC context: one key schedule for the whole
+  ## stream. Feed arbitrary chunks; a trailing partial block is buffered.
+  ## `cbcStreamFinish` raises when the total input is not block-aligned.
+  checkKey(key)
+  result.encrypting = encrypting
+  if encrypting:
+    aesAlgo.initAesCbcEnc(result.enc, key, toArray16(iv))
+  else:
+    aesAlgo.initAesCbcDec(result.dec, key, toArray16(iv))
+
+proc cbcStreamUpdate*(s: var AesCbcStream, chunk: openArray[byte]): seq[byte] =
+  ## Process the next chunk. Decryption output must not be trusted until
+  ## the stream finishes cleanly (raw CBC carries no padding or MAC;
+  ## framing is the caller's concern, as with one-shot raw CBC).
+  if s.done:
+    raise newException(ValueError, "CBC stream already finished")
+  if s.encrypting:
+    result = aesAlgo.aesCbcEncryptUpdate(s.enc, chunk)
+  else:
+    result = aesAlgo.aesCbcDecryptUpdate(s.dec, chunk)
+
+proc cbcStreamPending*(s: AesCbcStream): int =
+  ## Buffered bytes (< 16) awaiting more input.
+  if s.encrypting:
+    result = aesAlgo.cbcEncPending(s.enc)
+  else:
+    result = aesAlgo.cbcDecPending(s.dec)
+
+proc cbcStreamFinish*(s: var AesCbcStream) =
+  ## Finish the stream: fail on non-block-aligned input, wipe key material.
+  if s.done:
+    raise newException(ValueError, "CBC stream already finished")
+  s.done = true
+  if s.encrypting:
+    if aesAlgo.cbcEncPending(s.enc) != 0:
+      aesAlgo.wipeAesCbcEnc(s.enc)
+      raise newException(ValueError, "AES-CBC input must be a multiple of 16")
+    aesAlgo.wipeAesCbcEnc(s.enc)
+  else:
+    if aesAlgo.cbcDecPending(s.dec) != 0:
+      aesAlgo.wipeAesCbcDec(s.dec)
+      raise newException(ValueError, "AES-CBC input must be a multiple of 16")
+    aesAlgo.wipeAesCbcDec(s.dec)

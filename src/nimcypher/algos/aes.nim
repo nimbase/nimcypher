@@ -1102,6 +1102,23 @@ type
     used: int
     ct: array[16, byte]
 
+  AesCbcEncStream* = object
+    ## Streaming AES-CBC encryption context. Buffers a trailing partial
+    ## block exactly like the CFB streams, so any chunking works; the
+    ## concatenated output equals the one-shot CBC encryption over the
+    ## concatenated input.
+    ctx: AesContext
+    prev: array[16, byte] # chaining value: IV, then last ciphertext block
+    buf: array[16, byte]  # buffered plaintext (< 16 bytes)
+    used: int
+
+  AesCbcDecStream* = object
+    ## Streaming AES-CBC decryption context (mirror of the above).
+    ctx: AesContext
+    prev: array[16, byte]
+    buf: array[16, byte]  # buffered ciphertext (< 16 bytes)
+    used: int
+
 proc initAesCtr*(ctx: var AesCtrStream, key: openArray[byte],
                  counterBlock: array[16, byte]) =
   ## Initialize a streaming AES-CTR context. The whole counter block is
@@ -1207,5 +1224,121 @@ proc aesCfbDecryptUpdate*(s: var AesCfbDecStream,
       s.ct[s.used + i] = c
     s.used += take
     di += take
+
+proc initAesCbcEnc*(s: var AesCbcEncStream, key: openArray[byte],
+                    iv: array[16, byte]) =
+  ## Initialize a streaming AES-CBC encryption context.
+  initAes(s.ctx, key)
+  s.prev = iv
+  s.used = 0
+  wipe(s.buf)
+
+proc initAesCbcDec*(s: var AesCbcDecStream, key: openArray[byte],
+                    iv: array[16, byte]) =
+  ## Initialize a streaming AES-CBC decryption context.
+  initAes(s.ctx, key)
+  s.prev = iv
+  s.used = 0
+  wipe(s.buf)
+
+proc cbcEncPending*(s: AesCbcEncStream): int {.inline.} =
+  ## Buffered plaintext bytes (< 16) awaiting more input.
+  s.used
+
+proc cbcDecPending*(s: AesCbcDecStream): int {.inline.} =
+  ## Buffered ciphertext bytes (< 16) awaiting more input.
+  s.used
+
+proc aesCbcEncryptUpdate*(s: var AesCbcEncStream,
+                          data: openArray[byte]): seq[byte] =
+  ## Encrypt the next chunk. Whole 16-byte blocks are emitted; a trailing
+  ## partial block is buffered for the next call.
+  result = newSeqUninit[byte](((s.used + data.len) div 16) * 16)
+  var roff = 0
+  var di = 0
+  if s.used > 0:
+    let take = min(16 - s.used, data.len)
+    if take > 0:
+      copyMem(addr s.buf[s.used], unsafeAddr data[0], take)
+    s.used += take
+    di += take
+    if s.used == 16:
+      var ob: array[16, byte]
+      for i in 0 ..< 16:
+        ob[i] = s.buf[i] xor s.prev[i]
+      encryptBlockRaw(s.ctx, cast[BytePtr](addr result[0]),
+                      cast[BytePtr](addr ob[0]))
+      copyMem(addr s.prev[0], addr result[0], 16)
+      roff += 16
+      s.used = 0
+      wipe(s.buf)
+      wipe(ob)
+  let full = ((data.len - di) div 16) * 16
+  var off = di
+  while off < di + full:
+    var ib: array[16, byte]
+    for i in 0 ..< 16:
+      ib[i] = data[off + i] xor s.prev[i]
+    encryptBlockRaw(s.ctx, cast[BytePtr](addr result[roff]),
+                    cast[BytePtr](addr ib[0]))
+    copyMem(addr s.prev[0], addr result[roff], 16)
+    wipe(ib)
+    off += 16
+    roff += 16
+  let rest = data.len - off
+  if rest > 0:
+    copyMem(addr s.buf[0], unsafeAddr data[off], rest)
+    s.used = rest
+
+proc aesCbcDecryptUpdate*(s: var AesCbcDecStream,
+                          data: openArray[byte]): seq[byte] =
+  ## Decrypt the next chunk. Whole 16-byte blocks are emitted; a trailing
+  ## partial block is buffered for the next call.
+  result = newSeqUninit[byte](((s.used + data.len) div 16) * 16)
+  var roff = 0
+  var di = 0
+  if s.used > 0:
+    let take = min(16 - s.used, data.len)
+    if take > 0:
+      copyMem(addr s.buf[s.used], unsafeAddr data[0], take)
+    s.used += take
+    di += take
+    if s.used == 16:
+      var ob: array[16, byte]
+      decryptBlockRaw(s.ctx, cast[BytePtr](addr ob[0]),
+                      cast[BytePtr](addr s.buf[0]))
+      for i in 0 ..< 16:
+        result[i] = ob[i] xor s.prev[i]
+      copyMem(addr s.prev[0], addr s.buf[0], 16)
+      roff += 16
+      s.used = 0
+      wipe(ob)
+  let full = ((data.len - di) div 16) * 16
+  if full > 0:
+    decryptBlocks(s.ctx, cast[BytePtr](addr result[roff]),
+                  cast[BytePtr](unsafeAddr data[di]), full shr 4)
+    for b in 0 ..< full shr 4:
+      let base = roff + (b shl 4)
+      for i in 0 ..< 16:
+        result[base + i] = result[base + i] xor s.prev[i]
+      copyMem(addr s.prev[0], unsafeAddr data[di + (b shl 4)], 16)
+  let rest = data.len - di - full
+  if rest > 0:
+    copyMem(addr s.buf[0], unsafeAddr data[di + full], rest)
+    s.used = rest
+
+proc wipeAesCbcEnc*(s: var AesCbcEncStream) =
+  ## Wipe key material and chaining state.
+  wipeAesContext(s.ctx)
+  wipe(s.prev)
+  wipe(s.buf)
+  s.used = 0
+
+proc wipeAesCbcDec*(s: var AesCbcDecStream) =
+  ## Wipe key material and chaining state.
+  wipeAesContext(s.ctx)
+  wipe(s.prev)
+  wipe(s.buf)
+  s.used = 0
 
 {.pop.}
