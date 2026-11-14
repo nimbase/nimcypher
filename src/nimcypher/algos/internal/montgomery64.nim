@@ -6,8 +6,8 @@
 # splitting it costs the same number of narrow multiplies, so there is no
 # portable speedup to be had. Hence this module is selected only when
 # `features.nimcypher.nimsimd` is defined on amd64, where MULX (BMI2) yields
-# lo+hi in one instruction through `nimsimd/bmi2` (works on GCC, Clang and
-# MSVC alike -- no raw asm in this tier). Other configurations keep the
+# lo+hi in one instruction through a locally declared intrinsic import
+# (works on GCC, Clang and MSVC alike -- no raw asm in this tier). Other configurations keep the
 # 32-bit default; a portable splitting fallback covers nimsimd builds on
 # non-amd64 for correctness until dedicated kernels land.
 #
@@ -24,7 +24,13 @@ import bigints
 when defined(features.nimcypher.nimsimd) and defined(amd64):
   when not defined(vcc):
     {.passC: "-mbmi2".}
-  import nimsimd/bmi2
+  # Local MULX import instead of `nimsimd/bmi2`: the out carries through
+  # `ptr culonglong` (`unsigned long long` on every ABI), matching GCC /
+  # Clang / MSVC `<immintrin.h>` exactly. `nimsimd` declares it as
+  # `ptr uint64` (`unsigned long` on LP64), which GCC 15 rejects as a
+  # hard incompatible-pointer-types error.
+  func mulxU64(a, b: uint64; hi: ptr culonglong): uint64
+    {.importc: "_mulx_u64", header: "immintrin.h".}
 
 {.push checks: off.}
 
@@ -71,7 +77,7 @@ when defined(features.nimcypher.nimdynasm) and defined(amd64):
 elif defined(features.nimcypher.nimsimd) and defined(amd64):
   proc mulWide(a, b: uint64, hi: var uint64): uint64 {.inline.} =
     ## Single MULX instruction (BMI2): no flags touched, best scheduling.
-    mulx_u64(a, b, addr hi)
+    mulxU64(a, b, cast[ptr culonglong](addr hi))
 else:
   proc mulWide(a, b: uint64, hi: var uint64): uint64 {.inline.} =
     mulWideSplit(a, b, hi)
