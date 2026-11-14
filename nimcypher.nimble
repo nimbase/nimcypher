@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.0"
+version       = "0.4.0"
 author        = "George Lemon"
 description   = "A pure-Nim port of Monocypher 4.0.3: a small, easy to use crypto library."
 license       = "BSD-2-Clause"
