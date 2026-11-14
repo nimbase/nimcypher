@@ -27,4 +27,9 @@ nim	gcmStreamInit	nimcypher/aes.html#gcmStreamInit,openArray[byte],openArray[byt
 nim	gcmStreamUpdate	nimcypher/aes.html#gcmStreamUpdate,AesGcmStream,openArray[byte]	proc gcmStreamUpdate(s: var AesGcmStream; chunk: openArray[byte]): seq[byte]		231
 nim	gcmStreamFinal	nimcypher/aes.html#gcmStreamFinal,AesGcmStream	proc gcmStreamFinal(s: var AesGcmStream): Tag16		242
 nim	gcmStreamVerify	nimcypher/aes.html#gcmStreamVerify,AesGcmStream,openArray[byte]	proc gcmStreamVerify(s: var AesGcmStream; tag: openArray[byte]): bool		249
+nim	AesCbcStream	nimcypher/aes.html#AesCbcStream	object AesCbcStream		262
+nim	cbcStreamInit	nimcypher/aes.html#cbcStreamInit,openArray[byte],openArray[byte],bool	proc cbcStreamInit(key: openArray[byte]; iv: openArray[byte]; encrypting: bool): AesCbcStream		268
+nim	cbcStreamUpdate	nimcypher/aes.html#cbcStreamUpdate,AesCbcStream,openArray[byte]	proc cbcStreamUpdate(s: var AesCbcStream; chunk: openArray[byte]): seq[byte]		280
+nim	cbcStreamPending	nimcypher/aes.html#cbcStreamPending,AesCbcStream	proc cbcStreamPending(s: AesCbcStream): int		291
+nim	cbcStreamFinish	nimcypher/aes.html#cbcStreamFinish,AesCbcStream	proc cbcStreamFinish(s: var AesCbcStream)		298
 nimgrp	gcmseal	nimcypher/aes.html#gcmSeal-procs-all	proc		177

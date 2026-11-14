@@ -41,12 +41,22 @@ nim	AesCtrStream	nimcypher/algos/aes.html#AesCtrStream	object AesCtrStream		1075
 nim	AesOfbStream	nimcypher/algos/aes.html#AesOfbStream	object AesOfbStream		1082
 nim	AesCfbEncStream	nimcypher/algos/aes.html#AesCfbEncStream	object AesCfbEncStream		1089
 nim	AesCfbDecStream	nimcypher/algos/aes.html#AesCfbDecStream	object AesCfbDecStream		1097
-nim	initAesCtr	nimcypher/algos/aes.html#initAesCtr,AesCtrStream,openArray[byte],array[,byte]	proc initAesCtr(ctx: var AesCtrStream; key: openArray[byte];\n           counterBlock: array[16, byte])		1105
-nim	initAesOfb	nimcypher/algos/aes.html#initAesOfb,AesOfbStream,openArray[byte],array[,byte]	proc initAesOfb(ctx: var AesOfbStream; key: openArray[byte]; iv: array[16, byte])		1114
-nim	initAesCfbEnc	nimcypher/algos/aes.html#initAesCfbEnc,AesCfbEncStream,openArray[byte],array[,byte]	proc initAesCfbEnc(ctx: var AesCfbEncStream; key: openArray[byte];\n              iv: array[16, byte])		1122
-nim	initAesCfbDec	nimcypher/algos/aes.html#initAesCfbDec,AesCfbDecStream,openArray[byte],array[,byte]	proc initAesCfbDec(ctx: var AesCfbDecStream; key: openArray[byte];\n              iv: array[16, byte])		1131
-nim	aesCtrUpdate	nimcypher/algos/aes.html#aesCtrUpdate,AesCtrStream,openArray[byte]	proc aesCtrUpdate(s: var AesCtrStream; data: openArray[byte]): seq[byte]		1140
-nim	aesOfbUpdate	nimcypher/algos/aes.html#aesOfbUpdate,AesOfbStream,openArray[byte]	proc aesOfbUpdate(s: var AesOfbStream; data: openArray[byte]): seq[byte]		1156
-nim	aesCfbEncryptUpdate	nimcypher/algos/aes.html#aesCfbEncryptUpdate,AesCfbEncStream,openArray[byte]	proc aesCfbEncryptUpdate(s: var AesCfbEncStream; data: openArray[byte]): seq[byte]		1172
-nim	aesCfbDecryptUpdate	nimcypher/algos/aes.html#aesCfbDecryptUpdate,AesCfbDecStream,openArray[byte]	proc aesCfbDecryptUpdate(s: var AesCfbDecStream; data: openArray[byte]): seq[byte]		1192
+nim	AesCbcEncStream	nimcypher/algos/aes.html#AesCbcEncStream	object AesCbcEncStream		1105
+nim	AesCbcDecStream	nimcypher/algos/aes.html#AesCbcDecStream	object AesCbcDecStream		1115
+nim	initAesCtr	nimcypher/algos/aes.html#initAesCtr,AesCtrStream,openArray[byte],array[,byte]	proc initAesCtr(ctx: var AesCtrStream; key: openArray[byte];\n           counterBlock: array[16, byte])		1122
+nim	initAesOfb	nimcypher/algos/aes.html#initAesOfb,AesOfbStream,openArray[byte],array[,byte]	proc initAesOfb(ctx: var AesOfbStream; key: openArray[byte]; iv: array[16, byte])		1131
+nim	initAesCfbEnc	nimcypher/algos/aes.html#initAesCfbEnc,AesCfbEncStream,openArray[byte],array[,byte]	proc initAesCfbEnc(ctx: var AesCfbEncStream; key: openArray[byte];\n              iv: array[16, byte])		1139
+nim	initAesCfbDec	nimcypher/algos/aes.html#initAesCfbDec,AesCfbDecStream,openArray[byte],array[,byte]	proc initAesCfbDec(ctx: var AesCfbDecStream; key: openArray[byte];\n              iv: array[16, byte])		1148
+nim	aesCtrUpdate	nimcypher/algos/aes.html#aesCtrUpdate,AesCtrStream,openArray[byte]	proc aesCtrUpdate(s: var AesCtrStream; data: openArray[byte]): seq[byte]		1157
+nim	aesOfbUpdate	nimcypher/algos/aes.html#aesOfbUpdate,AesOfbStream,openArray[byte]	proc aesOfbUpdate(s: var AesOfbStream; data: openArray[byte]): seq[byte]		1173
+nim	aesCfbEncryptUpdate	nimcypher/algos/aes.html#aesCfbEncryptUpdate,AesCfbEncStream,openArray[byte]	proc aesCfbEncryptUpdate(s: var AesCfbEncStream; data: openArray[byte]): seq[byte]		1189
+nim	aesCfbDecryptUpdate	nimcypher/algos/aes.html#aesCfbDecryptUpdate,AesCfbDecStream,openArray[byte]	proc aesCfbDecryptUpdate(s: var AesCfbDecStream; data: openArray[byte]): seq[byte]		1209
+nim	initAesCbcEnc	nimcypher/algos/aes.html#initAesCbcEnc,AesCbcEncStream,openArray[byte],array[,byte]	proc initAesCbcEnc(s: var AesCbcEncStream; key: openArray[byte]; iv: array[16, byte])		1228
+nim	initAesCbcDec	nimcypher/algos/aes.html#initAesCbcDec,AesCbcDecStream,openArray[byte],array[,byte]	proc initAesCbcDec(s: var AesCbcDecStream; key: openArray[byte]; iv: array[16, byte])		1236
+nim	cbcEncPending	nimcypher/algos/aes.html#cbcEncPending,AesCbcEncStream	proc cbcEncPending(s: AesCbcEncStream): int		1244
+nim	cbcDecPending	nimcypher/algos/aes.html#cbcDecPending,AesCbcDecStream	proc cbcDecPending(s: AesCbcDecStream): int		1248
+nim	aesCbcEncryptUpdate	nimcypher/algos/aes.html#aesCbcEncryptUpdate,AesCbcEncStream,openArray[byte]	proc aesCbcEncryptUpdate(s: var AesCbcEncStream; data: openArray[byte]): seq[byte]		1252
+nim	aesCbcDecryptUpdate	nimcypher/algos/aes.html#aesCbcDecryptUpdate,AesCbcDecStream,openArray[byte]	proc aesCbcDecryptUpdate(s: var AesCbcDecStream; data: openArray[byte]): seq[byte]		1293
+nim	wipeAesCbcEnc	nimcypher/algos/aes.html#wipeAesCbcEnc,AesCbcEncStream	proc wipeAesCbcEnc(s: var AesCbcEncStream)		1330
+nim	wipeAesCbcDec	nimcypher/algos/aes.html#wipeAesCbcDec,AesCbcDecStream	proc wipeAesCbcDec(s: var AesCbcDecStream)		1337
 nimgrp	initaes	nimcypher/algos/aes.html#initAes-procs-all	proc		577

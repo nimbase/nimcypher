@@ -205,11 +205,31 @@
               padded = true): seq[byte]" href="nimcypher/aes.html#aesCbcDecrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesCbcDecrypt(key: openArray[byte]; iv: openArray[byte]; data: openArray[byte];
               padded = true): seq[byte]</a></li>
           </ul></dd>
+<dt><a name="aesCbcDecryptUpdate" href="#aesCbcDecryptUpdate"><span>aesCbcDecryptUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCbcDecryptUpdate(s: var AesCbcDecStream; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#aesCbcDecryptUpdate%2CAesCbcDecStream%2CopenArray%5Bbyte%5D">aes: proc aesCbcDecryptUpdate(s: var AesCbcDecStream; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="AesCbcDecStream" href="#AesCbcDecStream"><span>AesCbcDecStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesCbcDecStream" href="nimcypher/algos/aes.html#AesCbcDecStream">aes: object AesCbcDecStream</a></li>
+          </ul></dd>
 <dt><a name="aesCbcEncrypt" href="#aesCbcEncrypt"><span>aesCbcEncrypt:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="aes: proc aesCbcEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte];
               padded = true): seq[byte]" href="nimcypher/aes.html#aesCbcEncrypt%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D">aes: proc aesCbcEncrypt(key: openArray[byte]; iv: openArray[byte]; text: openArray[byte];
               padded = true): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="aesCbcEncryptUpdate" href="#aesCbcEncryptUpdate"><span>aesCbcEncryptUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc aesCbcEncryptUpdate(s: var AesCbcEncStream; data: openArray[byte]): seq[byte]" href="nimcypher/algos/aes.html#aesCbcEncryptUpdate%2CAesCbcEncStream%2CopenArray%5Bbyte%5D">aes: proc aesCbcEncryptUpdate(s: var AesCbcEncStream; data: openArray[byte]): seq[byte]</a></li>
+          </ul></dd>
+<dt><a name="AesCbcEncStream" href="#AesCbcEncStream"><span>AesCbcEncStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesCbcEncStream" href="nimcypher/algos/aes.html#AesCbcEncStream">aes: object AesCbcEncStream</a></li>
+          </ul></dd>
+<dt><a name="AesCbcStream" href="#AesCbcStream"><span>AesCbcStream:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: object AesCbcStream" href="nimcypher/aes.html#AesCbcStream">aes: object AesCbcStream</a></li>
           </ul></dd>
 <dt><a name="aesCfbDecrypt" href="#aesCfbDecrypt"><span>aesCfbDecrypt:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -495,17 +515,41 @@
 <li><a class="reference external"
           data-doc-search-tag="common: type BytePtr" href="nimcypher/algos/common.html#BytePtr">common: type BytePtr</a></li>
           </ul></dd>
+<dt><a name="cbcDecPending" href="#cbcDecPending"><span>cbcDecPending:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcDecPending(s: AesCbcDecStream): int" href="nimcypher/algos/aes.html#cbcDecPending%2CAesCbcDecStream">aes: proc cbcDecPending(s: AesCbcDecStream): int</a></li>
+          </ul></dd>
 <dt><a name="cbcDecryptOne" href="#cbcDecryptOne"><span>cbcDecryptOne:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="aes: proc cbcDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
     byte]" href="nimcypher/algos/aes.html#cbcDecryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc cbcDecryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
     byte]</a></li>
           </ul></dd>
+<dt><a name="cbcEncPending" href="#cbcEncPending"><span>cbcEncPending:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcEncPending(s: AesCbcEncStream): int" href="nimcypher/algos/aes.html#cbcEncPending%2CAesCbcEncStream">aes: proc cbcEncPending(s: AesCbcEncStream): int</a></li>
+          </ul></dd>
 <dt><a name="cbcEncryptOne" href="#cbcEncryptOne"><span>cbcEncryptOne:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="aes: proc cbcEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
     byte]" href="nimcypher/algos/aes.html#cbcEncryptOne%2CAesContext%2Carray%5B%2Cbyte%5D%2CopenArray%5Bbyte%5D">aes: proc cbcEncryptOne(ctx: AesContext; iv: array[16, byte]; data: openArray[byte]): seq[
     byte]</a></li>
+          </ul></dd>
+<dt><a name="cbcStreamFinish" href="#cbcStreamFinish"><span>cbcStreamFinish:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcStreamFinish(s: var AesCbcStream)" href="nimcypher/aes.html#cbcStreamFinish%2CAesCbcStream">aes: proc cbcStreamFinish(s: var AesCbcStream)</a></li>
+          </ul></dd>
+<dt><a name="cbcStreamInit" href="#cbcStreamInit"><span>cbcStreamInit:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcStreamInit(key: openArray[byte]; iv: openArray[byte]; encrypting: bool): AesCbcStream" href="nimcypher/aes.html#cbcStreamInit%2CopenArray%5Bbyte%5D%2CopenArray%5Bbyte%5D%2Cbool">aes: proc cbcStreamInit(key: openArray[byte]; iv: openArray[byte]; encrypting: bool): AesCbcStream</a></li>
+          </ul></dd>
+<dt><a name="cbcStreamPending" href="#cbcStreamPending"><span>cbcStreamPending:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcStreamPending(s: AesCbcStream): int" href="nimcypher/aes.html#cbcStreamPending%2CAesCbcStream">aes: proc cbcStreamPending(s: AesCbcStream): int</a></li>
+          </ul></dd>
+<dt><a name="cbcStreamUpdate" href="#cbcStreamUpdate"><span>cbcStreamUpdate:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc cbcStreamUpdate(s: var AesCbcStream; chunk: openArray[byte]): seq[byte]" href="nimcypher/aes.html#cbcStreamUpdate%2CAesCbcStream%2CopenArray%5Bbyte%5D">aes: proc cbcStreamUpdate(s: var AesCbcStream; chunk: openArray[byte]): seq[byte]</a></li>
           </ul></dd>
 <dt><a name="Certificate" href="#Certificate"><span>Certificate:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -1852,6 +1896,14 @@
           data-doc-search-tag="aes: proc initAes(ctx: var AesContext; key: openArray[byte])" href="nimcypher/algos/aes.html#initAes%2CAesContext%2CopenArray%5Bbyte%5D">aes: proc initAes(ctx: var AesContext; key: openArray[byte])</a></li>
           <li><a class="reference external"
           data-doc-search-tag="aes: proc initAes(key: openArray[byte]): AesContext" href="nimcypher/algos/aes.html#initAes%2CopenArray%5Bbyte%5D">aes: proc initAes(key: openArray[byte]): AesContext</a></li>
+          </ul></dd>
+<dt><a name="initAesCbcDec" href="#initAesCbcDec"><span>initAesCbcDec:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc initAesCbcDec(s: var AesCbcDecStream; key: openArray[byte]; iv: array[16, byte])" href="nimcypher/algos/aes.html#initAesCbcDec%2CAesCbcDecStream%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc initAesCbcDec(s: var AesCbcDecStream; key: openArray[byte]; iv: array[16, byte])</a></li>
+          </ul></dd>
+<dt><a name="initAesCbcEnc" href="#initAesCbcEnc"><span>initAesCbcEnc:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc initAesCbcEnc(s: var AesCbcEncStream; key: openArray[byte]; iv: array[16, byte])" href="nimcypher/algos/aes.html#initAesCbcEnc%2CAesCbcEncStream%2CopenArray%5Bbyte%5D%2Carray%5B%2Cbyte%5D">aes: proc initAesCbcEnc(s: var AesCbcEncStream; key: openArray[byte]; iv: array[16, byte])</a></li>
           </ul></dd>
 <dt><a name="initAesCfbDec" href="#initAesCfbDec"><span>initAesCfbDec:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
@@ -4043,6 +4095,14 @@
           <li><a class="reference external"
           data-doc-search-tag="utils: proc wipe(secret: var openArray[byte])" href="nimcypher/utils.html#wipe%2CopenArray%5Bbyte%5D">utils: proc wipe(secret: var openArray[byte])</a></li>
           </ul></dd>
+<dt><a name="wipeAesCbcDec" href="#wipeAesCbcDec"><span>wipeAesCbcDec:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc wipeAesCbcDec(s: var AesCbcDecStream)" href="nimcypher/algos/aes.html#wipeAesCbcDec%2CAesCbcDecStream">aes: proc wipeAesCbcDec(s: var AesCbcDecStream)</a></li>
+          </ul></dd>
+<dt><a name="wipeAesCbcEnc" href="#wipeAesCbcEnc"><span>wipeAesCbcEnc:</span></a></dt><dd><ul class="simple">
+<li><a class="reference external"
+          data-doc-search-tag="aes: proc wipeAesCbcEnc(s: var AesCbcEncStream)" href="nimcypher/algos/aes.html#wipeAesCbcEnc%2CAesCbcEncStream">aes: proc wipeAesCbcEnc(s: var AesCbcEncStream)</a></li>
+          </ul></dd>
 <dt><a name="wipeAesContext" href="#wipeAesContext"><span>wipeAesContext:</span></a></dt><dd><ul class="simple">
 <li><a class="reference external"
           data-doc-search-tag="aes: proc wipeAesContext(ctx: var AesContext)" href="nimcypher/algos/aes.html#wipeAesContext%2CAesContext">aes: proc wipeAesContext(ctx: var AesContext)</a></li>
@@ -4295,7 +4355,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-08 01:08:55 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-11-14 17:06:28 UTC</small>
       </div>
     </div>
   </div>
