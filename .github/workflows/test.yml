@@ -97,7 +97,7 @@ jobs:
           fi
       - name: Install dependencies
         shell: bash
-        run: nimble install -Y --features:dynasm
+        run: nimble install -Y --features:nimdynasm
       - name: JIT differentials
         shell: bash
-        run: nimble test_jit --features:dynasm
+        run: nimble test_jit --features:nimdynasm
