@@ -15,7 +15,7 @@ differentials on the ARM CI runners (macos-15, ubuntu-24.04-arm).
 | JIT AES enc/dec/ctr batch-8 | yes | yes (2026-11-07) |
 | JIT GHASH / fused GCM | yes | no |
 | JIT ChaCha / Blake2b / MULX | yes | no |
-| JIT cpu detector | yes | no |
+| JIT cpu detector | yes | yes (ARMv8 Crypto gate, 2026-11-20) |
 
 On arm64 with `-d:features.nimcypher.nimdynasm`, bulk AES-GCM runs
 JIT AES (`encryptBlocks` dispatch + `ctrCrypt8Jit` fuse sites) with
@@ -49,8 +49,12 @@ non-AES `*_jit` suites skip on ARM.
 3. Blake2b JIT — needs 64-bit vector rotates; dynasm encoder work
    first (no vector shifts today).
 4. MULX equivalent — ARM `UMULH` is scalar and trivial; small.
-5. cpu detector — `getauxval(AT_HWCAP)` on Linux, always-true on
-   macOS; gates crypto kernels at runtime.
+5. cpu detector — DONE 2026-11-20: `cpuHasArmCrypto()` in
+   `internal/cpu_jit` (Linux `getauxval(AT_HWCAP) & HWCAP_AES`,
+   always-true on macOS, false elsewhere) plus a dynasm-assembled AESE
+   functional smoke test; wired as the single choke point in
+   `aesJitAvailable()`, with a gate-stability test in `taes_jit`.
+   Proven by `clue check --cpu:arm64`; execution proof pending ARM CI.
 
 ## Execution proof (2026-11-07)
 

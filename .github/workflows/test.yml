@@ -84,6 +84,17 @@ jobs:
               printf -- '--passC:"-arch arm64"\n--passL:"-arch arm64"\n' >> "$cfg"
             fi
           fi
+      - name: Require live OpenSSL interop (no silent skips)
+        shell: bash
+        run: |
+          # Same policy as the `test` job: the AEAD interop suite must fail
+          # loudly when no suitable libcrypto is found, never silently skip
+          # (this job runs natively on ARM runners, where the system
+          # LibreSSL has no AEAD ciphers and must be rejected).
+          echo "NIMCYPHER_REQUIRE_OPENSSL=1" >> "$GITHUB_ENV"
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            echo "$(brew --prefix)/opt/openssl@3/bin" >> "$GITHUB_PATH"
+          fi
       - name: Install dependencies
         shell: bash
         run: nimble install -Y

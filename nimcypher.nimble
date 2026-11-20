@@ -10,11 +10,6 @@ srcDir        = "src"
 
 requires "nim >= 2.2.10"
 requires "bigints >= 1.0.0"
-# JIT backend (replaces nimsimd). Resolved in develop mode to the local
-# dynasm checkout via clue.lock; all JIT code paths stay gated behind
-# `-d:features.nimcypher.nimdynasm` (off by default), so this does not
-# change default builds.
-requires "dynasm >= 0.1.0"
 
 # Optional SIMD acceleration (ChaCha20, AES-NI, PCLMULQDQ): activate with
 # `clue install --features:nimsimd --depsOnly` or from a consumer via
@@ -23,11 +18,13 @@ requires "dynasm >= 0.1.0"
 feature "nimsimd":
   requires "nimsimd"
 
-# Optional dynasm JIT backend (replaces nimsimd): compile with
-# `clue build --features:nimdynasm` (or `clue test --features:nimdynasm`).
-# dynasm resolves in develop mode (local checkout carrying the P0-P3
-# encoder sets) via clue.lock; keep `requires "dynasm >= 0.1.0"` above
-# in sync. All JIT code stays gated behind the define (off by default).
+# Optional dynasm JIT backend (amd64 bulk/fused kernels; AES also on
+# arm64): compile with `-d:features.nimcypher.nimdynasm`. dynasm resolves
+# in develop mode (local checkout carrying the P0-P3 encoder sets) via
+# clue.lock. All JIT code stays gated behind the define (off by default),
+# so this is the only place dynasm is required: default and nimsimd-only
+# builds never touch it (every `import dynasm` sits inside a `*_jit.nim`
+# module imported solely under this feature flag).
 feature "nimdynasm":
   requires "dynasm >= 0.1.0"
 

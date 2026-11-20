@@ -26,6 +26,9 @@ import dynasm
 import std/locks
 import std/atomics
 
+when defined(arm64):
+  import ./cpu_jit
+
 const aesJitBatch* = 8
 
 type
@@ -488,7 +491,12 @@ proc ensureAesJit() =
 
 proc aesJitAvailable*(): bool =
   ## True once all nine kernels assembled (false only if exec memory is
-  ## unavailable — caller falls back to simd/scalar).
+  ## unavailable — caller falls back to simd/scalar). On arm64 also
+  ## requires the ARMv8 Crypto Extensions (checked once, cached); without
+  ## them the kernels would fault, so the gate runs before any assembly.
+  when defined(arm64):
+    if not cpuHasArmCrypto():
+      return false
   try:
     ensureAesJit()
   except CatchableError:

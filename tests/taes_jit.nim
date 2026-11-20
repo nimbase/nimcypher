@@ -103,6 +103,33 @@ when defined(features.nimcypher.nimdynasm) and
                      0x00, 0x00, 0x00, 0x06]
       wipeAesContext(ctx2)
 
+  when defined(arm64):
+    import nimcypher/algos/internal/cpu_jit
+
+    test "arm crypto gate is stable and gates aes jit":
+      ## `cpuHasArmCrypto` is the single choke point for ARM JIT
+      ## execution: no crypto => `aesJitAvailable` must refuse too and
+      ## every dispatch site falls back to simd/scalar.
+      let g = cpuHasArmCrypto()
+      check g == cpuHasArmCrypto() # cached
+      if not g:
+        check not aesJitAvailable()
+      else:
+        var key: array[16, byte]
+        for i in 0 ..< 16:
+          key[i] = byte(i)
+        var ctx = initAes(key)
+        var pt: array[128, byte]
+        for i in 0 ..< 128:
+          pt[i] = byte(i * 7 + 1)
+        var ej, es: array[128, byte]
+        encryptBlocksJit(ctx.rounds, addr ctx.nrk[0],
+          cast[BytePtr](addr ej[0]), cast[BytePtr](addr pt[0]), 8)
+        encryptBlocksScalar(ctx,
+          cast[BytePtr](addr es[0]), cast[BytePtr](addr pt[0]), 8)
+        check ej == es
+        wipeAesContext(ctx)
+
   test "arm64 crypto word goldens":
     ## Every word the arm64 backend emits, pinned against
     ## `clang --target=aarch64` (`.arch armv8-a+crypto`). Pure
